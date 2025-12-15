@@ -49,4 +49,9 @@ public class NumberNode extends ExpressionNode {
     protected String getExtraInfo() {
         return String.format("(value: %d)", value);
     }
+
+    @Override
+    public String toValueString() {
+        return String.valueOf(value);
+    }
 }

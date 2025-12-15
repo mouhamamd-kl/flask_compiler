@@ -44,4 +44,9 @@ public class VariableNode extends ExpressionNode {
     protected String getExtraInfo() {
         return String.format("(name: %s)", name);
     }
+
+    @Override
+    public String toValueString() {
+        return name;
+    }
 }

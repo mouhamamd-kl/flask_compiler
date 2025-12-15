@@ -44,4 +44,9 @@ public class BooleanNode extends ExpressionNode {
     protected String getExtraInfo() {
         return String.format("(value: %s)", value ? "True" : "False");
     }
+
+    @Override
+    public String toValueString() {
+        return value ? "True" : "False";
+    }
 }

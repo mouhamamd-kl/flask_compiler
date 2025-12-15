@@ -1,10 +1,21 @@
 package antlr.ast.visitor;
 
-import antlr.ast.python.*;
-import antlr.ast.python.expressions.*;
-import antlr.ast.jinja2.*;
-import antlr.ast.html.*;
-import antlr.ast.css.*;
+import antlr.ast.css.StylesheetNode;
+import antlr.ast.html.HtmlDocumentNode;
+import antlr.ast.jinja2.TemplateNode;
+import antlr.ast.python.AssignmentNode;
+import antlr.ast.python.BlockNode;
+import antlr.ast.python.IfStatementNode;
+import antlr.ast.python.PrintNode;
+import antlr.ast.python.ProgramNode;
+import antlr.ast.python.expressions.BinaryOpNode;
+import antlr.ast.python.expressions.BooleanNode;
+import antlr.ast.python.expressions.ComparisonNode;
+import antlr.ast.python.expressions.ListNode;
+import antlr.ast.python.expressions.LogicalOpNode;
+import antlr.ast.python.expressions.NumberNode;
+import antlr.ast.python.expressions.UnaryOpNode;
+import antlr.ast.python.expressions.VariableNode;
 
 /**
  * واجهة الزائر (Visitor Interface)
@@ -29,7 +40,7 @@ public interface ASTVisitor<T> {
     T visit(NumberNode node);
     T visit(VariableNode node);
     T visit(BooleanNode node);
-
+    T visit(ListNode node);
     // ==================== Condition Nodes ====================
 
     T visit(ComparisonNode node);

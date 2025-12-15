@@ -12,12 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * باني الشجرة المجردة (AST Builder)
- * يحول Parse Tree إلى AST
+ * باني الشجرة المجردة (AST Builder) يحول Parse Tree إلى AST
  *
- * هذا هو الفرق الجوهري بين المفسر والمترجم:
- * - المفسر: يقيّم القيم مباشرة أثناء الزيارة
- * - المترجم: يبني شجرة من العقد للمعالجة لاحقاً
+ * هذا هو الفرق الجوهري بين المفسر والمترجم: - المفسر: يقيّم القيم مباشرة أثناء
+ * الزيارة - المترجم: يبني شجرة من العقد للمعالجة لاحقاً
  */
 public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
 
@@ -35,7 +33,6 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
     }
 
     // ==================== ROOT ====================
-
     @Override
     public ASTNode visitRoot(pythonParser.RootContext ctx) {
         int line = ctx.getStart() != null ? ctx.getStart().getLine() : 1;
@@ -52,7 +49,6 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
     }
 
     // ==================== STATEMENTS ====================
-
     @Override
     public ASTNode visitStatement(pythonParser.StatementContext ctx) {
         return visitChildren(ctx);
@@ -69,6 +65,7 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
 
         // إضافة المتغير إلى جدول الرموز
         Symbol symbol = new Symbol(varName, Symbol.SymbolType.VARIABLE, line, col);
+        symbol.setValue(valueNode.toValueString());
         currentScope.define(symbol);
 
         return new AssignmentNode(varName, valueNode, line, col);
@@ -85,7 +82,6 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
     }
 
     // ==================== IF STATEMENT ====================
-
     @Override
     public ASTNode visitIfStatement(pythonParser.IfStatementContext ctx) {
         int line = ctx.getStart().getLine();
@@ -126,8 +122,8 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
         }
 
         return new IfStatementNode(mainCondition, ifBlock,
-                                   elifConditions, elifBlocks,
-                                   elseBlock, line, col);
+                elifConditions, elifBlocks,
+                elseBlock, line, col);
     }
 
     @Override
@@ -148,7 +144,6 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
     }
 
     // ==================== CONDITIONS ====================
-
     @Override
     public ASTNode visitAndCondition(pythonParser.AndConditionContext ctx) {
         int line = ctx.getStart().getLine();
@@ -215,7 +210,6 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
     }
 
     // ==================== EXPRESSIONS ====================
-
     @Override
     public ASTNode visitParenExpr(pythonParser.ParenExprContext ctx) {
         return visit(ctx.expr());
@@ -240,8 +234,8 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
         ExpressionNode left = (ExpressionNode) visit(ctx.left);
         ExpressionNode right = (ExpressionNode) visit(ctx.right);
 
-        BinaryOpNode.Operator op = ctx.MUL() != null ?
-            BinaryOpNode.Operator.MUL : BinaryOpNode.Operator.DIV;
+        BinaryOpNode.Operator op = ctx.MUL() != null
+                ? BinaryOpNode.Operator.MUL : BinaryOpNode.Operator.DIV;
 
         return new BinaryOpNode(left, op, right, line, col);
     }
@@ -254,8 +248,8 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
         ExpressionNode left = (ExpressionNode) visit(ctx.left);
         ExpressionNode right = (ExpressionNode) visit(ctx.right);
 
-        BinaryOpNode.Operator op = ctx.PLUS() != null ?
-            BinaryOpNode.Operator.ADD : BinaryOpNode.Operator.SUB;
+        BinaryOpNode.Operator op = ctx.PLUS() != null
+                ? BinaryOpNode.Operator.ADD : BinaryOpNode.Operator.SUB;
 
         return new BinaryOpNode(left, op, right, line, col);
     }
@@ -278,5 +272,20 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
         String name = ctx.NAME().getText();
 
         return new VariableNode(name, line, col);
+    }
+
+    @Override
+    public ASTNode visitListExpr(pythonParser.ListExprContext  ctx) {  // ✅ visitLIST
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+
+        ListNode listNode = new ListNode(line, col);
+
+        // الوصول للعناصر عبر list()
+        for (pythonParser.ExprContext elem : ctx.list().expr()) {
+            listNode.addElement((ExpressionNode) visit(elem));  // ✅ addElement + visit
+        }
+
+        return listNode;  // ✅ return ListNode not VariableNode
     }
 }

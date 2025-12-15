@@ -54,6 +54,13 @@ ASSIGN: '=';
 COLON: ':';
 LPAREN: '(';
 RPAREN: ')';
+COMMA:',';
+LBRACK: '[';
+RBRACK: ']';
+LBRACE:'{';
+RBRACE:'}';
+
+
 
 // Identifiers (LAST!)
 NAME: [a-zA-Z_][a-zA-Z0-9_]*;

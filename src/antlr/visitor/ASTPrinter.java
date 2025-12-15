@@ -1,21 +1,33 @@
 package antlr.visitor;
 
+import java.util.List;
+
+import antlr.ast.css.StylesheetNode;
+import antlr.ast.html.HtmlDocumentNode;
+import antlr.ast.jinja2.TemplateNode;
 import antlr.ast.node.ASTNode;
+import antlr.ast.python.AssignmentNode;
+import antlr.ast.python.BlockNode;
+import antlr.ast.python.IfStatementNode;
+import antlr.ast.python.PrintNode;
+import antlr.ast.python.ProgramNode;
+import antlr.ast.python.StatementNode;
+import antlr.ast.python.expressions.BinaryOpNode;
+import antlr.ast.python.expressions.BooleanNode;
+import antlr.ast.python.expressions.ComparisonNode;
+import antlr.ast.python.expressions.ExpressionNode;
+import antlr.ast.python.expressions.ListNode;
+import antlr.ast.python.expressions.LogicalOpNode;
+import antlr.ast.python.expressions.NumberNode;
+import antlr.ast.python.expressions.UnaryOpNode;
+import antlr.ast.python.expressions.VariableNode;
 import antlr.ast.visitor.ASTVisitor;
-import antlr.ast.python.*;
-import antlr.ast.python.expressions.*;
-import antlr.ast.jinja2.*;
-import antlr.ast.html.*;
-import antlr.ast.css.*;
 
 /**
- * طابعة الشجرة المجردة (AST Printer)
- * تطبع الشجرة بشكل مقروء ومنسق
+ * طابعة الشجرة المجردة (AST Printer) تطبع الشجرة بشكل مقروء ومنسق
  *
- * المتطلبات المحققة:
- * - طباعة كل عقدة مع معلوماتها
- * - طباعة الأبناء بشكل متداخل
- * - طباعة مقروءة وواضحة
+ * المتطلبات المحققة: - طباعة كل عقدة مع معلوماتها - طباعة الأبناء بشكل متداخل -
+ * طباعة مقروءة وواضحة
  */
 public class ASTPrinter implements ASTVisitor<String> {
 
@@ -58,7 +70,6 @@ public class ASTPrinter implements ASTVisitor<String> {
     }
 
     // ==================== Python Nodes ====================
-
     @Override
     public String visit(ProgramNode node) {
         StringBuilder sb = new StringBuilder();
@@ -161,7 +172,6 @@ public class ASTPrinter implements ASTVisitor<String> {
     }
 
     // ==================== Expression Nodes ====================
-
     @Override
     public String visit(BinaryOpNode node) {
         StringBuilder sb = new StringBuilder();
@@ -235,8 +245,24 @@ public class ASTPrinter implements ASTVisitor<String> {
         return sb.toString();
     }
 
-    // ==================== Jinja2 Nodes (Placeholders) ====================
+    @Override
+    public String visit(ListNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(elements: " + node.getElements().size() + ")")).append("\n");
 
+        indentLevel++;
+        List<ExpressionNode> elements = node.getElements();  
+        for (int i = 0; i < elements.size(); i++) {
+            boolean isLast = (i == elements.size() - 1);
+            sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH); 
+            sb.append(elements.get(i).accept(this));  
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    // ==================== Jinja2 Nodes (Placeholders) ====================
     @Override
     public String visit(TemplateNode node) {
         return "TemplateNode [Not implemented yet]\n";
@@ -246,44 +272,35 @@ public class ASTPrinter implements ASTVisitor<String> {
     // public String visit(ExpressionBlockNode node) {
     //     return "ExpressionBlockNode [Not implemented yet]\n";
     // }
-
     // @Override
     // public String visit(StatementBlockNode node) {
     //     return "StatementBlockNode [Not implemented yet]\n";
     // }
-
     // @Override
     // public String visit(ForLoopNode node) {
     //     return "ForLoopNode [Not implemented yet]\n";
     // }
-
     // @Override
     // public String visit(JinjaIfNode node) {
     //     return "JinjaIfNode [Not implemented yet]\n";
     // }
-
     // @Override
     // public String visit(IncludeNode node) {
     //     return "IncludeNode [Not implemented yet]\n";
     // }
-
     // @Override
     // public String visit(ExtendsNode node) {
     //     return "ExtendsNode [Not implemented yet]\n";
     // }
-
     // @Override
     // public String visit(BlockDefinitionNode node) {
     //     return "BlockDefinitionNode [Not implemented yet]\n";
     // }
-
     // @Override
     // public String visit(RawTextNode node) {
     //     return "RawTextNode [Not implemented yet]\n";
     // }
-
     // ==================== HTML Nodes (Placeholders) ====================
-
     @Override
     public String visit(HtmlDocumentNode node) {
         return "HtmlDocumentNode [Not implemented yet]\n";
@@ -293,29 +310,23 @@ public class ASTPrinter implements ASTVisitor<String> {
     // public String visit(HtmlElementNode node) {
     //     return "HtmlElementNode [Not implemented yet]\n";
     // }
-
     // @Override
     // public String visit(HtmlAttributeNode node) {
     //     return "HtmlAttributeNode [Not implemented yet]\n";
     // }
-
     // @Override
     // public String visit(HtmlTextNode node) {
     //     return "HtmlTextNode [Not implemented yet]\n";
     // }
-
     // @Override
     // public String visit(HtmlCommentNode node) {
     //     return "HtmlCommentNode [Not implemented yet]\n";
     // }
-
     // @Override
     // public String visit(DoctypeNode node) {
     //     return "DoctypeNode [Not implemented yet]\n";
     // }
-
     // ==================== CSS Nodes (Placeholders) ====================
-
     @Override
     public String visit(StylesheetNode node) {
         return "StylesheetNode [Not implemented yet]\n";
@@ -325,17 +336,14 @@ public class ASTPrinter implements ASTVisitor<String> {
     // public String visit(CssRuleNode node) {
     //     return "CssRuleNode [Not implemented yet]\n";
     // }
-
     // @Override
     // public String visit(SelectorNode node) {
     //     return "SelectorNode [Not implemented yet]\n";
     // }
-
     // @Override
     // public String visit(DeclarationNode node) {
     //     return "DeclarationNode [Not implemented yet]\n";
     // }
-
     // @Override
     // public String visit(CssValueNode node) {
     //     return "CssValueNode [Not implemented yet]\n";

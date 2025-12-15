@@ -66,4 +66,9 @@ public class UnaryOpNode extends ExpressionNode {
     protected String getExtraInfo() {
         return String.format("(op: %s)", operator.getSymbol());
     }
+
+    @Override
+    public String toValueString() {
+        return operator.getSymbol() + " " + operand.toValueString();
+    }
 }

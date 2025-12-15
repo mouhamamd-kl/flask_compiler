@@ -52,13 +52,16 @@ comparisonOp
     : EQ | NEQ | LT | GT | LTE | GTE
     ;
 
-
+list
+    : lbrack=LBRACK (expr (COMMA expr)* trcomma=COMMA?)? rbrack=RBRACK
+    ;
 
 // Arithmetic expressions
 expr: LPAREN expr RPAREN                             #ParenExpr
     | <assoc=right> base=expr op=POW exp=expr        #EXPONENT_OP
     | left=expr op=(MUL|DIV) right=expr              #MUL_DIV_OP
     | left=expr op=(PLUS|SUB) right=expr             #SUM_SUB_OP
+    | list                                           #ListExpr
     | NUM                                            #NUM
     | NAME                                           #VAR
     ;

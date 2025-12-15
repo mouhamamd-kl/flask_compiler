@@ -168,6 +168,16 @@ public interface pythonParserListener extends ParseTreeListener {
 	 */
 	void exitComparisonOp(pythonParser.ComparisonOpContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link pythonParser#list}.
+	 * @param ctx the parse tree
+	 */
+	void enterList(pythonParser.ListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link pythonParser#list}.
+	 * @param ctx the parse tree
+	 */
+	void exitList(pythonParser.ListContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code MUL_DIV_OP}
 	 * labeled alternative in {@link pythonParser#expr}.
 	 * @param ctx the parse tree
@@ -227,6 +237,18 @@ public interface pythonParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitEXPONENT_OP(pythonParser.EXPONENT_OPContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ListExpr}
+	 * labeled alternative in {@link pythonParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterListExpr(pythonParser.ListExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ListExpr}
+	 * labeled alternative in {@link pythonParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitListExpr(pythonParser.ListExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ParenExpr}
 	 * labeled alternative in {@link pythonParser#expr}.
