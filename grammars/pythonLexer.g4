@@ -60,6 +60,10 @@ RBRACK: ']';
 LBRACE:'{';
 RBRACE:'}';
 
+STRING
+    : '"' ( ~["\\] | '\\' . )* '"'   // double-quoted strings
+    | '\'' ( ~['\\] | '\\' . )* '\'' // single-quoted strings
+    ;
 
 
 // Identifiers (LAST!)

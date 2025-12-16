@@ -112,6 +112,18 @@ public interface pythonParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitList(pythonParser.ListContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link pythonParser#dict}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDict(pythonParser.DictContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link pythonParser#dictEntry}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDictEntry(pythonParser.DictEntryContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code MUL_DIV_OP}
 	 * labeled alternative in {@link pythonParser#expr}.
 	 * @param ctx the parse tree
@@ -146,6 +158,20 @@ public interface pythonParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitEXPONENT_OP(pythonParser.EXPONENT_OPContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code DICTIONARY}
+	 * labeled alternative in {@link pythonParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDICTIONARY(pythonParser.DICTIONARYContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code STRING_LITERAL}
+	 * labeled alternative in {@link pythonParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSTRING_LITERAL(pythonParser.STRING_LITERALContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code ListExpr}
 	 * labeled alternative in {@link pythonParser#expr}.

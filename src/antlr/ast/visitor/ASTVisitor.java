@@ -11,12 +11,14 @@ import antlr.ast.python.ProgramNode;
 import antlr.ast.python.expressions.BinaryOpNode;
 import antlr.ast.python.expressions.BooleanNode;
 import antlr.ast.python.expressions.ComparisonNode;
+import antlr.ast.python.expressions.DictEntryNode;
+import antlr.ast.python.expressions.DictNode;
 import antlr.ast.python.expressions.ListNode;
 import antlr.ast.python.expressions.LogicalOpNode;
 import antlr.ast.python.expressions.NumberNode;
+import antlr.ast.python.expressions.StringNode;
 import antlr.ast.python.expressions.UnaryOpNode;
 import antlr.ast.python.expressions.VariableNode;
-
 /**
  * واجهة الزائر (Visitor Interface)
  * تطبيق نمط Visitor Pattern للتعامل مع الشجرة
@@ -41,6 +43,10 @@ public interface ASTVisitor<T> {
     T visit(VariableNode node);
     T visit(BooleanNode node);
     T visit(ListNode node);
+    T visit(StringNode node);
+    T visit(DictNode node);
+    T visit(DictEntryNode node);
+
     // ==================== Condition Nodes ====================
 
     T visit(ComparisonNode node);

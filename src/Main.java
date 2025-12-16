@@ -91,6 +91,19 @@ import java.nio.file.Paths;
  */
 public class Main {
 
+    // ==================== ANSI Colors (Custom Palette) ====================
+    public static final String RESET = "\u001B[0m";
+    public static final String BOLD = "\u001B[1m";
+
+    // Custom palette: 222831, 393E46, 00ADB5, EEEEEE
+    public static final String DARK = "\u001B[38;2;8;217;214m";       // 08D9D6 - Bright cyan
+    public static final String GRAY = "\u001B[38;2;255;46;99m";      // FF2E63 - Pink/red accent
+    public static final String TEAL = "\u001B[38;2;0;173;181m";      // 00ADB5 - Primary accent
+    public static final String LIGHT = "\u001B[38;2;238;238;238m";   // EEEEEE - Main text
+
+    // Keep RED for errors
+    public static final String RED = "\u001B[31m";
+
     public static void main(String[] args) {
         String testsDir = "tests";
 
@@ -121,33 +134,35 @@ public class Main {
     public static void compile(Path filePath) {
         try {
             String fileName = filePath.getFileName().toString();
-            System.out.println("\n" + "═".repeat(70));
-            System.out.println("  COMPILING: " + fileName);
-            System.out.println("═".repeat(70));
+
+            // Header with colors
+            System.out.println("\n" + TEAL + "═".repeat(70) + RESET);
+            System.out.println(TEAL + "  " + BOLD + "COMPILING: " + LIGHT + fileName + RESET);
+            System.out.println(TEAL + "═".repeat(70) + RESET);
 
             String sourceCode = Files.readString(filePath);
-            
+
             // عرض الكود المصدري
-            System.out.println("\n📄 Source Code:");
-            System.out.println("─".repeat(40));
-            System.out.println(sourceCode);
-            System.out.println("─".repeat(40));
-            
+            System.out.println("\n" + TEAL + "📄 Source Code:" + RESET);
+            System.out.println(GRAY + "─".repeat(40) + RESET);
+            System.out.println(LIGHT + sourceCode + RESET);
+            System.out.println(GRAY + "─".repeat(40) + RESET);
+
             // بدء الترجمة
             CompilationResult result = compileSource(sourceCode);
-            
+
             // عرض النتائج
             if (result.success) {
-                System.out.println("\n✅ Compilation successful!");
+                System.out.println("\n" + TEAL + "✅ Compilation successful!" + RESET);
             } else {
-                System.out.println("\n❌ Compilation failed!");
+                System.out.println("\n" + RED + "❌ Compilation failed!" + RESET);
                 for (String error : result.errors) {
-                    System.out.println("   Error: " + error);
+                    System.out.println(RED + "   Error: " + error + RESET);
                 }
             }
 
         } catch (IOException e) {
-            System.err.println("Error reading file: " + filePath + " - " + e.getMessage());
+            System.err.println(RED + "Error reading file: " + filePath + " - " + e.getMessage() + RESET);
         }
     }
 
@@ -159,59 +174,59 @@ public class Main {
         
         try {
             // ==================== Phase 1: Lexical Analysis ====================
-            System.out.println("\n🔍 Phase 1: Lexical Analysis...");
+            System.out.println("\n" + TEAL + "🔍 Phase 1: " + LIGHT + "Lexical Analysis..." + RESET);
             CharStream input = CharStreams.fromString(sourceCode);
             pythonLexer lexer = new pythonLexer(input);
-            
+
             // جمع الأخطاء المعجمية
             lexer.removeErrorListeners();
             lexer.addErrorListener(new CompilerErrorListener(result));
-            
+
             CommonTokenStream tokens = new CommonTokenStream(lexer);
-            
+
             // عرض الـ Tokens
             tokens.fill();
-            System.out.println("\n   Tokens:");
+            System.out.println("\n" + TEAL + "   Tokens:" + RESET);
             for (Token token : tokens.getTokens()) {
                 if (token.getType() != Token.EOF) {
                     String tokenName = pythonLexer.VOCABULARY.getSymbolicName(token.getType());
-                    System.out.printf("   [%-15s] '%s' (Line %d, Col %d)%n",
-                        tokenName, 
-                        token.getText().replace("\n", "\\n"),
+                    System.out.printf("   " + LIGHT + "[%-15s]" + RESET + " " + TEAL + "'%s'" + RESET + " " + GRAY + "(Line %d, Col %d)" + RESET + "%n",
+                        tokenName,
+                        token.getText().replace("\n", "newline"),
                         token.getLine(),
                         token.getCharPositionInLine());
                 }
             }
-            
+
             // ==================== Phase 2: Syntax Analysis ====================
-            System.out.println("\n🔍 Phase 2: Syntax Analysis (Parsing)...");
+            System.out.println("\n" + TEAL + "🔍 Phase 2: " + LIGHT + "Syntax Analysis (Parsing)..." + RESET);
             pythonParser parser = new pythonParser(tokens);
-            
+
             // جمع الأخطاء النحوية
             parser.removeErrorListeners();
             parser.addErrorListener(new CompilerErrorListener(result));
-            
+
             ParseTree parseTree = parser.root();
-            
+
             if (!result.errors.isEmpty()) {
                 result.success = false;
                 return result;
             }
-            
+
             // ==================== Phase 3: AST Building ====================
-            System.out.println("\n🔍 Phase 3: Building AST...");
+            System.out.println("\n" + TEAL + "🔍 Phase 3: " + LIGHT + "Building AST..." + RESET);
             ASTBuilder builder = new ASTBuilder();
             ASTNode ast = builder.visit(parseTree);
             result.ast = ast;
             result.symbolTable = builder.getSymbolTable();
-            
+
             // ==================== Phase 4: Print AST ====================
-            System.out.println("\n🌳 Abstract Syntax Tree:");
+            System.out.println("\n" + TEAL + "🌳 Abstract Syntax Tree:" + RESET);
             ASTPrinter printer = new ASTPrinter();
             printer.print(ast);
-            
+
             // ==================== Phase 5: Symbol Table ====================
-            System.out.println("\n📋 Symbol Table:");
+            System.out.println("\n" + TEAL + "📋 Symbol Table:" + RESET);
             result.symbolTable.printAll();
             
             result.success = true;

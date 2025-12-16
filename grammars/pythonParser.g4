@@ -56,12 +56,16 @@ list
     : lbrack=LBRACK (expr (COMMA expr)* trcomma=COMMA?)? rbrack=RBRACK
     ;
 
+dict: LBRACE (dictEntry (COMMA dictEntry)* COMMA?)? RBRACE;
+dictEntry: key=expr COLON value=expr;
 // Arithmetic expressions
 expr: LPAREN expr RPAREN                             #ParenExpr
     | <assoc=right> base=expr op=POW exp=expr        #EXPONENT_OP
     | left=expr op=(MUL|DIV) right=expr              #MUL_DIV_OP
     | left=expr op=(PLUS|SUB) right=expr             #SUM_SUB_OP
     | list                                           #ListExpr
+    | STRING                                         #STRING_LITERAL
+    | dict                                           #DICTIONARY
     | NUM                                            #NUM
     | NAME                                           #VAR
     ;

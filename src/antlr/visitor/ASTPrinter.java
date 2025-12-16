@@ -15,10 +15,13 @@ import antlr.ast.python.StatementNode;
 import antlr.ast.python.expressions.BinaryOpNode;
 import antlr.ast.python.expressions.BooleanNode;
 import antlr.ast.python.expressions.ComparisonNode;
+import antlr.ast.python.expressions.DictEntryNode;
+import antlr.ast.python.expressions.DictNode;
 import antlr.ast.python.expressions.ExpressionNode;
 import antlr.ast.python.expressions.ListNode;
 import antlr.ast.python.expressions.LogicalOpNode;
 import antlr.ast.python.expressions.NumberNode;
+import antlr.ast.python.expressions.StringNode;
 import antlr.ast.python.expressions.UnaryOpNode;
 import antlr.ast.python.expressions.VariableNode;
 import antlr.ast.visitor.ASTVisitor;
@@ -31,20 +34,31 @@ import antlr.ast.visitor.ASTVisitor;
  */
 public class ASTPrinter implements ASTVisitor<String> {
 
+    // ==================== ANSI Colors (Custom Palette) ====================
+    public static final String RESET = "\u001B[0m";
+    public static final String BOLD = "\u001B[1m";
+    public static final String DIM = "\u001B[2m";
+
+    // Custom palette: 222831, 393E46, 00ADB5, EEEEEE
+    public static final String DARK = "\u001B[38;2;8;217;214m";       // 08D9D6 - Bright cyan
+    public static final String GRAY = "\u001B[38;2;255;46;99m";      // FF2E63 - Pink/red accent
+    public static final String TEAL = "\u001B[38;2;0;173;181m";      // 00ADB5 - Primary accent
+    public static final String LIGHT = "\u001B[38;2;238;238;238m";   // EEEEEE - Main text
+
     private int indentLevel = 0;
     private final String INDENT = "  ";
-    private final String BRANCH = "├── ";
-    private final String LAST_BRANCH = "└── ";
-    private final String VERTICAL = "│   ";
+    private final String BRANCH = GRAY + "├── " + RESET;
+    private final String LAST_BRANCH = GRAY + "└── " + RESET;
+    private final String VERTICAL = GRAY + "│   " + RESET;
     private final String SPACE = "    ";
 
     /**
      * طباعة الشجرة
      */
     public void print(ASTNode node) {
-        System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
-        System.out.println("║                   Abstract Syntax Tree (AST)                  ║");
-        System.out.println("╚══════════════════════════════════════════════════════════════╝\n");
+        System.out.println("\n" + TEAL + "╔══════════════════════════════════════════════════════════════╗" + RESET);
+        System.out.println(TEAL + "║" + RESET + BOLD + LIGHT + "                   Abstract Syntax Tree (AST)                  " + RESET + TEAL + "║" + RESET);
+        System.out.println(TEAL + "╚══════════════════════════════════════════════════════════════╝" + RESET + "\n");
         System.out.println(node.accept(this));
     }
 
@@ -60,11 +74,11 @@ public class ASTPrinter implements ASTVisitor<String> {
      */
     private String nodeInfo(ASTNode node, String extra) {
         StringBuilder sb = new StringBuilder();
-        sb.append(node.getNodeName());
-        sb.append(" [Line: ").append(node.getLineNumber());
-        sb.append(", Col: ").append(node.getColumnNumber()).append("]");
+        sb.append(TEAL).append(BOLD).append(node.getNodeName()).append(RESET);
+        sb.append(GRAY).append(" [Line: ").append(node.getLineNumber());
+        sb.append(", Col: ").append(node.getColumnNumber()).append("]").append(RESET);
         if (extra != null && !extra.isEmpty()) {
-            sb.append(" ").append(extra);
+            sb.append(" ").append(LIGHT).append(extra).append(RESET);
         }
         return sb.toString();
     }
@@ -112,7 +126,7 @@ public class ASTPrinter implements ASTVisitor<String> {
         sb.append(nodeInfo(node, "(var: " + node.getVariableName() + ")")).append("\n");
 
         indentLevel++;
-        sb.append(indent()).append(LAST_BRANCH).append("Value: ");
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Value: ").append(RESET);
         sb.append(node.getValue().accept(this));
         indentLevel--;
 
@@ -125,7 +139,7 @@ public class ASTPrinter implements ASTVisitor<String> {
         sb.append(nodeInfo(node, "")).append("\n");
 
         indentLevel++;
-        sb.append(indent()).append(LAST_BRANCH).append("Expression: ");
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Expression: ").append(RESET);
         sb.append(node.getExpression().accept(this));
         indentLevel--;
 
@@ -140,29 +154,29 @@ public class ASTPrinter implements ASTVisitor<String> {
         indentLevel++;
 
         // Condition
-        sb.append(indent()).append(BRANCH).append("Condition: ");
+        sb.append(indent()).append(BRANCH).append(TEAL).append("Condition: ").append(RESET);
         sb.append(node.getCondition().accept(this));
 
         // If block
-        sb.append(indent()).append(BRANCH).append("Then: ");
+        sb.append(indent()).append(BRANCH).append(TEAL).append("Then: ").append(RESET);
         sb.append(node.getIfBlock().accept(this));
 
         // Elif blocks
         var elifConditions = node.getElifConditions();
         var elifBlocks = node.getElifBlocks();
         for (int i = 0; i < elifConditions.size(); i++) {
-            sb.append(indent()).append(BRANCH).append("Elif ").append(i + 1).append(":\n");
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Elif ").append(i + 1).append(":").append(RESET).append("\n");
             indentLevel++;
-            sb.append(indent()).append(BRANCH).append("Condition: ");
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Condition: ").append(RESET);
             sb.append(elifConditions.get(i).accept(this));
-            sb.append(indent()).append(LAST_BRANCH).append("Block: ");
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Block: ").append(RESET);
             sb.append(elifBlocks.get(i).accept(this));
             indentLevel--;
         }
 
         // Else block
         if (node.hasElse()) {
-            sb.append(indent()).append(LAST_BRANCH).append("Else: ");
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Else: ").append(RESET);
             sb.append(node.getElseBlock().accept(this));
         }
 
@@ -178,9 +192,9 @@ public class ASTPrinter implements ASTVisitor<String> {
         sb.append(nodeInfo(node, "(op: " + node.getOperator().getSymbol() + ")")).append("\n");
 
         indentLevel++;
-        sb.append(indent()).append(BRANCH).append("Left: ");
+        sb.append(indent()).append(BRANCH).append(TEAL).append("Left: ").append(RESET);
         sb.append(node.getLeft().accept(this));
-        sb.append(indent()).append(LAST_BRANCH).append("Right: ");
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Right: ").append(RESET);
         sb.append(node.getRight().accept(this));
         indentLevel--;
 
@@ -193,7 +207,7 @@ public class ASTPrinter implements ASTVisitor<String> {
         sb.append(nodeInfo(node, "(op: " + node.getOperator().getSymbol() + ")")).append("\n");
 
         indentLevel++;
-        sb.append(indent()).append(LAST_BRANCH).append("Operand: ");
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Operand: ").append(RESET);
         sb.append(node.getOperand().accept(this));
         indentLevel--;
 
@@ -221,9 +235,9 @@ public class ASTPrinter implements ASTVisitor<String> {
         sb.append(nodeInfo(node, "(op: " + node.getOperator().getSymbol() + ")")).append("\n");
 
         indentLevel++;
-        sb.append(indent()).append(BRANCH).append("Left: ");
+        sb.append(indent()).append(BRANCH).append(TEAL).append("Left: ").append(RESET);
         sb.append(node.getLeft().accept(this));
-        sb.append(indent()).append(LAST_BRANCH).append("Right: ");
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Right: ").append(RESET);
         sb.append(node.getRight().accept(this));
         indentLevel--;
 
@@ -236,9 +250,9 @@ public class ASTPrinter implements ASTVisitor<String> {
         sb.append(nodeInfo(node, "(op: " + node.getOperator().getSymbol() + ")")).append("\n");
 
         indentLevel++;
-        sb.append(indent()).append(BRANCH).append("Left: ");
+        sb.append(indent()).append(BRANCH).append(TEAL).append("Left: ").append(RESET);
         sb.append(node.getLeft().accept(this));
-        sb.append(indent()).append(LAST_BRANCH).append("Right: ");
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Right: ").append(RESET);
         sb.append(node.getRight().accept(this));
         indentLevel--;
 
@@ -251,14 +265,42 @@ public class ASTPrinter implements ASTVisitor<String> {
         sb.append(nodeInfo(node, "(elements: " + node.getElements().size() + ")")).append("\n");
 
         indentLevel++;
-        List<ExpressionNode> elements = node.getElements();  
+        List<ExpressionNode> elements = node.getElements();
         for (int i = 0; i < elements.size(); i++) {
             boolean isLast = (i == elements.size() - 1);
-            sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH); 
-            sb.append(elements.get(i).accept(this));  
+            sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+            sb.append(elements.get(i).accept(this));
         }
         indentLevel--;
 
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(StringNode node) {
+        return nodeInfo(node, "(value: " + node.getValue() + ")") + "\n";
+    }
+
+    @Override
+    public String visit(DictEntryNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(TEAL).append("Key: ").append(RESET).append(node.getKey().accept(this));
+        sb.append(indent()).append(SPACE).append(TEAL).append("Value: ").append(RESET).append(node.getValue().accept(this));
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(DictNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(elements: " + node.getElements().size() + ")")).append("\n");
+        indentLevel++;
+        List<DictEntryNode> elements = node.getElements();
+        for (int i = 0; i < elements.size(); i++) {
+            boolean isLast = (i == elements.size() - 1);
+            sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+            sb.append(elements.get(i).accept(this));
+        }
+        indentLevel--;
         return sb.toString();
     }
 

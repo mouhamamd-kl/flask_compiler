@@ -1,5 +1,7 @@
 package antlr.visitor;
 
+import java.beans.Expression;
+
 import antlr.pythonParser;
 import antlr.pythonParserBaseVisitor;
 import antlr.ast.node.ASTNode;
@@ -275,7 +277,7 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
     }
 
     @Override
-    public ASTNode visitListExpr(pythonParser.ListExprContext  ctx) {  // ✅ visitLIST
+    public ASTNode visitListExpr(pythonParser.ListExprContext ctx) {  // ✅ visitLIST
         int line = ctx.getStart().getLine();
         int col = ctx.getStart().getCharPositionInLine();
 
@@ -287,5 +289,46 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
         }
 
         return listNode;  // ✅ return ListNode not VariableNode
+    }
+
+    @Override
+    public ASTNode visitSTRING_LITERAL(pythonParser.STRING_LITERALContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        StringNode stringNode = new StringNode(ctx.STRING().getText(), line, col);
+        return stringNode;
+    }
+
+    @Override
+    public ASTNode visitDictEntry(pythonParser.DictEntryContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+
+        DictEntryNode dictEntryNodeNode = new DictEntryNode(line, col);
+        ExpressionNode keyExpression = (ExpressionNode) visit(ctx.key);
+        ExpressionNode valueExpression = (ExpressionNode) visit(ctx.value);
+        dictEntryNodeNode.addKey(keyExpression);
+        dictEntryNodeNode.addValue(valueExpression);
+        return dictEntryNodeNode;
+    }
+
+    @Override
+    public ASTNode visitDict(pythonParser.DictContext ctx) {  // ✅ visitLIST
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+
+        DictNode dictNode = new DictNode(line, col);
+
+        // الوصول للعناصر عبر list()
+        for (pythonParser.DictEntryContext elem : ctx.dictEntry()) {
+            dictNode.addElement((DictEntryNode) visit(elem));  // ✅ addElement + visit
+        }
+
+        return dictNode;  // ✅ return ListNode not VariableNode
+    }
+
+    @Override
+    public ASTNode visitDICTIONARY(pythonParser.DICTIONARYContext ctx) {
+        return visit(ctx.dict());  // delegates to visitDict
     }
 }

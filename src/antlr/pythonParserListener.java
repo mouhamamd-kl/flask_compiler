@@ -178,6 +178,26 @@ public interface pythonParserListener extends ParseTreeListener {
 	 */
 	void exitList(pythonParser.ListContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link pythonParser#dict}.
+	 * @param ctx the parse tree
+	 */
+	void enterDict(pythonParser.DictContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link pythonParser#dict}.
+	 * @param ctx the parse tree
+	 */
+	void exitDict(pythonParser.DictContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link pythonParser#dictEntry}.
+	 * @param ctx the parse tree
+	 */
+	void enterDictEntry(pythonParser.DictEntryContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link pythonParser#dictEntry}.
+	 * @param ctx the parse tree
+	 */
+	void exitDictEntry(pythonParser.DictEntryContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code MUL_DIV_OP}
 	 * labeled alternative in {@link pythonParser#expr}.
 	 * @param ctx the parse tree
@@ -237,6 +257,30 @@ public interface pythonParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitEXPONENT_OP(pythonParser.EXPONENT_OPContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code DICTIONARY}
+	 * labeled alternative in {@link pythonParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterDICTIONARY(pythonParser.DICTIONARYContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code DICTIONARY}
+	 * labeled alternative in {@link pythonParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitDICTIONARY(pythonParser.DICTIONARYContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code STRING_LITERAL}
+	 * labeled alternative in {@link pythonParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterSTRING_LITERAL(pythonParser.STRING_LITERALContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code STRING_LITERAL}
+	 * labeled alternative in {@link pythonParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitSTRING_LITERAL(pythonParser.STRING_LITERALContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ListExpr}
 	 * labeled alternative in {@link pythonParser#expr}.
