@@ -1,4 +1,4 @@
-// Generated from c:/Users/HP/IdeaProjects/antlr_course/grammars/pythonParser.g4 by ANTLR 4.13.1
+// Generated from C:/Users/HP/IdeaProjects/antlr_course/grammars/pythonParser.g4 by ANTLR 4.13.2
 
    package antlr.gen.python;
 
@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.ArrayList;
 
-@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
+@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue", "this-escape"})
 public class pythonParser extends Parser {
-	static { RuntimeMetaData.checkVersion("4.13.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.13.2", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -139,6 +139,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_root; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterRoot(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitRoot(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitRoot(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RootContext root() throws RecognitionException {
@@ -223,6 +236,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(ContinueStatementContext.class,0);
 		}
 		public ContinueStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterContinueStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitContinueStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitContinueStmt(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class IfStmtContext extends StatementContext {
@@ -230,6 +256,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(IfStatementContext.class,0);
 		}
 		public IfStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterIfStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitIfStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitIfStmt(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class ClassDefStatementContext extends StatementContext {
@@ -237,6 +276,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(ClassDefinitionContext.class,0);
 		}
 		public ClassDefStatementContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterClassDefStatement(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitClassDefStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitClassDefStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class WhileStmtContext extends StatementContext {
@@ -244,6 +296,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(WhileStatementContext.class,0);
 		}
 		public WhileStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterWhileStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitWhileStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitWhileStmt(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class BreakStmtContext extends StatementContext {
@@ -251,6 +316,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(BreakStatementContext.class,0);
 		}
 		public BreakStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterBreakStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitBreakStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitBreakStmt(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class FunctionDefStatementContext extends StatementContext {
@@ -258,6 +336,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(FunctionDefContext.class,0);
 		}
 		public FunctionDefStatementContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterFunctionDefStatement(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitFunctionDefStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitFunctionDefStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class PrintStatementContext extends StatementContext {
@@ -265,6 +356,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(PrintActionContext.class,0);
 		}
 		public PrintStatementContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterPrintStatement(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitPrintStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitPrintStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class ExprStatementContext extends StatementContext {
@@ -272,6 +376,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(ExprContext.class,0);
 		}
 		public ExprStatementContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterExprStatement(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitExprStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitExprStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class ImportStatementContext extends StatementContext {
@@ -279,6 +396,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(ImportHeaderContext.class,0);
 		}
 		public ImportStatementContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterImportStatement(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitImportStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitImportStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class AssignStatementContext extends StatementContext {
@@ -286,6 +416,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(AssignmentContext.class,0);
 		}
 		public AssignStatementContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterAssignStatement(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitAssignStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitAssignStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class ReturnStmtContext extends StatementContext {
@@ -293,6 +436,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(ReturnStatementContext.class,0);
 		}
 		public ReturnStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterReturnStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitReturnStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitReturnStmt(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class ForStmtContext extends StatementContext {
@@ -300,6 +456,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(ForStatementContext.class,0);
 		}
 		public ForStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterForStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitForStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitForStmt(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final StatementContext statement() throws RecognitionException {
@@ -428,6 +597,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_returnStatement; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterReturnStatement(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitReturnStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitReturnStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ReturnStatementContext returnStatement() throws RecognitionException {
@@ -481,6 +663,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_importHeader; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterImportHeader(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitImportHeader(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitImportHeader(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ImportHeaderContext importHeader() throws RecognitionException {
@@ -534,6 +729,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_importedClasses; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterImportedClasses(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitImportedClasses(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitImportedClasses(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ImportedClassesContext importedClasses() throws RecognitionException {
@@ -572,6 +780,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_assignment; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterAssignment(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitAssignment(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitAssignment(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AssignmentContext assignment() throws RecognitionException {
@@ -611,6 +832,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_printAction; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterPrintAction(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitPrintAction(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitPrintAction(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PrintActionContext printAction() throws RecognitionException {
@@ -656,6 +890,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_block; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterBlock(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitBlock(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitBlock(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final BlockContext block() throws RecognitionException {
@@ -742,6 +989,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_ifStatement; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterIfStatement(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitIfStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitIfStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IfStatementContext ifStatement() throws RecognitionException {
@@ -838,6 +1098,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_forStatement; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterForStatement(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitForStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitForStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ForStatementContext forStatement() throws RecognitionException {
@@ -891,6 +1164,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_whileStatement; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterWhileStatement(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitWhileStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitWhileStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final WhileStatementContext whileStatement() throws RecognitionException {
@@ -931,6 +1217,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_breakStatement; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterBreakStatement(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitBreakStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitBreakStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final BreakStatementContext breakStatement() throws RecognitionException {
@@ -961,6 +1260,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_continueStatement; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterContinueStatement(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitContinueStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitContinueStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ContinueStatementContext continueStatement() throws RecognitionException {
@@ -1003,6 +1315,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(ConditionContext.class,0);
 		}
 		public NotConditionContext(ConditionContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterNotCondition(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitNotCondition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitNotCondition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class ParenConditionContext extends ConditionContext {
@@ -1012,11 +1337,37 @@ public class pythonParser extends Parser {
 		}
 		public TerminalNode RPAREN() { return getToken(pythonParser.RPAREN, 0); }
 		public ParenConditionContext(ConditionContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterParenCondition(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitParenCondition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitParenCondition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class FalseConditionContext extends ConditionContext {
 		public TerminalNode FALSE() { return getToken(pythonParser.FALSE, 0); }
 		public FalseConditionContext(ConditionContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterFalseCondition(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitFalseCondition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitFalseCondition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class CompareConditionContext extends ConditionContext {
@@ -1033,11 +1384,37 @@ public class pythonParser extends Parser {
 			return getRuleContext(ComparisonOpContext.class,0);
 		}
 		public CompareConditionContext(ConditionContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterCompareCondition(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitCompareCondition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitCompareCondition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class TrueConditionContext extends ConditionContext {
 		public TerminalNode TRUE() { return getToken(pythonParser.TRUE, 0); }
 		public TrueConditionContext(ConditionContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterTrueCondition(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitTrueCondition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitTrueCondition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class OrConditionContext extends ConditionContext {
@@ -1052,6 +1429,19 @@ public class pythonParser extends Parser {
 		}
 		public TerminalNode OR() { return getToken(pythonParser.OR, 0); }
 		public OrConditionContext(ConditionContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterOrCondition(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitOrCondition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitOrCondition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class AndConditionContext extends ConditionContext {
@@ -1066,6 +1456,19 @@ public class pythonParser extends Parser {
 		}
 		public TerminalNode AND() { return getToken(pythonParser.AND, 0); }
 		public AndConditionContext(ConditionContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterAndCondition(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitAndCondition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitAndCondition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ConditionContext condition() throws RecognitionException {
@@ -1213,6 +1616,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_comparisonOp; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterComparisonOp(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitComparisonOp(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitComparisonOp(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ComparisonOpContext comparisonOp() throws RecognitionException {
@@ -1256,6 +1672,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_decorator; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterDecorator(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitDecorator(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitDecorator(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DecoratorContext decorator() throws RecognitionException {
@@ -1304,6 +1733,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_classDefinition; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterClassDefinition(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitClassDefinition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitClassDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ClassDefinitionContext classDefinition() throws RecognitionException {
@@ -1378,6 +1820,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_functionDef; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterFunctionDef(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitFunctionDef(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitFunctionDef(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FunctionDefContext functionDef() throws RecognitionException {
@@ -1458,6 +1913,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_params; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterParams(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitParams(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitParams(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ParamsContext params() throws RecognitionException {
@@ -1528,6 +1996,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_regularParams; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterRegularParams(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitRegularParams(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitRegularParams(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RegularParamsContext regularParams() throws RecognitionException {
@@ -1580,6 +2061,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_starParam; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterStarParam(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitStarParam(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitStarParam(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final StarParamContext starParam() throws RecognitionException {
@@ -1632,6 +2126,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_kwOnlyParams; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterKwOnlyParams(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitKwOnlyParams(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitKwOnlyParams(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final KwOnlyParamsContext kwOnlyParams() throws RecognitionException {
@@ -1686,6 +2193,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_kwargsParam; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterKwargsParam(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitKwargsParam(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitKwargsParam(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final KwargsParamContext kwargsParam() throws RecognitionException {
@@ -1726,6 +2246,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_kwParam; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterKwParam(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitKwParam(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitKwParam(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final KwParamContext kwParam() throws RecognitionException {
@@ -1787,6 +2320,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_list; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterList(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitList(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitList(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ListContext list() throws RecognitionException {
@@ -1946,6 +2492,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_dict; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterDict(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitDict(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitDict(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DictContext dict() throws RecognitionException {
@@ -2098,6 +2657,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_dictEntry; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterDictEntry(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitDictEntry(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitDictEntry(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DictEntryContext dictEntry() throws RecognitionException {
@@ -2150,6 +2722,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_listComprehension; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterListComprehension(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitListComprehension(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitListComprehension(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ListComprehensionContext listComprehension() throws RecognitionException {
@@ -2211,6 +2796,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_argument; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterArgument(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitArgument(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitArgument(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ArgumentContext argument() throws RecognitionException {
@@ -2255,6 +2853,19 @@ public class pythonParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expr; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitExpr(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ExprContext expr() throws RecognitionException {
@@ -2296,6 +2907,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(MultiplicativeExprContext.class,0);
 		}
 		public AdditivePassThroughContext(AdditiveExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterAdditivePassThrough(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitAdditivePassThrough(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitAdditivePassThrough(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class SUM_SUB_OPContext extends AdditiveExprContext {
@@ -2311,6 +2935,19 @@ public class pythonParser extends Parser {
 		}
 		public TerminalNode SUB() { return getToken(pythonParser.SUB, 0); }
 		public SUM_SUB_OPContext(AdditiveExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterSUM_SUB_OP(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitSUM_SUB_OP(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitSUM_SUB_OP(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AdditiveExprContext additiveExpr() throws RecognitionException {
@@ -2420,6 +3057,19 @@ public class pythonParser extends Parser {
 		}
 		public TerminalNode DIV() { return getToken(pythonParser.DIV, 0); }
 		public MUL_DIV_OPContext(MultiplicativeExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterMUL_DIV_OP(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitMUL_DIV_OP(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitMUL_DIV_OP(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class MultiplicativePassThroughContext extends MultiplicativeExprContext {
@@ -2427,6 +3077,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(PowerExprContext.class,0);
 		}
 		public MultiplicativePassThroughContext(MultiplicativeExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterMultiplicativePassThrough(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitMultiplicativePassThrough(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitMultiplicativePassThrough(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final MultiplicativeExprContext multiplicativeExpr() throws RecognitionException {
@@ -2528,6 +3191,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(PostfixExprContext.class,0);
 		}
 		public PowerPassThroughContext(PowerExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterPowerPassThrough(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitPowerPassThrough(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitPowerPassThrough(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class EXPONENT_OPContext extends PowerExprContext {
@@ -2542,6 +3218,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(PowerExprContext.class,0);
 		}
 		public EXPONENT_OPContext(PowerExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterEXPONENT_OP(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitEXPONENT_OP(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitEXPONENT_OP(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PowerExprContext powerExpr() throws RecognitionException {
@@ -2615,6 +3304,19 @@ public class pythonParser extends Parser {
 			return getToken(pythonParser.COMMA, i);
 		}
 		public CallExprContext(PostfixExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterCallExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitCallExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitCallExpr(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class DotAccessExprContext extends PostfixExprContext {
@@ -2626,6 +3328,19 @@ public class pythonParser extends Parser {
 		}
 		public TerminalNode NAME() { return getToken(pythonParser.NAME, 0); }
 		public DotAccessExprContext(PostfixExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterDotAccessExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitDotAccessExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitDotAccessExpr(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class INDEX_ACCESSContext extends PostfixExprContext {
@@ -2640,6 +3355,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(ExprContext.class,0);
 		}
 		public INDEX_ACCESSContext(PostfixExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterINDEX_ACCESS(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitINDEX_ACCESS(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitINDEX_ACCESS(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class PostfixPassThroughContext extends PostfixExprContext {
@@ -2647,6 +3375,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(PrimaryExprContext.class,0);
 		}
 		public PostfixPassThroughContext(PostfixExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterPostfixPassThrough(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitPostfixPassThrough(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitPostfixPassThrough(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PostfixExprContext postfixExpr() throws RecognitionException {
@@ -2788,11 +3529,37 @@ public class pythonParser extends Parser {
 	public static class TrueLiteralContext extends PrimaryExprContext {
 		public TerminalNode TRUE() { return getToken(pythonParser.TRUE, 0); }
 		public TrueLiteralContext(PrimaryExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterTrueLiteral(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitTrueLiteral(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitTrueLiteral(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class VARContext extends PrimaryExprContext {
 		public TerminalNode NAME() { return getToken(pythonParser.NAME, 0); }
 		public VARContext(PrimaryExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterVAR(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitVAR(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitVAR(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class NUMContext extends PrimaryExprContext {
@@ -2801,6 +3568,19 @@ public class pythonParser extends Parser {
 		public TerminalNode NUM() { return getToken(pythonParser.NUM, 0); }
 		public TerminalNode DOUBLE() { return getToken(pythonParser.DOUBLE, 0); }
 		public NUMContext(PrimaryExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterNUM(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitNUM(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitNUM(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class DICTIONARYContext extends PrimaryExprContext {
@@ -2808,16 +3588,55 @@ public class pythonParser extends Parser {
 			return getRuleContext(DictContext.class,0);
 		}
 		public DICTIONARYContext(PrimaryExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterDICTIONARY(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitDICTIONARY(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitDICTIONARY(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class STRING_LITERALContext extends PrimaryExprContext {
 		public TerminalNode STRING() { return getToken(pythonParser.STRING, 0); }
 		public STRING_LITERALContext(PrimaryExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterSTRING_LITERAL(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitSTRING_LITERAL(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitSTRING_LITERAL(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class NoneLiteralContext extends PrimaryExprContext {
 		public TerminalNode NONE() { return getToken(pythonParser.NONE, 0); }
 		public NoneLiteralContext(PrimaryExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterNoneLiteral(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitNoneLiteral(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitNoneLiteral(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class ListCompExprContext extends PrimaryExprContext {
@@ -2825,6 +3644,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(ListComprehensionContext.class,0);
 		}
 		public ListCompExprContext(PrimaryExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterListCompExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitListCompExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitListCompExpr(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class ListExprContext extends PrimaryExprContext {
@@ -2832,6 +3664,19 @@ public class pythonParser extends Parser {
 			return getRuleContext(ListContext.class,0);
 		}
 		public ListExprContext(PrimaryExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterListExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitListExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitListExpr(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class ParenExprContext extends PrimaryExprContext {
@@ -2841,11 +3686,37 @@ public class pythonParser extends Parser {
 		}
 		public TerminalNode RPAREN() { return getToken(pythonParser.RPAREN, 0); }
 		public ParenExprContext(PrimaryExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterParenExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitParenExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitParenExpr(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class FalseLiteralContext extends PrimaryExprContext {
 		public TerminalNode FALSE() { return getToken(pythonParser.FALSE, 0); }
 		public FalseLiteralContext(PrimaryExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).enterFalseLiteral(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof pythonParserListener ) ((pythonParserListener)listener).exitFalseLiteral(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof pythonParserVisitor ) return ((pythonParserVisitor<? extends T>)visitor).visitFalseLiteral(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PrimaryExprContext primaryExpr() throws RecognitionException {

@@ -1,4 +1,4 @@
-// Generated from c:/Users/HP/IdeaProjects/antlr_course/grammars/pythonLexer.g4 by ANTLR 4.13.1
+// Generated from C:/Users/HP/IdeaProjects/antlr_course/grammars/pythonLexer.g4 by ANTLR 4.13.2
 
    package antlr.gen.python;
    import com.yuvalshavit.antlr4.DenterHelper;
@@ -14,7 +14,7 @@ import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue", "this-escape"})
 public class pythonLexer extends Lexer {
-	static { RuntimeMetaData.checkVersion("4.13.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.13.2", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =

@@ -1,6 +1,7 @@
 package com.yuvalshavit.antlr4;
 
-import antlr.pythonLexer;
+import antlr.gen.python.pythonLexer;
+
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 
