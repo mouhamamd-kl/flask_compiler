@@ -1,25 +1,27 @@
-package antlr.ast.python.expressions;
+package antlr.ast.python.expressions.access;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import antlr.ast.node.ASTNode;
+import antlr.ast.python.expressions.ExpressionNode;
 import antlr.ast.visitor.ASTVisitor;
 
 /**
  * عقدة المتغير (Variable Reference) تمثل استخدام متغير في تعبير
  */
-public class DictEntryNode extends ExpressionNode {
+public class KeywordArgumentNode extends ExpressionNode {
 
-    private ExpressionNode key;
+    private String name;
     private ExpressionNode value;
 
-    public DictEntryNode(int lineNumber, int columnNumber) {
-        super("DictEntry", lineNumber, columnNumber);  // ✅ List not Variable
+    public KeywordArgumentNode(int lineNumber, int columnNumber) {
+        super("Keyword_Argument", lineNumber, columnNumber);  // ✅ List not Variable
     }
 
     // Getter
-    public ExpressionNode getKey() {
-        return key;
+    public String getName() {
+        return name;
     }
 
     public ExpressionNode getValue() {
@@ -27,12 +29,12 @@ public class DictEntryNode extends ExpressionNode {
     }
 
     // Setter
-    public void addKey(ExpressionNode node) {  // ✅ void not <T>
-        key = node;
-    }
-
     public void addValue(ExpressionNode node) {  // ✅ void not <T>
         value = node;
+    }
+
+    public void addName(String name) {  // ✅ void not <T>
+        this.name = name;
     }
 
     @Override
@@ -43,9 +45,6 @@ public class DictEntryNode extends ExpressionNode {
     @Override
     public List<ASTNode> getChildren() {
         List<ASTNode> children = new ArrayList<>();
-        if (key != null) {
-            children.add(key);
-        }
         if (value != null) {
             children.add(value);
         }
@@ -55,14 +54,18 @@ public class DictEntryNode extends ExpressionNode {
     @Override
     protected String getExtraInfo() {
         return String.format(
-                "(key=%s, value=%s)",
-                key != null ? "ok" : "null",
+                "(Name=%s, value=%s)",
+                name != null ? "ok" : "null",
                 value != null ? "ok" : "null"
         );
     }
 
     @Override
     public String toValueString() {
-        return key.toValueString() + ":" + value.toValueString();
+        if (name != null) {
+            return name + "=" + (value != null ? value.toValueString() : "null");
+        }
+        return value != null ? value.toValueString() : "null";
     }
+
 }

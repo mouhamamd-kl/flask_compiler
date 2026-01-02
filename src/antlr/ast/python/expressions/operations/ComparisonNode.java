@@ -1,19 +1,24 @@
-package antlr.ast.python.expressions;
+package antlr.ast.python.expressions.operations;
 
 import antlr.ast.node.ASTNode;
+import antlr.ast.python.expressions.ExpressionNode;
 import antlr.ast.visitor.ASTVisitor;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * عقدة العمليات المنطقية (Logical Operation)
- * تمثل: and, or
+ * عقدة المقارنة (Comparison)
+ * تمثل: ==, !=, <, >, <=, >=
  */
-public class LogicalOpNode extends ExpressionNode {
+public class ComparisonNode extends ExpressionNode {
 
     public enum Operator {
-        AND("and"),
-        OR("or");
+        EQ("=="),
+        NEQ("!="),
+        LT("<"),
+        GT(">"),
+        LTE("<="),
+        GTE(">=");
 
         private final String symbol;
 
@@ -26,10 +31,14 @@ public class LogicalOpNode extends ExpressionNode {
         }
 
         public static Operator fromString(String op) {
-            return switch (op.toLowerCase()) {
-                case "and" -> AND;
-                case "or" -> OR;
-                default -> throw new IllegalArgumentException("Unknown logical operator: " + op);
+            return switch (op) {
+                case "==" -> EQ;
+                case "!=" -> NEQ;
+                case "<" -> LT;
+                case ">" -> GT;
+                case "<=" -> LTE;
+                case ">=" -> GTE;
+                default -> throw new IllegalArgumentException("Unknown comparison operator: " + op);
             };
         }
     }
@@ -38,9 +47,9 @@ public class LogicalOpNode extends ExpressionNode {
     private final Operator operator;
     private final ExpressionNode right;
 
-    public LogicalOpNode(ExpressionNode left, Operator operator, ExpressionNode right,
-                         int lineNumber, int columnNumber) {
-        super("LogicalOp", lineNumber, columnNumber);
+    public ComparisonNode(ExpressionNode left, Operator operator, ExpressionNode right,
+                          int lineNumber, int columnNumber) {
+        super("Comparison", lineNumber, columnNumber);
         this.left = left;
         this.operator = operator;
         this.right = right;
@@ -49,8 +58,8 @@ public class LogicalOpNode extends ExpressionNode {
         if (right != null) right.setParent(this);
     }
 
-    public LogicalOpNode(ExpressionNode left, String operatorStr, ExpressionNode right,
-                         int lineNumber, int columnNumber) {
+    public ComparisonNode(ExpressionNode left, String operatorStr, ExpressionNode right,
+                          int lineNumber, int columnNumber) {
         this(left, Operator.fromString(operatorStr), right, lineNumber, columnNumber);
     }
 

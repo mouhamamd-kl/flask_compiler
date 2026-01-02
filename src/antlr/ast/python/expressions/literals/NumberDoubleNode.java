@@ -1,30 +1,36 @@
-package antlr.ast.python.expressions;
+package antlr.ast.python.expressions.literals;
 
 import antlr.ast.node.ASTNode;
+import antlr.ast.python.expressions.ExpressionNode;
 import antlr.ast.visitor.ASTVisitor;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * عقدة الرقم (Number Literal)
- * تمثل قيمة عددية ثابتة
+ * عقدة الرقم العشري (Double Number Literal)
+ * تمثل قيمة عددية عشرية ثابتة
  */
-public class StringNode extends ExpressionNode {
+public class NumberDoubleNode extends ExpressionNode {
 
-    private final String value;
+    private final double value;
 
-    public StringNode(String value, int lineNumber, int columnNumber) {
-        super("String", lineNumber, columnNumber);
+    public NumberDoubleNode(double value, int lineNumber, int columnNumber) {
+        super("NumberDouble", lineNumber, columnNumber);
         this.value = value;
     }
 
-    public StringNode(String value, int lineNumber) {
+    public NumberDoubleNode(double value, int lineNumber) {
         this(value, lineNumber, 0);
+    }
+
+    public NumberDoubleNode(String valueStr, int lineNumber, int columnNumber) {
+        super("NumberDouble", lineNumber, columnNumber);
+        this.value = Double.parseDouble(valueStr);
     }
 
     // ==================== Getters ====================
 
-    public String getValue() {
+    public double getValue() {
         return value;
     }
 
@@ -47,6 +53,6 @@ public class StringNode extends ExpressionNode {
 
     @Override
     public String toValueString() {
-        return value;
+        return String.valueOf(value);
     }
 }

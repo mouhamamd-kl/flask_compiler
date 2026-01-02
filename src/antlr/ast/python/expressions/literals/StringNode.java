@@ -1,6 +1,7 @@
-package antlr.ast.python.expressions;
+package antlr.ast.python.expressions.literals;
 
 import antlr.ast.node.ASTNode;
+import antlr.ast.python.expressions.ExpressionNode;
 import antlr.ast.visitor.ASTVisitor;
 import java.util.Collections;
 import java.util.List;
@@ -9,27 +10,22 @@ import java.util.List;
  * عقدة الرقم (Number Literal)
  * تمثل قيمة عددية ثابتة
  */
-public class NumberNode extends ExpressionNode {
+public class StringNode extends ExpressionNode {
 
-    private final int value;
+    private final String value;
 
-    public NumberNode(int value, int lineNumber, int columnNumber) {
-        super("Number", lineNumber, columnNumber);
+    public StringNode(String value, int lineNumber, int columnNumber) {
+        super("String", lineNumber, columnNumber);
         this.value = value;
     }
 
-    public NumberNode(int value, int lineNumber) {
+    public StringNode(String value, int lineNumber) {
         this(value, lineNumber, 0);
-    }
-
-    public NumberNode(String valueStr, int lineNumber, int columnNumber) {
-        super("Number", lineNumber, columnNumber);
-        this.value = Integer.parseInt(valueStr);
     }
 
     // ==================== Getters ====================
 
-    public int getValue() {
+    public String getValue() {
         return value;
     }
 
@@ -47,11 +43,11 @@ public class NumberNode extends ExpressionNode {
 
     @Override
     protected String getExtraInfo() {
-        return String.format("(value: %d)", value);
+        return String.format("(value: %s)", value);
     }
 
     @Override
     public String toValueString() {
-        return String.valueOf(value);
+        return value;
     }
 }

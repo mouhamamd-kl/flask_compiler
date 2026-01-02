@@ -1,31 +1,32 @@
-package antlr.ast.python.expressions;
+package antlr.ast.python.expressions.literals;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import antlr.ast.node.ASTNode;
+import antlr.ast.python.expressions.ExpressionNode;
 import antlr.ast.visitor.ASTVisitor;
 
 /**
  * عقدة المتغير (Variable Reference)
  * تمثل استخدام متغير في تعبير
  */
-public class DictNode extends ExpressionNode {
+public class ListNode extends ExpressionNode {
 
-    private final List<DictEntryNode> elements = new ArrayList<>();
+    private final List<ExpressionNode> elements = new ArrayList<>();
 
-    public DictNode(int lineNumber, int columnNumber) {
-        super("Dict", lineNumber, columnNumber);  // ✅ List not Variable
+    public ListNode(int lineNumber, int columnNumber) {
+        super("List", lineNumber, columnNumber);  // ✅ List not Variable
     }
 
     // Getter
-    public List<DictEntryNode> getElements() {
+    public List<ExpressionNode> getElements() {
         return elements;
     }
 
     // Setter
-    public void addElement(DictEntryNode node) {  // ✅ void not <T>
+    public void addElement(ExpressionNode node) {  // ✅ void not <T>
         elements.add(node);
     }
 
@@ -47,7 +48,7 @@ public class DictNode extends ExpressionNode {
     @Override
     public String toValueString() {
         return "[" + elements.stream()
-            .map(DictEntryNode::toValueString)
+            .map(ExpressionNode::toValueString)
             .collect(Collectors.joining(", ")) + "]";
     }
 }

@@ -1,6 +1,7 @@
-package antlr.ast.python;
+package antlr.ast.python.statements;
 
 import antlr.ast.node.ASTNode;
+import antlr.ast.python.StatementNode;
 import antlr.ast.visitor.ASTVisitor;
 import antlr.ast.python.expressions.ExpressionNode;
 import java.util.ArrayList;

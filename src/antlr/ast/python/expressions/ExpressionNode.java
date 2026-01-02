@@ -2,10 +2,7 @@ package antlr.ast.python.expressions;
 
 import antlr.ast.node.ASTNode;
 
-/**
- * الفئة المجردة الأساسية لجميع التعبيرات
- * التعبيرات: الأرقام، المتغيرات، العمليات الحسابية، الشروط، إلخ.
- */
+
 public abstract class ExpressionNode extends ASTNode {
 
     public ExpressionNode(String nodeName, int lineNumber, int columnNumber) {
