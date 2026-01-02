@@ -29,3 +29,6 @@ bin/
 ### Mac OS ###
 .DS_Store
 nul
+grammars/hs_err_pid247568.log
+grammars/hs_err_pid248200.log
+.idea/misc.xml
