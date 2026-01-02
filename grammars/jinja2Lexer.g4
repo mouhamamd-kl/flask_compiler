@@ -6,22 +6,108 @@ lexer grammar jinja2Lexer;
 
 // ==================== MODES ====================
 // Default mode: HTML content
+// HTML_TAG mode: Inside <tag ...>
+// ATTR_DQUOTE mode: Inside "..."
+// ATTR_SQUOTE mode: Inside '...'
 // JINJA_STMT mode: Inside {% ... %}
 // JINJA_EXPR mode: Inside {{ ... }}
+// JINJA_COMMENT mode: Inside {# ... #}
+// RAW_TEXT mode: Inside <script>, <style>, <textarea>
 
-// ==================== DEFAULT MODE (HTML) ====================
+// ==================== DEFAULT MODE (HTML CONTENT) ====================
 
-// Whitespace control versions (must come before regular)
+// Jinja2 openers (must come before HTML patterns - highest priority)
 STMT_OPEN_TRIM  : '{%-' -> pushMode(JINJA_STMT);
 EXPR_OPEN_TRIM  : '{{-' -> pushMode(JINJA_EXPR);
-
-// Regular openers
 STMT_OPEN       : '{%' -> pushMode(JINJA_STMT);
 EXPR_OPEN       : '{{' -> pushMode(JINJA_EXPR);
 COMMENT_OPEN    : '{#' -> pushMode(JINJA_COMMENT);
 
-// Everything else is raw HTML text
-HTML_TEXT       : ~[{]+ | '{' ~[%#{];
+// HTML5 DOCTYPE (must come before TAG_OPEN)
+HTML_DOCTYPE    : '<!' [Dd][Oo][Cc][Tt][Yy][Pp][Ee] ~[>]* '>';
+
+// HTML Comments (must come before TAG_OPEN)
+HTML_COMMENT    : '<!--' .*? '-->';
+
+// CDATA sections
+CDATA           : '<![CDATA[' .*? ']]>';
+
+// HTML Tag patterns
+TAG_CLOSE_SLASH : '</' -> pushMode(HTML_TAG);
+TAG_OPEN        : '<' -> pushMode(HTML_TAG);
+
+// Entity references
+ENTITY          : '&' ( '#' [0-9]+ | '#' [xX] [0-9a-fA-F]+ | [a-zA-Z]+ ) ';';
+
+// Raw HTML text (anything not starting a tag or Jinja2)
+HTML_TEXT       : ~[<{&]+ | '{' ~[%#{] | '<' ~[!a-zA-Z/] | '&' ~[#a-zA-Z];
+
+// ==================== HTML TAG MODE ====================
+mode HTML_TAG;
+
+// Jinja2 can appear in tags (for dynamic attributes)
+TAG_STMT_OPEN   : '{%' -> pushMode(JINJA_STMT);
+TAG_EXPR_OPEN   : '{{' -> pushMode(JINJA_EXPR);
+
+// Tag close patterns
+TAG_SELF_CLOSE  : '/>' -> popMode;
+TAG_CLOSE       : '>' -> popMode;
+
+// Attribute value delimiters
+TAG_DQUOTE      : '"' -> pushMode(ATTR_DQUOTE);
+TAG_SQUOTE      : '\'' -> pushMode(ATTR_SQUOTE);
+
+// Tag structure
+TAG_EQUALS      : '=';
+TAG_NAME        : [a-zA-Z_] [a-zA-Z0-9_:-]*;
+
+// Unquoted attribute values
+TAG_UNQUOTED_VALUE : ~[ \t\r\n"'=<>`/]+ ;
+
+// Whitespace (skip in tag mode)
+TAG_WS          : [ \t\r\n]+ -> skip;
+
+// ==================== ATTRIBUTE DOUBLE QUOTE MODE ====================
+mode ATTR_DQUOTE;
+
+// Jinja2 expressions in attribute values
+ATTR_DQ_STMT_OPEN : '{%' -> pushMode(JINJA_STMT);
+ATTR_DQ_EXPR_OPEN : '{{' -> pushMode(JINJA_EXPR);
+
+// Close quote
+ATTR_DQ_CLOSE   : '"' -> popMode;
+
+// Attribute text content
+ATTR_DQ_TEXT    : ~["{%]+ | '{' ~[%{];
+
+// ==================== ATTRIBUTE SINGLE QUOTE MODE ====================
+mode ATTR_SQUOTE;
+
+// Jinja2 expressions in attribute values
+ATTR_SQ_STMT_OPEN : '{%' -> pushMode(JINJA_STMT);
+ATTR_SQ_EXPR_OPEN : '{{' -> pushMode(JINJA_EXPR);
+
+// Close quote
+ATTR_SQ_CLOSE   : '\'' -> popMode;
+
+// Attribute text content
+ATTR_SQ_TEXT    : ~['{%]+ | '{' ~[%{];
+
+// ==================== RAW TEXT MODE (script, style, textarea) ====================
+mode RAW_TEXT;
+
+// Jinja2 can appear in raw text (common pattern in Flask)
+RAW_STMT_OPEN   : '{%' -> pushMode(JINJA_STMT);
+RAW_EXPR_OPEN   : '{{' -> pushMode(JINJA_EXPR);
+
+// Close tags for raw text elements (case-insensitive)
+RAW_SCRIPT_CLOSE  : '</' [Ss][Cc][Rr][Ii][Pp][Tt] [ \t]* '>' -> popMode;
+RAW_STYLE_CLOSE   : '</' [Ss][Tt][Yy][Ll][Ee] [ \t]* '>' -> popMode;
+RAW_TEXTAREA_CLOSE: '</' [Tt][Ee][Xx][Tt][Aa][Rr][Ee][Aa] [ \t]* '>' -> popMode;
+RAW_TITLE_CLOSE   : '</' [Tt][Ii][Tt][Ll][Ee] [ \t]* '>' -> popMode;
+
+// Raw text content
+RAW_TEXT_CONTENT  : ~[<{]+ | '<' ~[/] | '{' ~[%{];
 
 // ==================== JINJA STATEMENT MODE ====================
 mode JINJA_STMT;
