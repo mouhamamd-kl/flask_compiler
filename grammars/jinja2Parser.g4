@@ -11,26 +11,103 @@ options {
 // ==================== ROOT ====================
 template        : templateContent* EOF;
 
-templateContent : htmlText                    # HtmlTextPart
-                | expressionBlock             # ExpressionOutput
-                | forBlock                    # ForLoopBlock
-                | ifBlock                     # IfConditionBlock
-                | extendsStatement            # ExtendsStmt
-                | includeStatement            # IncludeStmt
-                | blockDefinition             # BlockDefStmt
-                | setStatement                # SetStmt
-                | setBlockStatement           # SetBlockStmt
-                | macroStatement              # MacroDefStmt
-                | importStatement             # ImportStmt
-                | fromImportStatement         # FromImportStmt
-                | withBlock                   # WithScopeBlock
-                | filterBlock                 # FilterApplyBlock
-                | doStatement                 # DoStmt
-                | callBlock                   # CallMacroBlock
-                | autoescapeBlock             # AutoescapeStmt
+templateContent : htmlElement                   # HtmlElementPart
+                | htmlText                      # HtmlTextPart
+                | htmlDoctype                   # HtmlDoctypePart
+                | htmlCommentBlock              # HtmlCommentPart
+                | htmlCdata                     # HtmlCdataPart
+                | htmlEntity                    # HtmlEntityPart
+                | expressionBlock               # ExpressionOutput
+                | forBlock                      # ForLoopBlock
+                | ifBlock                       # IfConditionBlock
+                | extendsStatement              # ExtendsStmt
+                | includeStatement              # IncludeStmt
+                | blockDefinition               # BlockDefStmt
+                | setStatement                  # SetStmt
+                | setBlockStatement             # SetBlockStmt
+                | macroStatement                # MacroDefStmt
+                | importStatement               # ImportStmt
+                | fromImportStatement           # FromImportStmt
+                | withBlock                     # WithScopeBlock
+                | filterBlock                   # FilterApplyBlock
+                | doStatement                   # DoStmt
+                | callBlock                     # CallMacroBlock
+                | autoescapeBlock               # AutoescapeStmt
                 ;
 
-// ==================== HTML TEXT ====================
+// ==================== HTML ELEMENTS ====================
+
+// HTML element with optional close tag (for HTML5 optional end tags)
+htmlElement     : htmlOpenTag htmlContent* htmlCloseTag?    # NormalElement
+                | htmlVoidTag                                # VoidElement
+                | htmlSelfClosingTag                         # SelfClosingElement
+                ;
+
+// Opening tag: <tagName attr1="value" attr2>
+htmlOpenTag     : TAG_OPEN tagName htmlAttribute* TAG_CLOSE;
+
+// Closing tag: </tagName>
+htmlCloseTag    : TAG_CLOSE_SLASH tagName TAG_CLOSE;
+
+// Void elements (no children, no close tag required)
+htmlVoidTag     : TAG_OPEN voidTagName htmlAttribute* (TAG_CLOSE | TAG_SELF_CLOSE);
+
+// Self-closing tag: <tagName />
+htmlSelfClosingTag : TAG_OPEN tagName htmlAttribute* TAG_SELF_CLOSE;
+
+// Tag name (case-insensitive in HTML)
+tagName         : TAG_NAME;
+
+// HTML5 void elements (elements that cannot have children)
+voidTagName     : TAG_NAME;  // Semantic check in AST builder for: area, base, br, col, embed, hr, img, input, link, meta, param, source, track, wbr
+
+// Content inside HTML elements (recursive)
+htmlContent     : templateContent;
+
+// ==================== HTML ATTRIBUTES ====================
+
+// Attribute: name="value" or name='value' or name=value or name (boolean)
+htmlAttribute   : attrName (TAG_EQUALS attrValue)?          # AttributeWithValue
+                ;
+
+attrName        : TAG_NAME
+                | TAG_EXPR_OPEN expression EXPR_CLOSE       // Dynamic attribute name: {{ attr_name }}
+                ;
+
+// Attribute value with possible Jinja2 expressions inside
+attrValue       : TAG_DQUOTE attrDqContent* ATTR_DQ_CLOSE   # DoubleQuotedValue
+                | TAG_SQUOTE attrSqContent* ATTR_SQ_CLOSE   # SingleQuotedValue
+                | TAG_UNQUOTED_VALUE                         # UnquotedValue
+                | TAG_EXPR_OPEN expression EXPR_CLOSE       # ExpressionValue
+                ;
+
+// Content inside double-quoted attribute value
+attrDqContent   : ATTR_DQ_TEXT                              # AttrDqText
+                | ATTR_DQ_EXPR_OPEN expression EXPR_CLOSE   # AttrDqExpr
+                | ATTR_DQ_STMT_OPEN forStart                # AttrDqStmt  // For dynamic content
+                ;
+
+// Content inside single-quoted attribute value
+attrSqContent   : ATTR_SQ_TEXT                              # AttrSqText
+                | ATTR_SQ_EXPR_OPEN expression EXPR_CLOSE   # AttrSqExpr
+                | ATTR_SQ_STMT_OPEN forStart                # AttrSqStmt
+                ;
+
+// ==================== HTML SPECIAL CONSTRUCTS ====================
+
+// DOCTYPE declaration
+htmlDoctype     : HTML_DOCTYPE;
+
+// HTML comment
+htmlCommentBlock: HTML_COMMENT;
+
+// CDATA section
+htmlCdata       : CDATA;
+
+// Entity reference
+htmlEntity      : ENTITY;
+
+// Raw text (anything not a tag or Jinja2)
 htmlText        : HTML_TEXT+;
 
 // ==================== EXPRESSION OUTPUT {{ ... }} ====================
