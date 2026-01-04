@@ -19,12 +19,47 @@ public interface jinja2ParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTemplate(jinja2Parser.TemplateContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code HtmlElementPart}
+	 * labeled alternative in {@link jinja2Parser#templateContent}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHtmlElementPart(jinja2Parser.HtmlElementPartContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code HtmlTextPart}
 	 * labeled alternative in {@link jinja2Parser#templateContent}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitHtmlTextPart(jinja2Parser.HtmlTextPartContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code HtmlDoctypePart}
+	 * labeled alternative in {@link jinja2Parser#templateContent}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHtmlDoctypePart(jinja2Parser.HtmlDoctypePartContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code HtmlCommentPart}
+	 * labeled alternative in {@link jinja2Parser#templateContent}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHtmlCommentPart(jinja2Parser.HtmlCommentPartContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code HtmlCdataPart}
+	 * labeled alternative in {@link jinja2Parser#templateContent}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHtmlCdataPart(jinja2Parser.HtmlCdataPartContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code HtmlEntityPart}
+	 * labeled alternative in {@link jinja2Parser#templateContent}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHtmlEntityPart(jinja2Parser.HtmlEntityPartContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code ExpressionOutput}
 	 * labeled alternative in {@link jinja2Parser#templateContent}.
@@ -137,6 +172,229 @@ public interface jinja2ParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitAutoescapeStmt(jinja2Parser.AutoescapeStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#htmlElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHtmlElement(jinja2Parser.HtmlElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#htmlRootElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHtmlRootElement(jinja2Parser.HtmlRootElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#headElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHeadElement(jinja2Parser.HeadElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#bodyElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBodyElement(jinja2Parser.BodyElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#titleElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTitleElement(jinja2Parser.TitleElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#styleElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStyleElement(jinja2Parser.StyleElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#divElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDivElement(jinja2Parser.DivElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#h1Element}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitH1Element(jinja2Parser.H1ElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#paragraphElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParagraphElement(jinja2Parser.ParagraphElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#formElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFormElement(jinja2Parser.FormElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#labelElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLabelElement(jinja2Parser.LabelElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#textareaElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTextareaElement(jinja2Parser.TextareaElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#buttonElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitButtonElement(jinja2Parser.ButtonElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#anchorElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAnchorElement(jinja2Parser.AnchorElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#inputElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInputElement(jinja2Parser.InputElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#imgElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitImgElement(jinja2Parser.ImgElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#genericElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGenericElement(jinja2Parser.GenericElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#htmlContent}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHtmlContent(jinja2Parser.HtmlContentContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AttributeWithValue}
+	 * labeled alternative in {@link jinja2Parser#htmlAttribute}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAttributeWithValue(jinja2Parser.AttributeWithValueContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code StaticAttrName}
+	 * labeled alternative in {@link jinja2Parser#attrName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStaticAttrName(jinja2Parser.StaticAttrNameContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code DynamicAttrName}
+	 * labeled alternative in {@link jinja2Parser#attrName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDynamicAttrName(jinja2Parser.DynamicAttrNameContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code DoubleQuotedValue}
+	 * labeled alternative in {@link jinja2Parser#attrValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDoubleQuotedValue(jinja2Parser.DoubleQuotedValueContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code SingleQuotedValue}
+	 * labeled alternative in {@link jinja2Parser#attrValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSingleQuotedValue(jinja2Parser.SingleQuotedValueContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code UnquotedValue}
+	 * labeled alternative in {@link jinja2Parser#attrValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnquotedValue(jinja2Parser.UnquotedValueContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ExpressionValue}
+	 * labeled alternative in {@link jinja2Parser#attrValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpressionValue(jinja2Parser.ExpressionValueContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AttrDqText}
+	 * labeled alternative in {@link jinja2Parser#attrDqContent}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAttrDqText(jinja2Parser.AttrDqTextContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AttrDqExpr}
+	 * labeled alternative in {@link jinja2Parser#attrDqContent}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAttrDqExpr(jinja2Parser.AttrDqExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AttrDqStmt}
+	 * labeled alternative in {@link jinja2Parser#attrDqContent}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAttrDqStmt(jinja2Parser.AttrDqStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AttrSqText}
+	 * labeled alternative in {@link jinja2Parser#attrSqContent}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAttrSqText(jinja2Parser.AttrSqTextContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AttrSqExpr}
+	 * labeled alternative in {@link jinja2Parser#attrSqContent}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAttrSqExpr(jinja2Parser.AttrSqExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AttrSqStmt}
+	 * labeled alternative in {@link jinja2Parser#attrSqContent}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAttrSqStmt(jinja2Parser.AttrSqStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#htmlDoctype}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHtmlDoctype(jinja2Parser.HtmlDoctypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#htmlCommentBlock}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHtmlCommentBlock(jinja2Parser.HtmlCommentBlockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#htmlCdata}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHtmlCdata(jinja2Parser.HtmlCdataContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#htmlEntity}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHtmlEntity(jinja2Parser.HtmlEntityContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link jinja2Parser#htmlText}.
 	 * @param ctx the parse tree
@@ -637,4 +895,525 @@ public interface jinja2ParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitAutoescapeBlock(jinja2Parser.AutoescapeBlockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssStylesheet}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssStylesheet(jinja2Parser.CssStylesheetContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssRule}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssRule(jinja2Parser.CssRuleContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ElementSelector}
+	 * labeled alternative in {@link jinja2Parser#cssSelector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElementSelector(jinja2Parser.ElementSelectorContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ClassSelector}
+	 * labeled alternative in {@link jinja2Parser#cssSelector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClassSelector(jinja2Parser.ClassSelectorContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ElementPseudoSelector}
+	 * labeled alternative in {@link jinja2Parser#cssSelector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElementPseudoSelector(jinja2Parser.ElementPseudoSelectorContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ClassPseudoSelector}
+	 * labeled alternative in {@link jinja2Parser#cssSelector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClassPseudoSelector(jinja2Parser.ClassPseudoSelectorContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code DescendantSelector}
+	 * labeled alternative in {@link jinja2Parser#cssSelector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDescendantSelector(jinja2Parser.DescendantSelectorContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ElementClassSelector}
+	 * labeled alternative in {@link jinja2Parser#cssSelector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElementClassSelector(jinja2Parser.ElementClassSelectorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssElementSelector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssElementSelector(jinja2Parser.CssElementSelectorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssClassSelector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssClassSelector(jinja2Parser.CssClassSelectorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssClassName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssClassName(jinja2Parser.CssClassNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssPseudoClass}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssPseudoClass(jinja2Parser.CssPseudoClassContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssDescendantSelector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssDescendantSelector(jinja2Parser.CssDescendantSelectorContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssSimpleElement}
+	 * labeled alternative in {@link jinja2Parser#cssSelectorSimple}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssSimpleElement(jinja2Parser.CssSimpleElementContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssSimpleClass}
+	 * labeled alternative in {@link jinja2Parser#cssSelectorSimple}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssSimpleClass(jinja2Parser.CssSimpleClassContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssSingleLengthDecl}
+	 * labeled alternative in {@link jinja2Parser#cssDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssSingleLengthDecl(jinja2Parser.CssSingleLengthDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssMultipleLengthDecl}
+	 * labeled alternative in {@link jinja2Parser#cssDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssMultipleLengthDecl(jinja2Parser.CssMultipleLengthDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssColorDecl}
+	 * labeled alternative in {@link jinja2Parser#cssDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssColorDecl(jinja2Parser.CssColorDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssKeywordDecl}
+	 * labeled alternative in {@link jinja2Parser#cssDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssKeywordDecl(jinja2Parser.CssKeywordDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssBoxShadowDecl}
+	 * labeled alternative in {@link jinja2Parser#cssDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssBoxShadowDecl(jinja2Parser.CssBoxShadowDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssBorderDecl}
+	 * labeled alternative in {@link jinja2Parser#cssDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssBorderDecl(jinja2Parser.CssBorderDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssTransitionDecl}
+	 * labeled alternative in {@link jinja2Parser#cssDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssTransitionDecl(jinja2Parser.CssTransitionDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssTransformDecl}
+	 * labeled alternative in {@link jinja2Parser#cssDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssTransformDecl(jinja2Parser.CssTransformDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssBackgroundDecl}
+	 * labeled alternative in {@link jinja2Parser#cssDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssBackgroundDecl(jinja2Parser.CssBackgroundDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssFontFamilyDecl}
+	 * labeled alternative in {@link jinja2Parser#cssDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssFontFamilyDecl(jinja2Parser.CssFontFamilyDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssFontWeightDecl}
+	 * labeled alternative in {@link jinja2Parser#cssDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssFontWeightDecl(jinja2Parser.CssFontWeightDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssBoxSizingDecl}
+	 * labeled alternative in {@link jinja2Parser#cssDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssBoxSizingDecl(jinja2Parser.CssBoxSizingDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssOutlineDecl}
+	 * labeled alternative in {@link jinja2Parser#cssDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssOutlineDecl(jinja2Parser.CssOutlineDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#singleLengthDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSingleLengthDecl(jinja2Parser.SingleLengthDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#singleLengthProp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSingleLengthProp(jinja2Parser.SingleLengthPropContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#multipleLengthDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMultipleLengthDecl(jinja2Parser.MultipleLengthDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#multiLengthProp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMultiLengthProp(jinja2Parser.MultiLengthPropContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssMultiLengthValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssMultiLengthValue(jinja2Parser.CssMultiLengthValueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#colorDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitColorDecl(jinja2Parser.ColorDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#colorProp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitColorProp(jinja2Parser.ColorPropContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssColorLiteral}
+	 * labeled alternative in {@link jinja2Parser#cssColorValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssColorLiteral(jinja2Parser.CssColorLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssColorKeyword}
+	 * labeled alternative in {@link jinja2Parser#cssColorValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssColorKeyword(jinja2Parser.CssColorKeywordContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#keywordDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitKeywordDecl(jinja2Parser.KeywordDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#keywordProp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitKeywordProp(jinja2Parser.KeywordPropContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#boxShadowDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBoxShadowDecl(jinja2Parser.BoxShadowDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#boxShadowValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBoxShadowValue(jinja2Parser.BoxShadowValueContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssColorOrFuncColor}
+	 * labeled alternative in {@link jinja2Parser#cssColorOrFunction}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssColorOrFuncColor(jinja2Parser.CssColorOrFuncColorContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssColorOrFuncFunc}
+	 * labeled alternative in {@link jinja2Parser#cssColorOrFunction}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssColorOrFuncFunc(jinja2Parser.CssColorOrFuncFuncContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#borderDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBorderDecl(jinja2Parser.BorderDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#borderProp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBorderProp(jinja2Parser.BorderPropContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#transitionDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTransitionDecl(jinja2Parser.TransitionDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssTransitionProperty}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssTransitionProperty(jinja2Parser.CssTransitionPropertyContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#transformDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTransformDecl(jinja2Parser.TransformDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#backgroundDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBackgroundDecl(jinja2Parser.BackgroundDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssBgColor}
+	 * labeled alternative in {@link jinja2Parser#cssBackgroundValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssBgColor(jinja2Parser.CssBgColorContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssBgKeyword}
+	 * labeled alternative in {@link jinja2Parser#cssBackgroundValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssBgKeyword(jinja2Parser.CssBgKeywordContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssBgFunction}
+	 * labeled alternative in {@link jinja2Parser#cssBackgroundValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssBgFunction(jinja2Parser.CssBgFunctionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#fontFamilyDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFontFamilyDecl(jinja2Parser.FontFamilyDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssFontName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssFontName(jinja2Parser.CssFontNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssFontToken}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssFontToken(jinja2Parser.CssFontTokenContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#fontWeightDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFontWeightDecl(jinja2Parser.FontWeightDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssFontWeightNum}
+	 * labeled alternative in {@link jinja2Parser#cssFontWeightValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssFontWeightNum(jinja2Parser.CssFontWeightNumContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssFontWeightKeyword}
+	 * labeled alternative in {@link jinja2Parser#cssFontWeightValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssFontWeightKeyword(jinja2Parser.CssFontWeightKeywordContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#boxSizingDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBoxSizingDecl(jinja2Parser.BoxSizingDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#outlineDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOutlineDecl(jinja2Parser.OutlineDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssOutlineKeyword}
+	 * labeled alternative in {@link jinja2Parser#cssOutlineValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssOutlineKeyword(jinja2Parser.CssOutlineKeywordContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssOutlineFull}
+	 * labeled alternative in {@link jinja2Parser#cssOutlineValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssOutlineFull(jinja2Parser.CssOutlineFullContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#outlineValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOutlineValue(jinja2Parser.OutlineValueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssLength}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssLength(jinja2Parser.CssLengthContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssColor}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssColor(jinja2Parser.CssColorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssKeyword}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssKeyword(jinja2Parser.CssKeywordContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssNumber}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssNumber(jinja2Parser.CssNumberContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssTime}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssTime(jinja2Parser.CssTimeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssIdent}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssIdent(jinja2Parser.CssIdentContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssRgbaFunc}
+	 * labeled alternative in {@link jinja2Parser#cssFunction}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssRgbaFunc(jinja2Parser.CssRgbaFuncContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssTransformFunc}
+	 * labeled alternative in {@link jinja2Parser#cssFunction}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssTransformFunc(jinja2Parser.CssTransformFuncContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssRgbaFunction}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssRgbaFunction(jinja2Parser.CssRgbaFunctionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link jinja2Parser#cssTransformFunction}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssTransformFunction(jinja2Parser.CssTransformFunctionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssValueLength}
+	 * labeled alternative in {@link jinja2Parser#cssValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssValueLength(jinja2Parser.CssValueLengthContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssValueColor}
+	 * labeled alternative in {@link jinja2Parser#cssValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssValueColor(jinja2Parser.CssValueColorContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssValueKeyword}
+	 * labeled alternative in {@link jinja2Parser#cssValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssValueKeyword(jinja2Parser.CssValueKeywordContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssValueNumber}
+	 * labeled alternative in {@link jinja2Parser#cssValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssValueNumber(jinja2Parser.CssValueNumberContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssValueFunction}
+	 * labeled alternative in {@link jinja2Parser#cssValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssValueFunction(jinja2Parser.CssValueFunctionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssValueIdent}
+	 * labeled alternative in {@link jinja2Parser#cssValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssValueIdent(jinja2Parser.CssValueIdentContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CssValueTime}
+	 * labeled alternative in {@link jinja2Parser#cssValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCssValueTime(jinja2Parser.CssValueTimeContext ctx);
 }
