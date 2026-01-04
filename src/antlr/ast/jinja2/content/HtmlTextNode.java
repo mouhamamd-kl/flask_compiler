@@ -6,53 +6,60 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * عقدة النص العادي (HTML/Plain Text)
- * تمثل النص الثابت بين علامات Jinja2
+ * Represents raw HTML text content in a Jinja2 template.
+ * This node holds plain text that appears between HTML tags and Jinja2 constructs.
  *
- * Examples:
- * - <h1>Hello</h1>
- * - Plain text content
- * - Whitespace between Jinja blocks
+ * Example:
+ * ```
+ * <p>This is text content</p>
+ *     ^^^^^^^^^^^^^^^^^^^^
+ *         HtmlTextNode
+ * ```
  */
 public class HtmlTextNode extends ASTNode {
 
-    private final String text;
+    private String text;
 
     public HtmlTextNode(String text, int lineNumber, int columnNumber) {
-        super("HtmlText", lineNumber, columnNumber);
+        super("HtmlTextNode", lineNumber, columnNumber);
         this.text = text;
     }
 
-    public HtmlTextNode(String text, int lineNumber) {
-        this(text, lineNumber, 0);
-    }
-
-    // ==================== Getters ====================
+    // ==================== Text ====================
 
     public String getText() {
         return text;
     }
 
-    // ==================== تطبيق الواجهات ====================
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    // ==================== Children ====================
+
+    @Override
+    public List<ASTNode> getChildren() {
+        return Collections.emptyList();
+    }
+
+    // ==================== Visitor Pattern ====================
 
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visit(this);
     }
 
-    @Override
-    public List<ASTNode> getChildren() {
-        return Collections.emptyList();  // عقدة ورقة - لا أبناء
-    }
+    // ==================== Display ====================
 
     @Override
     protected String getExtraInfo() {
-        // Show truncated text for readability
-        String preview = text.length() > 30
-            ? text.substring(0, 30) + "..."
-            : text;
-        // Escape newlines for display
+        // Truncate long text for display
+        String preview = text;
+        if (preview.length() > 30) {
+            preview = preview.substring(0, 30) + "...";
+        }
+        // Escape newlines and carriage returns for display
         preview = preview.replace("\n", "\\n").replace("\r", "\\r");
-        return String.format("(text: \"%s\")", preview);
+        return "(text: \"" + preview + "\")";
     }
 }
