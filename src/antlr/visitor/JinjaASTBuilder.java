@@ -2,7 +2,14 @@ package antlr.visitor;
 
 import antlr.ast.jinja2.TemplateNode;
 import antlr.ast.jinja2.blocks.*;
-import antlr.ast.jinja2.content.HtmlTextNode;
+import antlr.ast.jinja2.content.*;
+import antlr.ast.jinja2.content.elements.*;
+import antlr.ast.jinja2.content.elements.document.*;
+import antlr.ast.jinja2.content.elements.sectioning.*;
+import antlr.ast.jinja2.content.elements.text.*;
+import antlr.ast.jinja2.content.elements.form.*;
+import antlr.ast.jinja2.content.elements.media.*;
+import antlr.ast.jinja2.content.elements.embedded.*;
 import antlr.ast.jinja2.expressions.*;
 import antlr.ast.jinja2.expressions.literals.*;
 import antlr.ast.jinja2.expressions.operations.JinjaBinaryOpNode;
@@ -15,7 +22,14 @@ import antlr.ast.jinja2.targets.SimpleTargetNode;
 import antlr.ast.jinja2.targets.TargetNode;
 import antlr.ast.jinja2.targets.TupleTargetNode;
 import antlr.ast.node.ASTNode;
+import antlr.ast.css.*;
+import antlr.ast.css.selectors.*;
+import antlr.ast.css.properties.*;
+import antlr.ast.css.values.*;
 import antlr.ast.python.ProgramNode;
+import java.util.ArrayList;
+import java.util.List;
+
 import antlr.ast.python.StatementNode;
 import antlr.ast.python.expressions.ExpressionNode;
 import antlr.gen.jinja2.jinja2Lexer;
@@ -23,18 +37,14 @@ import antlr.gen.jinja2.jinja2Parser;
 import antlr.gen.jinja2.jinja2ParserBaseVisitor;
 import antlr.gen.jinja2.jinja2ParserVisitor;
 import antlr.gen.python.pythonParser;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import antlr.ast.jinja2.statements.FromImportItemNode;
 
 public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitTemplate(jinja2Parser.TemplateContext ctx) {
         int line = ctx.getStart() != null ? ctx.getStart().getLine() : 1;
@@ -52,12 +62,6 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
     }
 
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
     @Override
     public ASTNode visitHtmlTextPart(jinja2Parser.HtmlTextPartContext ctx) {
         StringBuilder text = new StringBuilder();
@@ -67,14 +71,14 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
             text.append(token.getText());
         }
         return new HtmlTextNode(text.toString(),
-                ctx.getStart().getLine(),
-                ctx.getStart().getCharPositionInLine());
+                safeGetLine(ctx),
+                safeGetCol(ctx));
     }
 
     @Override
     public ASTNode visitExpressionOutput(jinja2Parser.ExpressionOutputContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         ExpressionBlockNode blockNode = new ExpressionBlockNode(line, col);
 
         ASTNode expressionNode = visit(ctx.expressionBlock().expr);
@@ -91,16 +95,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return blockNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitForLoopBlock(jinja2Parser.ForLoopBlockContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
 
         ForBlockNode forBlockNode = new ForBlockNode(line, col);
         ASTNode targetNode = visit(ctx.forBlock().forStart().target);
@@ -138,16 +137,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return forBlockNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitIfConditionBlock(jinja2Parser.IfConditionBlockContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         IfBlockNode ifBlockNode = new IfBlockNode(line, col);
 
         ASTNode condition = visit(ctx.ifBlock().ifStart().condition);
@@ -176,16 +170,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return ifBlockNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitExtendsStmt(jinja2Parser.ExtendsStmtContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         ExtendsNode extendsNode = new ExtendsNode(line, col);
 
         extendsNode.setParentTemplateName(ctx.extendsStatement().templateName.getText());
@@ -193,16 +182,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return extendsNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitIncludeStmt(jinja2Parser.IncludeStmtContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         IncludeNode includeNode = new IncludeNode(line, col);
 
         // Get template name (remove quotes from string)
@@ -228,16 +212,10 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
     }
 
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
     @Override
     public ASTNode visitBlockDefStmt(jinja2Parser.BlockDefStmtContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
 
         BlockDefinitionNode blockDefinitionNode = new BlockDefinitionNode(line, col);
 
@@ -255,16 +233,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return blockDefinitionNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitSetStmt(jinja2Parser.SetStmtContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
 
         SetStatementNode setStatementNode = new SetStatementNode(line, col);
         ASTNode setTarget = visit(ctx.setStatement().setTarget());
@@ -288,16 +261,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return setStatementNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitSetBlockStmt(jinja2Parser.SetBlockStmtContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         SetBlockNode setBlockNode = new SetBlockNode(line, col);
         if (ctx.setBlockStatement().name != null) {
             setBlockNode.setName(ctx.setBlockStatement().name.getText());
@@ -310,16 +278,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return setBlockNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitMacroDefStmt(jinja2Parser.MacroDefStmtContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         MacroNode macroNode = new MacroNode(line, col);
         if (ctx.macroStatement().name != null) {
             macroNode.setName(ctx.macroStatement().name.getText());
@@ -341,16 +304,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return macroNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitImportStmt(jinja2Parser.ImportStmtContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         ImportNode importNode = new ImportNode(line, col);
 
         // Get template name (remove quotes)
@@ -375,16 +333,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return importNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitFromImportStmt(jinja2Parser.FromImportStmtContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         FromImportNode fromImportNode = new FromImportNode(line, col);
         if (ctx.fromImportStatement().templateName != null) {
             fromImportNode.setTemplateName(ctx.fromImportStatement().templateName.getText());
@@ -406,16 +359,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return fromImportNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitWithScopeBlock(jinja2Parser.WithScopeBlockContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         WithBlockNode withBlockNode = new WithBlockNode(line, col);
 
         for (jinja2Parser.TemplateContentContext ctxx : ctx.withBlock().body) {
@@ -435,16 +383,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return withBlockNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitFilterApplyBlock(jinja2Parser.FilterApplyBlockContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
 
         FilterBlockNode filterBlockNode = new FilterBlockNode(line, col);
         filterBlockNode.setName(ctx.filterBlock().filterName.getText());
@@ -466,16 +409,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return filterBlockNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitDoStmt(jinja2Parser.DoStmtContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
 
         DoStatementNode doStatementNode = new DoStatementNode(line, col);
         if (ctx.doStatement().expr != null) {
@@ -488,16 +426,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return doStatementNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitCallMacroBlock(jinja2Parser.CallMacroBlockContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
 
         CallBlockNode callBlockNode = new CallBlockNode(line, col);
 
@@ -526,16 +459,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return callBlockNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitAutoescapeStmt(jinja2Parser.AutoescapeStmtContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         AutoescapeBlockNode autoescapeBlockNode = new AutoescapeBlockNode(line, col);
 
         if (!ctx.autoescapeBlock().body.isEmpty()) {
@@ -570,16 +498,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return autoescapeBlockNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitFilter(jinja2Parser.FilterContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         FilterNode filterNode = new FilterNode(line, col);
         filterNode.setName(ctx.name.getText());
 
@@ -594,12 +517,7 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return filterNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitTernaryExpr(jinja2Parser.TernaryExprContext ctx) {
         // If no ternary operator (no IF...ELSE), pass through to the inner expression
@@ -607,8 +525,8 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
             return visit(ctx.value);
         }
 
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         TernaryExprNode ternaryExprNode = new TernaryExprNode(line, col);
 
         ASTNode conditionNode = visit(ctx.condition);
@@ -629,12 +547,7 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return ternaryExprNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitOrExpr(jinja2Parser.OrExprContext ctx) {
         java.util.List<jinja2Parser.AndExprContext> operands = ctx.andExpr();
@@ -648,20 +561,15 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         JinjaExpressionNode result = (JinjaExpressionNode) visit(operands.get(0));
         for (int i = 1; i < operands.size(); i++) {
             jinja2Parser.AndExprContext rightCtx = operands.get(i);
-            int line = rightCtx.getStart().getLine();
-            int col = rightCtx.getStart().getCharPositionInLine();
+            int line = safeGetLine(rightCtx);
+            int col = safeGetCol(rightCtx);
             JinjaExpressionNode right = (JinjaExpressionNode) visit(rightCtx);
             result = new JinjaLogicalOpNode(result, JinjaLogicalOpNode.Operator.OR, right, line, col);
         }
         return result;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitAndExpr(jinja2Parser.AndExprContext ctx) {
         java.util.List<jinja2Parser.NotExprContext> operands = ctx.notExpr();
@@ -675,53 +583,38 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         JinjaExpressionNode result = (JinjaExpressionNode) visit(operands.get(0));
         for (int i = 1; i < operands.size(); i++) {
             jinja2Parser.NotExprContext rightCtx = operands.get(i);
-            int line = rightCtx.getStart().getLine();
-            int col = rightCtx.getStart().getCharPositionInLine();
+            int line = safeGetLine(rightCtx);
+            int col = safeGetCol(rightCtx);
             JinjaExpressionNode right = (JinjaExpressionNode) visit(rightCtx);
             result = new JinjaLogicalOpNode(result, JinjaLogicalOpNode.Operator.AND, right, line, col);
         }
         return result;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitNotExpression(jinja2Parser.NotExpressionContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         JinjaExpressionNode operand = (JinjaExpressionNode) visit(ctx.operand);
         return new JinjaUnaryOpNode(JinjaUnaryOpNode.Operator.NOT, operand, line, col);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitNotPassThrough(jinja2Parser.NotPassThroughContext ctx) {
         return visit(ctx.comparisonExpr());
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitCompareExpression(jinja2Parser.CompareExpressionContext ctx) {
         if (ctx.compOp() == null) {
             return visit(ctx.left);
         }
 
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         JinjaExpressionNode left = (JinjaExpressionNode) visit(ctx.left);
         JinjaExpressionNode right = (JinjaExpressionNode) visit(ctx.right);
         JinjaComparisonNode.Operator op = getComparisonOperator(ctx.compOp());
@@ -740,16 +633,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return JinjaComparisonNode.Operator.EQ;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitTestExpression(jinja2Parser.TestExpressionContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         JinjaExpressionNode expression = (JinjaExpressionNode) visit(ctx.additiveExpr());
 
         jinja2Parser.TestOpContext testOp = ctx.testOp();
@@ -769,12 +657,7 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return testNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitAdditiveExpr(jinja2Parser.AdditiveExprContext ctx) {
         java.util.List<jinja2Parser.MultiplicativeExprContext> exprs = ctx.multiplicativeExpr();
@@ -800,12 +683,7 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return result;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitMultiplicativeExpr(jinja2Parser.MultiplicativeExprContext ctx) {
         java.util.List<jinja2Parser.PowerExprContext> exprs = ctx.powerExpr();
@@ -832,61 +710,41 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return result;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitPowerExpr(jinja2Parser.PowerExprContext ctx) {
         if (ctx.exponent == null) {
             return visit(ctx.base);
         }
 
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         JinjaExpressionNode base = (JinjaExpressionNode) visit(ctx.base);
         JinjaExpressionNode exponent = (JinjaExpressionNode) visit(ctx.exponent);
         return new JinjaBinaryOpNode(base, JinjaBinaryOpNode.Operator.POW, exponent, line, col);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitUnaryExpression(jinja2Parser.UnaryExpressionContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         JinjaExpressionNode operand = (JinjaExpressionNode) visit(ctx.operand);
 
         JinjaUnaryOpNode.Operator op = ctx.op.getType() == jinja2Lexer.MINUS
-            ? JinjaUnaryOpNode.Operator.NEGATE
-            : JinjaUnaryOpNode.Operator.POSITIVE;
+                ? JinjaUnaryOpNode.Operator.NEGATE
+                : JinjaUnaryOpNode.Operator.POSITIVE;
 
         return new JinjaUnaryOpNode(op, operand, line, col);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitUnaryPassThrough(jinja2Parser.UnaryPassThroughContext ctx) {
         return visit(ctx.postfixExpr());
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitPostfixExpr(jinja2Parser.PostfixExprContext ctx) {
         JinjaExpressionNode result = (JinjaExpressionNode) visit(ctx.object);
@@ -898,8 +756,8 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
     }
 
     private JinjaExpressionNode applyPostfixOp(JinjaExpressionNode object, jinja2Parser.PostfixOpContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
 
         if (ctx instanceof jinja2Parser.DotAccessOpContext dotCtx) {
             DotAccessExprNode node = new DotAccessExprNode(line, col);
@@ -940,16 +798,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return object;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitNumberLiteral(jinja2Parser.NumberLiteralContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         String text = ctx.NUMBER().getText();
 
         if (text.contains(".")) {
@@ -959,121 +812,76 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitStringLiteral(jinja2Parser.StringLiteralContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         String text = ctx.STRING().getText();
         String value = text.substring(1, text.length() - 1);
         return new JinjaStringNode(value, line, col);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitTrueLiteral(jinja2Parser.TrueLiteralContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         return new JinjaBooleanNode(true, line, col);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitFalseLiteral(jinja2Parser.FalseLiteralContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         return new JinjaBooleanNode(false, line, col);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitNoneLiteral(jinja2Parser.NoneLiteralContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         return new JinjaNoneNode(line, col);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitVariableExpr(jinja2Parser.VariableExprContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         VariableExprNode node = new VariableExprNode(line, col);
         node.setName(ctx.NAME().getText());
         return node;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitListExpr(jinja2Parser.ListExprContext ctx) {
         return visit(ctx.list());
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitDictExpr(jinja2Parser.DictExprContext ctx) {
         return visit(ctx.dict());
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitParenExpr(jinja2Parser.ParenExprContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         JinjaExpressionNode inner = (JinjaExpressionNode) visit(ctx.expression());
         return new ParenExprNode(inner, line, col);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitList(jinja2Parser.ListContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         JinjaListNode listNode = new JinjaListNode(line, col);
 
         for (jinja2Parser.ExpressionContext elemCtx : ctx.elements) {
@@ -1086,16 +894,10 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
     }
 
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
     @Override
     public ASTNode visitDictEntry(jinja2Parser.DictEntryContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         JinjaDictEntryNode entryNode = new JinjaDictEntryNode(line, col);
 
         ASTNode key = visit(ctx.key);
@@ -1113,8 +915,8 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitDict(jinja2Parser.DictContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         JinjaDictNode dictNode = new JinjaDictNode(line, col);
 
         for (jinja2Parser.DictEntryContext entryCtx : ctx.dictEntry()) {
@@ -1127,17 +929,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
     }
 
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
     @Override
     public ASTNode visitArgument(jinja2Parser.ArgumentContext ctx) {
 
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         ArgumentNode argumentNode = new ArgumentNode(line, col);
         if (ctx.name != null) {
             argumentNode.setName(ctx.name.getText());
@@ -1154,31 +950,20 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
     }
 
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
     @Override
     public ASTNode visitSingleTarget(jinja2Parser.SingleTargetContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         SimpleTargetNode targetNode = new SimpleTargetNode(line, col);
         targetNode.setTarget(ctx.NAME().getText());
         return targetNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitTupleTarget(jinja2Parser.TupleTargetContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         TupleTargetNode targetNode = new TupleTargetNode(line, col);
 
         for (TerminalNode name : ctx.NAME()) {
@@ -1187,16 +972,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return targetNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitElseForBranch(jinja2Parser.ElseForBranchContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         ElseBranchNode elseBranchNode = new ElseBranchNode(line, col);
 
         for (jinja2Parser.TemplateContentContext bodyCtx : ctx.body) {
@@ -1206,16 +986,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return elseBranchNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitElifBranch(jinja2Parser.ElifBranchContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         ElifBranchNode elifBranchNode = new ElifBranchNode(line, col);
 
         ASTNode condition = visit(ctx.condition);
@@ -1230,16 +1005,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return elifBranchNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitElseBranch(jinja2Parser.ElseBranchContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         ElseBranchNode elseBranchNode = new ElseBranchNode(line, col);
         for (jinja2Parser.TemplateContentContext ctxx : ctx.body) {
             ASTNode bodyElement = visit(ctxx);
@@ -1250,32 +1020,21 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
     }
 
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
     @Override
     public ASTNode visitSimpleTarget(jinja2Parser.SimpleTargetContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         SimpleTargetNode simpleTargetNode = new SimpleTargetNode(line, col);
         String target = ctx.name.getText();
         simpleTargetNode.setTarget(target);
         return simpleTargetNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitTupleSetTarget(jinja2Parser.TupleSetTargetContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         TupleTargetNode targetNode = new TupleTargetNode(line, col);
         targetNode.addTarget(ctx.first.getText());
         if (ctx.rest != null) {
@@ -1286,16 +1045,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return targetNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitNamespaceTarget(jinja2Parser.NamespaceTargetContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         NamespaceTargetNode namespaceTargetNode = new NamespaceTargetNode(line, col);
         if (ctx.namespace.getText() != null) {
             namespaceTargetNode.setNameSpace(ctx.namespace.getText());
@@ -1309,16 +1063,10 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
     }
 
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
     @Override
     public ASTNode visitMacroParam(jinja2Parser.MacroParamContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         MacroParamNode macroParamNode = new MacroParamNode(line, col);
         if (ctx.name != null) {
             macroParamNode.setName(ctx.name.getText());
@@ -1331,16 +1079,10 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
     }
 
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
     @Override
     public ASTNode visitImportItem(jinja2Parser.ImportItemContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         FromImportItemNode fromImportItemNode = new FromImportItemNode(line, col);
         if (ctx.name != null) {
             fromImportItemNode.setName(ctx.name.getText());
@@ -1352,16 +1094,11 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return fromImportItemNode;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
+
     @Override
     public ASTNode visitWithAssignment(jinja2Parser.WithAssignmentContext ctx) {
-        int line = ctx.getStart().getLine();
-        int col = ctx.getStart().getCharPositionInLine();
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
         WithAssignmentNode withAssignmentNode = new WithAssignmentNode(line, col);
         if (ctx.name != null) {
             withAssignmentNode.setName(ctx.name.getText());
@@ -1375,5 +1112,1099 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
         return withAssignmentNode;
     }
 
+    // ===========================HTML Elements===============================
+    // Note: visitHtmlElementPart() deleted - allows ANTLR to dispatch to specific visitor methods
+
+    // ==================== Document Structure Elements ====================
+    @Override
+    public ASTNode visitHtmlRootElement(jinja2Parser.HtmlRootElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        HtmlRootHtmlNode node = new HtmlRootHtmlNode(line, col);
+
+        // Process attributes
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        // Process children
+        for (jinja2Parser.HtmlContentContext contentCtx : ctx.content) {
+            ASTNode child = visit(contentCtx);
+            if (child != null) {
+                node.addChild(child);
+            }
+        }
+
+        return node;
+    }
+
+    @Override
+    public ASTNode visitHeadElement(jinja2Parser.HeadElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        HeadHtmlNode node = new HeadHtmlNode(line, col);
+
+        // Process attributes
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        // Process children
+        for (jinja2Parser.HtmlContentContext contentCtx : ctx.content) {
+            ASTNode child = visit(contentCtx);
+            if (child != null) {
+                node.addChild(child);
+            }
+        }
+
+        return node;
+    }
+
+    @Override
+    public ASTNode visitBodyElement(jinja2Parser.BodyElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        BodyHtmlNode node = new BodyHtmlNode(line, col);
+
+        // Process attributes
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        // Process children
+        for (jinja2Parser.HtmlContentContext contentCtx : ctx.content) {
+            ASTNode child = visit(contentCtx);
+            if (child != null) {
+                node.addChild(child);
+            }
+        }
+
+        return node;
+    }
+
+    @Override
+    public ASTNode visitTitleElement(jinja2Parser.TitleElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        TitleHtmlNode node = new TitleHtmlNode(line, col);
+
+        // Process attributes
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        // Process children
+        for (jinja2Parser.HtmlContentContext contentCtx : ctx.content) {
+            ASTNode child = visit(contentCtx);
+            if (child != null) {
+                node.addChild(child);
+            }
+        }
+
+        return node;
+    }
+
+    // ==================== Sectioning Elements ====================
+    @Override
+    public ASTNode visitDivElement(jinja2Parser.DivElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        DivHtmlNode node = new DivHtmlNode(line, col);
+
+        // Process attributes
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        // Process children
+        for (jinja2Parser.HtmlContentContext contentCtx : ctx.content) {
+            ASTNode child = visit(contentCtx);
+            if (child != null) {
+                node.addChild(child);
+            }
+        }
+
+        return node;
+    }
+
+    @Override
+    public ASTNode visitH1Element(jinja2Parser.H1ElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        H1HtmlNode node = new H1HtmlNode(line, col);
+
+        // Process attributes
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        // Process children
+        for (jinja2Parser.HtmlContentContext contentCtx : ctx.content) {
+            ASTNode child = visit(contentCtx);
+            if (child != null) {
+                node.addChild(child);
+            }
+        }
+
+        return node;
+    }
+
+    // ==================== Text Elements ====================
+    @Override
+    public ASTNode visitParagraphElement(jinja2Parser.ParagraphElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        ParagraphHtmlNode node = new ParagraphHtmlNode(line, col);
+
+        // Process attributes
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        // Process children
+        for (jinja2Parser.HtmlContentContext contentCtx : ctx.content) {
+            ASTNode child = visit(contentCtx);
+            if (child != null) {
+                node.addChild(child);
+            }
+        }
+
+        return node;
+    }
+
+    @Override
+    public ASTNode visitAnchorElement(jinja2Parser.AnchorElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        AnchorHtmlNode node = new AnchorHtmlNode(line, col);
+
+        // Process attributes
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        // Process children
+        for (jinja2Parser.HtmlContentContext contentCtx : ctx.content) {
+            ASTNode child = visit(contentCtx);
+            if (child != null) {
+                node.addChild(child);
+            }
+        }
+
+        return node;
+    }
+
+    // ==================== Form Elements ====================
+    @Override
+    public ASTNode visitFormElement(jinja2Parser.FormElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        FormHtmlNode node = new FormHtmlNode(line, col);
+
+        // Process attributes
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        // Process children
+        for (jinja2Parser.HtmlContentContext contentCtx : ctx.content) {
+            ASTNode child = visit(contentCtx);
+            if (child != null) {
+                node.addChild(child);
+            }
+        }
+
+        return node;
+    }
+
+    @Override
+    public ASTNode visitLabelElement(jinja2Parser.LabelElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        LabelHtmlNode node = new LabelHtmlNode(line, col);
+
+        // Process attributes
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        // Process children
+        for (jinja2Parser.HtmlContentContext contentCtx : ctx.content) {
+            ASTNode child = visit(contentCtx);
+            if (child != null) {
+                node.addChild(child);
+            }
+        }
+
+        return node;
+    }
+
+    @Override
+    public ASTNode visitTextareaElement(jinja2Parser.TextareaElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        TextareaHtmlNode node = new TextareaHtmlNode(line, col);
+
+        // Process attributes
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        // Process children
+        for (jinja2Parser.HtmlContentContext contentCtx : ctx.content) {
+            ASTNode child = visit(contentCtx);
+            if (child != null) {
+                node.addChild(child);
+            }
+        }
+
+        return node;
+    }
+
+    @Override
+    public ASTNode visitButtonElement(jinja2Parser.ButtonElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        ButtonHtmlNode node = new ButtonHtmlNode(line, col);
+
+        // Process attributes
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        // Process children
+        for (jinja2Parser.HtmlContentContext contentCtx : ctx.content) {
+            ASTNode child = visit(contentCtx);
+            if (child != null) {
+                node.addChild(child);
+            }
+        }
+
+        return node;
+    }
+
+    // ==================== Void Elements (no children) ====================
+    @Override
+    public ASTNode visitInputElement(jinja2Parser.InputElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        InputHtmlNode node = new InputHtmlNode(line, col);
+
+        // Process attributes only (no children for void elements)
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        return node;
+    }
+
+    @Override
+    public ASTNode visitImgElement(jinja2Parser.ImgElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        ImgHtmlNode node = new ImgHtmlNode(line, col);
+
+        // Process attributes only (no children for void elements)
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        return node;
+    }
+
+    // ==================== Embedded Elements ====================
+    @Override
+    public ASTNode visitStyleElement(jinja2Parser.StyleElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        StyleHtmlNode node = new StyleHtmlNode(line, col);
+
+        // Process attributes
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        // Process CSS stylesheet
+        if (ctx.css != null) {
+            ASTNode cssNode = visit(ctx.css);
+            if (cssNode != null) {
+                node.addChild(cssNode);
+            }
+        }
+
+        return node;
+    }
+
+    // ==================== Generic Element ====================
+    @Override
+    public ASTNode visitGenericElement(jinja2Parser.GenericElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        String tagName = ctx.name.getText();
+
+        // Create generic element node
+        GenericHtmlNode node = new GenericHtmlNode(tagName, line, col);
+
+        // Process attributes
+        for (jinja2Parser.HtmlAttributeContext attrCtx : ctx.attrs) {
+            ASTNode attr = visit(attrCtx);
+            if (attr instanceof HtmlAttributeNode) {
+                node.addAttribute((HtmlAttributeNode) attr);
+            }
+        }
+
+        // Check if it's a self-closing tag
+        if (ctx.TAG_SELF_CLOSE() != null) {
+            // Mark as implicitly closed to indicate it's self-closing
+            node.setImplicitlyClosed(true);
+        } else {
+            // Process children for normal elements
+            for (jinja2Parser.HtmlContentContext contentCtx : ctx.content) {
+                ASTNode child = visit(contentCtx);
+                if (child != null) {
+                    node.addChild(child);
+                }
+            }
+        }
+
+        return node;
+    }
+
+    // ==================== HTML ATTRIBUTE VISITORS ====================
+
+    @Override
+    public ASTNode visitAttributeWithValue(jinja2Parser.AttributeWithValueContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+
+        // Determine attribute name (static or dynamic)
+        String attrName = null;
+        if (ctx.name instanceof jinja2Parser.StaticAttrNameContext) {
+            // Static attribute name
+            jinja2Parser.StaticAttrNameContext staticCtx = (jinja2Parser.StaticAttrNameContext) ctx.name;
+            attrName = staticCtx.staticName.getText();
+        } else if (ctx.name instanceof jinja2Parser.DynamicAttrNameContext) {
+            // Dynamic attribute name (Jinja2 expression)
+            attrName = "(dynamic)";
+        }
+
+        // Create a temporary concrete implementation since subclasses don't exist yet
+        final String finalAttrName = attrName;
+        HtmlAttributeNode node = new HtmlAttributeNode("HtmlAttribute", line, col) {
+            @Override
+            public String getNameAsString() {
+                return finalAttrName;
+            }
+
+            @Override
+            public java.util.List<ASTNode> getChildren() {
+                java.util.List<ASTNode> children = new java.util.ArrayList<>();
+                if (value != null) {
+                    children.add(value);
+                }
+                return children;
+            }
+        };
+
+        // Set quote style and value if present
+        if (ctx.value != null) {
+            if (ctx.value instanceof jinja2Parser.DoubleQuotedValueContext) {
+                node.setQuoteStyle(QuoteStyle.DOUBLE);
+                // TODO: Parse attribute value parts when HtmlAttributeValueNode is implemented
+            } else if (ctx.value instanceof jinja2Parser.SingleQuotedValueContext) {
+                node.setQuoteStyle(QuoteStyle.SINGLE);
+                // TODO: Parse attribute value parts when HtmlAttributeValueNode is implemented
+            } else if (ctx.value instanceof jinja2Parser.UnquotedValueContext) {
+                node.setQuoteStyle(QuoteStyle.UNQUOTED);
+                // TODO: Parse unquoted value when HtmlAttributeValueNode is implemented
+            }
+        } else {
+            // Boolean attribute (no value)
+            node.setQuoteStyle(QuoteStyle.NONE);
+        }
+
+        return node;
+    }
+
+    // ==================== CSS DECLARATION VISITORS ====================
+
+    @Override
+    public ASTNode visitSingleLengthDecl(jinja2Parser.SingleLengthDeclContext ctx) {
+        String property = ctx.singleLengthProp().getText();
+        int line = safeGetLine(ctx);
+        CSSLengthValueNode value = (CSSLengthValueNode) visit(ctx.value);
+        return new LengthPropertyNode(property, value, line);
+    }
+
+    @Override
+    public ASTNode visitMultipleLengthDecl(jinja2Parser.MultipleLengthDeclContext ctx) {
+        int line = safeGetLine(ctx);
+
+        // Extract the actual property name (margin or padding) from the multiLengthProp rule
+        jinja2Parser.MultiLengthPropContext propCtx = ctx.multiLengthProp();
+        String propertyName;
+        if (propCtx.CSS_MARGIN() != null) {
+            propertyName = propCtx.CSS_MARGIN().getText();
+        } else if (propCtx.CSS_PADDING() != null) {
+            propertyName = propCtx.CSS_PADDING().getText();
+        } else {
+            propertyName = "unknown"; // Fallback
+        }
+
+        List<CSSLengthValueNode> lengthValues = new ArrayList<>();
+        for (var valueCtx : ctx.values) {
+            ASTNode valueNode = visit(valueCtx);
+            if (valueNode instanceof CSSLengthValueNode) {
+                lengthValues.add((CSSLengthValueNode) valueNode);
+            } else if (valueNode instanceof CSSKeywordValueNode) {
+                // Handle 'auto' keyword - represent as special length value
+                CSSKeywordValueNode keyword = (CSSKeywordValueNode) valueNode;
+                lengthValues.add(new CSSLengthValueNode(keyword.getKeyword(), "", line));
+            }
+        }
+
+        return new MultiLengthPropertyNode(propertyName, lengthValues, line);
+    }
+
+    @Override
+    public ASTNode visitColorDecl(jinja2Parser.ColorDeclContext ctx) {
+        String property = ctx.colorProp().getText();
+        int line = safeGetLine(ctx);
+        CSSValueNode value = (CSSValueNode) visit(ctx.value);
+        return new ColorPropertyNode(property, value, line);
+    }
+
+    @Override
+    public ASTNode visitKeywordDecl(jinja2Parser.KeywordDeclContext ctx) {
+        String property = ctx.keywordProp().getText();
+        int line = safeGetLine(ctx);
+        CSSKeywordValueNode value = (CSSKeywordValueNode) visit(ctx.value);
+        return new KeywordPropertyNode(property, value, line);
+    }
+
+    @Override
+    public ASTNode visitBoxShadowDecl(jinja2Parser.BoxShadowDeclContext ctx) {
+        int line = safeGetLine(ctx);
+        List<BoxShadowPropertyNode.Shadow> shadows = new ArrayList<>();
+
+        for (var shadowCtx : ctx.shadows) {
+            CSSValueNode offsetX = (CSSValueNode) visit(shadowCtx.offsetX);
+            CSSValueNode offsetY = (CSSValueNode) visit(shadowCtx.offsetY);
+            CSSValueNode blur = (CSSValueNode) visit(shadowCtx.blur);
+            CSSValueNode color = (CSSValueNode) visit(shadowCtx.color);
+            shadows.add(new BoxShadowPropertyNode.Shadow(offsetX, offsetY, blur, color));
+        }
+
+        return new BoxShadowPropertyNode(shadows, line);
+    }
+
+    @Override
+    public ASTNode visitBorderDecl(jinja2Parser.BorderDeclContext ctx) {
+        String property = ctx.borderProp().getText();
+        int line = safeGetLine(ctx);
+
+        // Check if it's a keyword-only declaration (e.g., border: none;)
+        if (ctx.keyword != null) {
+            CSSKeywordValueNode keyword = (CSSKeywordValueNode) visit(ctx.keyword);
+            // For keyword-only, use the keyword as the style with null width and color
+            return new BorderPropertyNode(property, null, keyword, null, line);
+        }
+
+        // Full shorthand: width style color
+        CSSLengthValueNode width = (CSSLengthValueNode) visit(ctx.width);
+        CSSKeywordValueNode style = (CSSKeywordValueNode) visit(ctx.style);
+        CSSValueNode color = (CSSValueNode) visit(ctx.color);
+        return new BorderPropertyNode(property, width, style, color, line);
+    }
+
+    @Override
+    public ASTNode visitTransitionDecl(jinja2Parser.TransitionDeclContext ctx) {
+        int line = safeGetLine(ctx);
+
+        // Handle cssTransitionProperty which can be cssIdent OR a property token (CSS_COLOR, etc.)
+        CSSIdentValueNode property;
+        jinja2Parser.CssTransitionPropertyContext propCtx = ctx.property;
+        if (propCtx.cssIdent() != null) {
+            // It's an identifier like "all"
+            property = (CSSIdentValueNode) visit(propCtx.cssIdent());
+        } else {
+            // It's a property token like CSS_COLOR, CSS_BACKGROUND, etc.
+            // Just get the text directly
+            property = new CSSIdentValueNode(propCtx.getText(), line);
+        }
+
+        CSSTimeValueNode duration = (CSSTimeValueNode) visit(ctx.duration);
+        CSSKeywordValueNode easing = (CSSKeywordValueNode) visit(ctx.easing);
+        return new TransitionPropertyNode(property, duration, easing, line);
+    }
+
+    @Override
+    public ASTNode visitTransformDecl(jinja2Parser.TransformDeclContext ctx) {
+        int line = safeGetLine(ctx);
+        CSSFunctionValueNode value = (CSSFunctionValueNode) visit(ctx.value);
+        return new TransformPropertyNode(value, line);
+    }
+
+    @Override
+    public ASTNode visitBackgroundDecl(jinja2Parser.BackgroundDeclContext ctx) {
+        int line = safeGetLine(ctx);
+        CSSValueNode value = (CSSValueNode) visit(ctx.value);
+        return new BackgroundPropertyNode(value, line);
+    }
+
+    @Override
+    public ASTNode visitFontFamilyDecl(jinja2Parser.FontFamilyDeclContext ctx) {
+        int line = safeGetLine(ctx);
+        List<CSSIdentValueNode> fonts = new ArrayList<>();
+
+        // Each cssFontName can contain multiple cssFontToken tokens (for multi-word fonts like "Segoe UI")
+        for (jinja2Parser.CssFontNameContext fontCtx : ctx.fonts) {
+            // Combine all tokens in this font name with spaces
+            StringBuilder fontName = new StringBuilder();
+            List<jinja2Parser.CssFontTokenContext> tokens = fontCtx.cssFontToken();
+            for (int i = 0; i < tokens.size(); i++) {
+                if (i > 0) {
+                    fontName.append(" ");
+                }
+                fontName.append(tokens.get(i).getText());
+            }
+            fonts.add(new CSSIdentValueNode(fontName.toString(), line));
+        }
+
+        return new FontFamilyPropertyNode(fonts, line);
+    }
+
+    @Override
+    public ASTNode visitFontWeightDecl(jinja2Parser.FontWeightDeclContext ctx) {
+        int line = safeGetLine(ctx);
+        CSSValueNode value = (CSSValueNode) visit(ctx.value);
+        return new FontWeightPropertyNode(value, line);
+    }
+
+    @Override
+    public ASTNode visitBoxSizingDecl(jinja2Parser.BoxSizingDeclContext ctx) {
+        int line = safeGetLine(ctx);
+        CSSKeywordValueNode value = (CSSKeywordValueNode) visit(ctx.value);
+        return new BoxSizingPropertyNode(value, line);
+    }
+
+    @Override
+    public ASTNode visitOutlineDecl(jinja2Parser.OutlineDeclContext ctx) {
+        int line = safeGetLine(ctx);
+        ASTNode valueNode = visit(ctx.value);
+
+        // Check if it's a keyword (outline: none;) or full outline
+        if (valueNode instanceof CSSKeywordValueNode) {
+            return new OutlinePropertyNode((CSSKeywordValueNode) valueNode, line);
+        } else {
+            // This shouldn't happen with the current grammar, but handle it gracefully
+            return new OutlinePropertyNode((CSSKeywordValueNode) valueNode, line);
+        }
+    }
+
+    @Override
+    public ASTNode visitOutlineValue(jinja2Parser.OutlineValueContext ctx) {
+        // This represents the full outline form: width style color
+        // We need to return a composite structure or handle it differently
+        // For now, just visit the width (this is a simplified implementation)
+        return visit(ctx.width);
+    }
+
+    // ==================== CSS VALUE VISITORS ====================
+
+    /**
+     * Helper method to parse a length value and extract number and unit parts.
+     * Examples: "24px" -> ("24", "px"), "100%" -> ("100", "%"), "-1.5em" -> ("-1.5", "em")
+     */
+    private String[] parseLengthValue(String lengthText) {
+        // Match patterns like: 24px, 100%, 1.5em, 100vh, -4px, -1.5em
+        String numberPart = "";
+        String unitPart = "";
+
+        // Find where the unit starts (first non-digit, non-dot, non-minus character)
+        int i = 0;
+        while (i < lengthText.length()) {
+            char c = lengthText.charAt(i);
+            if (Character.isDigit(c) || c == '.' || c == '-') {
+                i++;
+            } else {
+                break;
+            }
+        }
+
+        numberPart = lengthText.substring(0, i);
+        unitPart = lengthText.substring(i);
+
+        return new String[]{numberPart, unitPart};
+    }
+
+    /**
+     * Helper method to safely get line number from a context.
+     * Returns 0 if the context or its start token is null.
+     */
+    private int safeGetLine(ParserRuleContext ctx) {
+        if (ctx == null || ctx.getStart() == null) {
+            return 0;
+        }
+        return ctx.getStart().getLine();
+    }
+
+    /**
+     * Helper method to safely get column number from a context.
+     * Returns 0 if the context or its start token is null.
+     */
+    private int safeGetCol(ParserRuleContext ctx) {
+        if (ctx == null || ctx.getStart() == null) {
+            return 0;
+        }
+        return ctx.getStart().getCharPositionInLine();
+    }
+
+    @Override
+    public ASTNode visitCssLength(jinja2Parser.CssLengthContext ctx) {
+        int line = safeGetLine(ctx);
+        String text = ctx.getText();
+        String[] parts = parseLengthValue(text);
+        return new CSSLengthValueNode(parts[0], parts[1], line);
+    }
+
+    @Override
+    public ASTNode visitCssColor(jinja2Parser.CssColorContext ctx) {
+        int line = safeGetLine(ctx);
+        String text = ctx.getText();
+        return new CSSColorValueNode(text, line);
+    }
+
+    @Override
+    public ASTNode visitCssKeyword(jinja2Parser.CssKeywordContext ctx) {
+        int line = safeGetLine(ctx);
+        String keyword = ctx.getText();
+        return new CSSKeywordValueNode(keyword, line);
+    }
+
+    @Override
+    public ASTNode visitCssNumber(jinja2Parser.CssNumberContext ctx) {
+        int line = safeGetLine(ctx);
+        String number = ctx.getText();
+        return new CSSNumberValueNode(number, line);
+    }
+
+    @Override
+    public ASTNode visitCssTime(jinja2Parser.CssTimeContext ctx) {
+        int line = safeGetLine(ctx);
+        String time = ctx.getText();
+        return new CSSTimeValueNode(time, line);
+    }
+
+    @Override
+    public ASTNode visitCssIdent(jinja2Parser.CssIdentContext ctx) {
+        int line = safeGetLine(ctx);
+        String ident = ctx.getText();
+        return new CSSIdentValueNode(ident, line);
+    }
+
+    @Override
+    public ASTNode visitCssRgbaFunction(jinja2Parser.CssRgbaFunctionContext ctx) {
+        int line = safeGetLine(ctx);
+        String r = ctx.r.getText();
+        String g = ctx.g.getText();
+        String b = ctx.b.getText();
+        String a = ctx.a.getText();
+
+        List<CSSValueNode> args = new ArrayList<>();
+        args.add(new CSSNumberValueNode(r, line));
+        args.add(new CSSNumberValueNode(g, line));
+        args.add(new CSSNumberValueNode(b, line));
+        args.add(new CSSNumberValueNode(a, line));
+
+        return new CSSFunctionValueNode("rgba", args, line);
+    }
+
+    @Override
+    public ASTNode visitCssTransformFunction(jinja2Parser.CssTransformFunctionContext ctx) {
+        int line = safeGetLine(ctx);
+        CSSValueNode value = (CSSValueNode) visit(ctx.value);
+
+        List<CSSValueNode> args = new ArrayList<>();
+        args.add(value);
+
+        return new CSSFunctionValueNode("translateY", args, line);
+    }
+
+    // ==================== CSS INTERMEDIATE VALUE RULES ====================
+
+    // ==================== CSS STYLESHEET & RULE VISITORS ====================
+
+    @Override
+    public ASTNode visitCssStylesheet(jinja2Parser.CssStylesheetContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        CSSStylesheetNode stylesheet = new CSSStylesheetNode(line, col);
+
+        // Visit all CSS rules
+        for (jinja2Parser.CssRuleContext ruleCtx : ctx.cssRule()) {
+            ASTNode ruleNode = visit(ruleCtx);
+            if (ruleNode instanceof CSSRuleNode) {
+                stylesheet.addRule((CSSRuleNode) ruleNode);
+            }
+        }
+
+        return stylesheet;
+    }
+
+    @Override
+    public ASTNode visitCssRule(jinja2Parser.CssRuleContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        CSSRuleNode rule = new CSSRuleNode(line, col);
+
+        // Visit selectors
+        for (jinja2Parser.CssSelectorContext selectorCtx : ctx.selectors) {
+            ASTNode selectorNode = visit(selectorCtx);
+            if (selectorNode instanceof CSSSelectorNode) {
+                rule.addSelector((CSSSelectorNode) selectorNode);
+            }
+        }
+
+        // Visit declarations (these are already implemented as specific property nodes)
+        for (jinja2Parser.CssDeclarationContext declCtx : ctx.declarations) {
+            ASTNode declNode = visit(declCtx);
+            if (declNode instanceof CSSPropertyNode) {
+                // Wrap CSSPropertyNode in CSSDeclarationNode
+                CSSPropertyNode propNode = (CSSPropertyNode) declNode;
+                CSSDeclarationNode declaration = new CSSDeclarationNode(propNode.getPropertyName(), line, col);
+                // Add values from property node to declaration
+                for (CSSValueNode value : propNode.getValues()) {
+                    declaration.addValue(value);
+                }
+                declaration.setParent(rule);
+                rule.addDeclaration(declaration);
+            }
+        }
+
+        return rule;
+    }
+
+    // ==================== CSS SELECTOR VISITORS (Labeled Alternatives) ====================
+
+    @Override
+    public ASTNode visitElementSelector(jinja2Parser.ElementSelectorContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        String elementName = ctx.cssElementSelector().getText();
+        return new CSSElementSelectorNode(elementName, line, col);
+    }
+
+    @Override
+    public ASTNode visitClassSelector(jinja2Parser.ClassSelectorContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        String className = ctx.cssClassSelector().className.getText();
+        return new CSSClassSelectorNode(className, line, col);
+    }
+
+    @Override
+    public ASTNode visitElementPseudoSelector(jinja2Parser.ElementPseudoSelectorContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+
+        // Create element selector with pseudo-class suffix
+        String elementName = ctx.cssElementSelector().getText();
+        String pseudoClass = ctx.cssPseudoClass().getText().substring(1); // Remove ':'
+
+        // Create a pseudo-class selector node
+        return new CSSPseudoClassSelectorNode(elementName + ":" + pseudoClass, line, col);
+    }
+
+    @Override
+    public ASTNode visitClassPseudoSelector(jinja2Parser.ClassPseudoSelectorContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+
+        // Create class selector with pseudo-class suffix
+        String className = ctx.cssClassSelector().className.getText();
+        String pseudoClass = ctx.cssPseudoClass().getText().substring(1); // Remove ':'
+
+        // Create a pseudo-class selector node
+        return new CSSPseudoClassSelectorNode("." + className + ":" + pseudoClass, line, col);
+    }
+
+    @Override
+    public ASTNode visitDescendantSelector(jinja2Parser.DescendantSelectorContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+
+        // Visit ancestor selector
+        ASTNode ancestorNode = visit(ctx.cssDescendantSelector().ancestor);
+        CSSSelectorNode ancestor = (ancestorNode instanceof CSSSelectorNode)
+            ? (CSSSelectorNode) ancestorNode
+            : null;
+
+        CSSDescendantSelectorNode descendantSel = new CSSDescendantSelectorNode(ancestor, line, col);
+
+        // Visit descendant selectors
+        for (jinja2Parser.CssSelectorSimpleContext descCtx : ctx.cssDescendantSelector().descendant) {
+            ASTNode descNode = visit(descCtx);
+            if (descNode instanceof CSSSelectorNode) {
+                descendantSel.addDescendant((CSSSelectorNode) descNode);
+            }
+        }
+
+        return descendantSel;
+    }
+
+    @Override
+    public ASTNode visitElementClassSelector(jinja2Parser.ElementClassSelectorContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+
+        // Create combined element.class selector
+        String elementName = ctx.cssElementSelector().getText();
+        String className = ctx.cssClassSelector().className.getText();
+
+        // Return as element selector with class suffix (e.g., "div.container")
+        return new CSSElementSelectorNode(elementName + "." + className, line, col);
+    }
+
+    // ==================== CSS SELECTOR HELPER VISITORS ====================
+
+    // ==================== CSS LABELED ALTERNATIVE WRAPPERS ====================
+
+    // cssDeclaration alternatives (13 wrappers)
+    @Override
+    public ASTNode visitCssSingleLengthDecl(jinja2Parser.CssSingleLengthDeclContext ctx) {
+        return visitSingleLengthDecl(ctx.singleLengthDecl());
+    }
+
+    @Override
+    public ASTNode visitCssMultipleLengthDecl(jinja2Parser.CssMultipleLengthDeclContext ctx) {
+        return visitMultipleLengthDecl(ctx.multipleLengthDecl());
+    }
+
+    @Override
+    public ASTNode visitCssColorDecl(jinja2Parser.CssColorDeclContext ctx) {
+        return visitColorDecl(ctx.colorDecl());
+    }
+
+    @Override
+    public ASTNode visitCssKeywordDecl(jinja2Parser.CssKeywordDeclContext ctx) {
+        return visitKeywordDecl(ctx.keywordDecl());
+    }
+
+    @Override
+    public ASTNode visitCssBoxShadowDecl(jinja2Parser.CssBoxShadowDeclContext ctx) {
+        return visitBoxShadowDecl(ctx.boxShadowDecl());
+    }
+
+    @Override
+    public ASTNode visitCssBorderDecl(jinja2Parser.CssBorderDeclContext ctx) {
+        return visitBorderDecl(ctx.borderDecl());
+    }
+
+    @Override
+    public ASTNode visitCssTransitionDecl(jinja2Parser.CssTransitionDeclContext ctx) {
+        return visitTransitionDecl(ctx.transitionDecl());
+    }
+
+    @Override
+    public ASTNode visitCssTransformDecl(jinja2Parser.CssTransformDeclContext ctx) {
+        return visitTransformDecl(ctx.transformDecl());
+    }
+
+    @Override
+    public ASTNode visitCssBackgroundDecl(jinja2Parser.CssBackgroundDeclContext ctx) {
+        return visitBackgroundDecl(ctx.backgroundDecl());
+    }
+
+    @Override
+    public ASTNode visitCssFontFamilyDecl(jinja2Parser.CssFontFamilyDeclContext ctx) {
+        return visitFontFamilyDecl(ctx.fontFamilyDecl());
+    }
+
+    @Override
+    public ASTNode visitCssFontWeightDecl(jinja2Parser.CssFontWeightDeclContext ctx) {
+        return visitFontWeightDecl(ctx.fontWeightDecl());
+    }
+
+    @Override
+    public ASTNode visitCssBoxSizingDecl(jinja2Parser.CssBoxSizingDeclContext ctx) {
+        return visitBoxSizingDecl(ctx.boxSizingDecl());
+    }
+
+    @Override
+    public ASTNode visitCssOutlineDecl(jinja2Parser.CssOutlineDeclContext ctx) {
+        return visitOutlineDecl(ctx.outlineDecl());
+    }
+
+    // cssValue alternatives (7 visitors replace 1 if-else chain)
+    @Override
+    public ASTNode visitCssValueLength(jinja2Parser.CssValueLengthContext ctx) {
+        return visitCssLength(ctx.cssLength());
+    }
+
+    @Override
+    public ASTNode visitCssValueColor(jinja2Parser.CssValueColorContext ctx) {
+        return visitCssColor(ctx.cssColor());
+    }
+
+    @Override
+    public ASTNode visitCssValueKeyword(jinja2Parser.CssValueKeywordContext ctx) {
+        return visitCssKeyword(ctx.cssKeyword());
+    }
+
+    @Override
+    public ASTNode visitCssValueNumber(jinja2Parser.CssValueNumberContext ctx) {
+        return visitCssNumber(ctx.cssNumber());
+    }
+
+    @Override
+    public ASTNode visitCssValueFunction(jinja2Parser.CssValueFunctionContext ctx) {
+        return visit(ctx.cssFunction());
+    }
+
+    @Override
+    public ASTNode visitCssValueIdent(jinja2Parser.CssValueIdentContext ctx) {
+        return visitCssIdent(ctx.cssIdent());
+    }
+
+    @Override
+    public ASTNode visitCssValueTime(jinja2Parser.CssValueTimeContext ctx) {
+        return visitCssTime(ctx.cssTime());
+    }
+
+    // cssFunction alternatives (2 visitors)
+    @Override
+    public ASTNode visitCssRgbaFunc(jinja2Parser.CssRgbaFuncContext ctx) {
+        return visitCssRgbaFunction(ctx.cssRgbaFunction());
+    }
+
+    @Override
+    public ASTNode visitCssTransformFunc(jinja2Parser.CssTransformFuncContext ctx) {
+        return visitCssTransformFunction(ctx.cssTransformFunction());
+    }
+
+    // cssColorValue alternatives (2 visitors)
+    @Override
+    public ASTNode visitCssColorLiteral(jinja2Parser.CssColorLiteralContext ctx) {
+        return visitCssColor(ctx.cssColor());
+    }
+
+    @Override
+    public ASTNode visitCssColorKeyword(jinja2Parser.CssColorKeywordContext ctx) {
+        return visitCssKeyword(ctx.cssKeyword());
+    }
+
+    // cssColorOrFunction alternatives (2 visitors)
+    @Override
+    public ASTNode visitCssColorOrFuncColor(jinja2Parser.CssColorOrFuncColorContext ctx) {
+        return visitCssColor(ctx.cssColor());
+    }
+
+    @Override
+    public ASTNode visitCssColorOrFuncFunc(jinja2Parser.CssColorOrFuncFuncContext ctx) {
+        return visit(ctx.cssFunction());
+    }
+
+    // cssBackgroundValue alternatives (3 visitors)
+    @Override
+    public ASTNode visitCssBgColor(jinja2Parser.CssBgColorContext ctx) {
+        return visitCssColor(ctx.cssColor());
+    }
+
+    @Override
+    public ASTNode visitCssBgKeyword(jinja2Parser.CssBgKeywordContext ctx) {
+        return visitCssKeyword(ctx.cssKeyword());
+    }
+
+    @Override
+    public ASTNode visitCssBgFunction(jinja2Parser.CssBgFunctionContext ctx) {
+        return visit(ctx.cssFunction());
+    }
+
+    // cssFontWeightValue alternatives (2 visitors)
+    @Override
+    public ASTNode visitCssFontWeightNum(jinja2Parser.CssFontWeightNumContext ctx) {
+        return visitCssNumber(ctx.cssNumber());
+    }
+
+    @Override
+    public ASTNode visitCssFontWeightKeyword(jinja2Parser.CssFontWeightKeywordContext ctx) {
+        return visitCssKeyword(ctx.cssKeyword());
+    }
+
+    // cssOutlineValue alternatives (2 visitors)
+    @Override
+    public ASTNode visitCssOutlineKeyword(jinja2Parser.CssOutlineKeywordContext ctx) {
+        return visitCssKeyword(ctx.cssKeyword());
+    }
+
+    @Override
+    public ASTNode visitCssOutlineFull(jinja2Parser.CssOutlineFullContext ctx) {
+        return visitOutlineValue(ctx.outlineValue());
+    }
+
+    // cssSelectorSimple alternatives (2 visitors)
+    @Override
+    public ASTNode visitCssSimpleElement(jinja2Parser.CssSimpleElementContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        String elementName = ctx.getText();
+        return new CSSElementSelectorNode(elementName, line, col);
+    }
+
+    @Override
+    public ASTNode visitCssSimpleClass(jinja2Parser.CssSimpleClassContext ctx) {
+        int line = safeGetLine(ctx);
+        int col = safeGetCol(ctx);
+        // Get the class name - remove the leading dot from the full text
+        String fullText = ctx.cssClassSelector().getText();
+        String className = fullText.startsWith(".") ? fullText.substring(1) : fullText;
+        return new CSSClassSelectorNode(className, line, col);
+    }
 
 }

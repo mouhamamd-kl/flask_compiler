@@ -98,15 +98,36 @@ public class Main {
     // Keep RED for errors
     public static final String RED = "\u001B[31m";
 
+    // Global option to hide whitespace-only text nodes in AST output
+    private static boolean hideWhitespace = false;
+
     public static void main(String[] args) {
         String testsDir = "tests/flask";
 
-        if (args.length > 0) {
+        // Parse command-line flags
+        int fileArgIndex = 0;
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("--hide-whitespace") || args[i].equals("-w")) {
+                hideWhitespace = true;
+            } else {
+                fileArgIndex = i;
+                break;
+            }
+        }
+
+        if (args.length > 0 && fileArgIndex < args.length && !args[fileArgIndex].startsWith("-")) {
             // تشغيل ملف محدد
-            compile(args[0]);
-        } else {
+            compile(args[fileArgIndex]);
+        } else if (args.length == 0 || (args.length > 0 && args[fileArgIndex - 1].startsWith("-"))) {
             // تشغيل جميع الاختبارات
             runAllTests(testsDir);
+        } else {
+            System.out.println(TEAL + "Usage: " + RESET + "java Main [--hide-whitespace | -w] [file]");
+            System.out.println("  " + TEAL + "--hide-whitespace, -w" + RESET + "  Hide whitespace-only text nodes in AST output");
+            System.out.println("\n" + LIGHT + "Examples:" + RESET);
+            System.out.println("  java Main                                    # Run all tests");
+            System.out.println("  java Main tests/flask/templates/products.html");
+            System.out.println("  java Main -w tests/flask/templates/products.html");
         }
     }
     public static void runAllTests(String testsDir) {
@@ -242,7 +263,7 @@ public class Main {
 
             // ==================== Phase 4: Print AST ====================
             System.out.println("\n" + TEAL + "🌳 Abstract Syntax Tree:" + RESET);
-            ASTPrinter printer = new ASTPrinter();
+            ASTPrinter printer = new ASTPrinter(hideWhitespace);
             printer.print(ast);
 
             // ==================== Phase 5: Symbol Table ====================
@@ -318,7 +339,7 @@ public class Main {
 
             // ==================== Phase 4: Print AST ====================
             System.out.println("\n" + TEAL + "🌳 Abstract Syntax Tree:" + RESET);
-            ASTPrinter printer = new ASTPrinter();
+            ASTPrinter printer = new ASTPrinter(hideWhitespace);
             printer.print(ast);
 
             // Note: JinjaASTBuilder doesn't have a symbol table

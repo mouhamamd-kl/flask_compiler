@@ -1,10 +1,19 @@
 package antlr.ast.visitor;
 
-import antlr.ast.css.StylesheetNode;
-import antlr.ast.html.HtmlDocumentNode;
+import antlr.ast.css.*;
+import antlr.ast.css.properties.*;
+import antlr.ast.css.selectors.*;
+import antlr.ast.css.values.*;
 import antlr.ast.jinja2.TemplateNode;
 import antlr.ast.jinja2.blocks.*;
 import antlr.ast.jinja2.content.*;
+import antlr.ast.jinja2.content.elements.*;
+import antlr.ast.jinja2.content.elements.document.*;
+import antlr.ast.jinja2.content.elements.sectioning.*;
+import antlr.ast.jinja2.content.elements.text.*;
+import antlr.ast.jinja2.content.elements.form.*;
+import antlr.ast.jinja2.content.elements.media.*;
+import antlr.ast.jinja2.content.elements.embedded.*;
 import antlr.ast.jinja2.expressions.*;
 import antlr.ast.jinja2.expressions.literals.*;
 import antlr.ast.jinja2.expressions.operations.*;
@@ -257,19 +266,116 @@ public interface ASTVisitor<T> {
     T visit(NamespaceTargetNode node);
 
     // ==================== HTML Nodes ====================
-    T visit(HtmlDocumentNode node);
-    //TODO in the future for HTML
-    // T visit(HtmlElementNode node);
-    // T visit(HtmlAttributeNode node);
-    // T visit(HtmlTextNode node);
-    // T visit(HtmlCommentNode node);
-    // T visit(DoctypeNode node);
+
+    // HTML Base Nodes
+    T visit(HtmlElementNode node);
+
+    T visit(HtmlAttributeValueNode node);
+
+    // ==================== Specific HTML Element Nodes ====================
+
+    // Document structure
+    T visit(HtmlRootHtmlNode node);
+
+    T visit(HeadHtmlNode node);
+
+    T visit(BodyHtmlNode node);
+
+    T visit(TitleHtmlNode node);
+
+    // Sectioning
+    T visit(DivHtmlNode node);
+
+    T visit(H1HtmlNode node);
+
+    // Text
+    T visit(ParagraphHtmlNode node);
+
+    T visit(AnchorHtmlNode node);
+
+    // Forms
+    T visit(FormHtmlNode node);
+
+    T visit(LabelHtmlNode node);
+
+    T visit(TextareaHtmlNode node);
+
+    T visit(ButtonHtmlNode node);
+
+    T visit(InputHtmlNode node);
+
+    // Media
+    T visit(ImgHtmlNode node);
+
+    // Embedded
+    T visit(StyleHtmlNode node);
+
+    // Generic
+    T visit(GenericHtmlNode node);
+
+    // HTML Attribute
+    T visit(HtmlAttributeNode node);
 
     // ==================== CSS Nodes ====================
+
+    // CSS Structure
     T visit(StylesheetNode node);
-    //TODO in the future for CSS
-    // T visit(CssRuleNode node);
-    // T visit(SelectorNode node);
-    // T visit(DeclarationNode node);
-    // T visit(CssValueNode node);
+
+    T visit(CSSStylesheetNode node);
+
+    T visit(CSSRuleNode node);
+
+    T visit(CSSDeclarationNode node);
+
+    // CSS Selectors
+    T visit(CSSElementSelectorNode node);
+
+    T visit(CSSClassSelectorNode node);
+
+    T visit(CSSPseudoClassSelectorNode node);
+
+    T visit(CSSDescendantSelectorNode node);
+
+    // CSS Property Nodes
+    T visit(LengthPropertyNode node);
+
+    T visit(MultiLengthPropertyNode node);
+
+    T visit(ColorPropertyNode node);
+
+    T visit(KeywordPropertyNode node);
+
+    T visit(BoxShadowPropertyNode node);
+
+    T visit(BorderPropertyNode node);
+
+    T visit(TransitionPropertyNode node);
+
+    T visit(TransformPropertyNode node);
+
+    T visit(BackgroundPropertyNode node);
+
+    T visit(FontFamilyPropertyNode node);
+
+    T visit(FontWeightPropertyNode node);
+
+    T visit(BoxSizingPropertyNode node);
+
+    T visit(OutlinePropertyNode node);
+
+    // CSS Value Nodes
+    T visit(CSSLengthValueNode node);
+
+    T visit(CSSColorValueNode node);
+
+    T visit(CSSKeywordValueNode node);
+
+    T visit(CSSNumberValueNode node);
+
+    T visit(CSSTimeValueNode node);
+
+    T visit(CSSIdentValueNode node);
+
+    T visit(CSSFunctionValueNode node);
+
 }

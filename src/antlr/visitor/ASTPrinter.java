@@ -2,11 +2,20 @@ package antlr.visitor;
 
 import java.util.List;
 
-import antlr.ast.css.StylesheetNode;
-import antlr.ast.html.HtmlDocumentNode;
+import antlr.ast.css.*;
+import antlr.ast.css.selectors.*;
+import antlr.ast.css.properties.*;
+import antlr.ast.css.values.*;
 import antlr.ast.jinja2.TemplateNode;
 import antlr.ast.jinja2.blocks.*;
 import antlr.ast.jinja2.content.*;
+import antlr.ast.jinja2.content.elements.*;
+import antlr.ast.jinja2.content.elements.document.*;
+import antlr.ast.jinja2.content.elements.sectioning.*;
+import antlr.ast.jinja2.content.elements.text.*;
+import antlr.ast.jinja2.content.elements.form.*;
+import antlr.ast.jinja2.content.elements.media.*;
+import antlr.ast.jinja2.content.elements.embedded.*;
 import antlr.ast.jinja2.expressions.*;
 import antlr.ast.jinja2.expressions.literals.*;
 import antlr.ast.jinja2.expressions.operations.*;
@@ -49,6 +58,22 @@ public class ASTPrinter implements ASTVisitor<String> {
     private final String LAST_BRANCH = GRAY + "└── " + RESET;
     private final String VERTICAL = GRAY + "│   " + RESET;
     private final String SPACE = "    ";
+    private final boolean hideWhitespace;
+
+    /**
+     * Default constructor - shows all nodes including whitespace
+     */
+    public ASTPrinter() {
+        this(false);
+    }
+
+    /**
+     * Constructor with option to hide whitespace-only text nodes
+     * @param hideWhitespace if true, hides text nodes that contain only whitespace
+     */
+    public ASTPrinter(boolean hideWhitespace) {
+        this.hideWhitespace = hideWhitespace;
+    }
 
     /**
      * طباعة الشجرة
@@ -631,6 +656,11 @@ public class ASTPrinter implements ASTVisitor<String> {
 
     @Override
     public String visit(HtmlTextNode node) {
+        // Skip whitespace-only text nodes if hideWhitespace is enabled
+        if (hideWhitespace && node.getText().trim().isEmpty()) {
+            return "";
+        }
+
         String preview = node.getText();
         if (preview.length() > 30) {
             preview = preview.substring(0, 30) + "...";
@@ -1501,52 +1531,1096 @@ public class ASTPrinter implements ASTVisitor<String> {
     public String visit(NamespaceTargetNode node) {
         return nodeInfo(node, "(namespace: " + node.getNameSpace() + ", attrs: " + String.join(".", node.getAttributes()) + ")") + "\n";
     }
-    // ==================== HTML Nodes (Placeholders) ====================
+    // ==================== HTML Nodes ====================
+
+    // ==================== HTML Element Nodes ====================
+
+    // Base HTML Element Node
     @Override
-    public String visit(HtmlDocumentNode node) {
-        return "HtmlDocumentNode [Not implemented yet]\n";
+    public String visit(HtmlElementNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, canHaveChildren: %s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.canHaveChildren());
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1) && node.getChildNodes().isEmpty();
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH).append(TEAL).append("Attribute: ").append(RESET);
+                sb.append(attrs.get(i).accept(this));
+            }
+        }
+
+        // Child nodes
+        List<ASTNode> children = node.getChildNodes();
+        for (int i = 0; i < children.size(); i++) {
+            boolean isLast = i == children.size() - 1;
+            sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH).append(DARK).append("Child: ").append(RESET);
+            sb.append(children.get(i).accept(this));
+        }
+        indentLevel--;
+
+        return sb.toString();
     }
 
-    // @Override
-    // public String visit(HtmlElementNode node) {
-    //     return "HtmlElementNode [Not implemented yet]\n";
-    // }
-    // @Override
-    // public String visit(HtmlAttributeNode node) {
-    //     return "HtmlAttributeNode [Not implemented yet]\n";
-    // }
-    // @Override
-    // public String visit(HtmlTextNode node) {
-    //     return "HtmlTextNode [Not implemented yet]\n";
-    // }
-    // @Override
-    // public String visit(HtmlCommentNode node) {
-    //     return "HtmlCommentNode [Not implemented yet]\n";
-    // }
-    // @Override
-    // public String visit(DoctypeNode node) {
-    //     return "DoctypeNode [Not implemented yet]\n";
-    // }
-    // ==================== CSS Nodes (Placeholders) ====================
+    // HTML Attribute Value Node
+    @Override
+    public String visit(HtmlAttributeValueNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(parts: " + node.getParts().size() + ")")).append("\n");
+
+        indentLevel++;
+        List<ASTNode> parts = node.getParts();
+        for (int i = 0; i < parts.size(); i++) {
+            boolean isLast = i == parts.size() - 1;
+            sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH).append(TEAL).append("Part: ").append(RESET);
+            sb.append(parts.get(i).accept(this));
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    // ==================== Specific HTML Element Nodes ====================
+
+    // Document structure elements
+    @Override
+    public String visit(HtmlRootHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, children: %d%s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.getChildNodes().size(),
+            node.isImplicitlyClosed() ? ", implicit" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        // Children
+        List<ASTNode> children = node.getChildNodes();
+        if (!children.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Children:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(children.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(HeadHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, children: %d%s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.getChildNodes().size(),
+            node.isImplicitlyClosed() ? ", implicit" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        // Children
+        List<ASTNode> children = node.getChildNodes();
+        if (!children.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Children:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(children.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(BodyHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, children: %d%s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.getChildNodes().size(),
+            node.isImplicitlyClosed() ? ", implicit" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        // Children
+        List<ASTNode> children = node.getChildNodes();
+        if (!children.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Children:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(children.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(TitleHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, children: %d%s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.getChildNodes().size(),
+            node.isImplicitlyClosed() ? ", implicit" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        // Children
+        List<ASTNode> children = node.getChildNodes();
+        if (!children.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Children:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(children.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    // Sectioning elements
+    @Override
+    public String visit(DivHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, children: %d%s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.getChildNodes().size(),
+            node.isImplicitlyClosed() ? ", implicit" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        // Children
+        List<ASTNode> children = node.getChildNodes();
+        if (!children.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Children:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(children.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(H1HtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, children: %d%s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.getChildNodes().size(),
+            node.isImplicitlyClosed() ? ", implicit" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        // Children
+        List<ASTNode> children = node.getChildNodes();
+        if (!children.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Children:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(children.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    // Text elements
+    @Override
+    public String visit(ParagraphHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, children: %d%s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.getChildNodes().size(),
+            node.isImplicitlyClosed() ? ", implicit" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        // Children
+        List<ASTNode> children = node.getChildNodes();
+        if (!children.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Children:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(children.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(AnchorHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, children: %d%s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.getChildNodes().size(),
+            node.isImplicitlyClosed() ? ", implicit" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        // Children
+        List<ASTNode> children = node.getChildNodes();
+        if (!children.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Children:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(children.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    // Form elements
+    @Override
+    public String visit(FormHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, children: %d%s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.getChildNodes().size(),
+            node.isImplicitlyClosed() ? ", implicit" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        // Children
+        List<ASTNode> children = node.getChildNodes();
+        if (!children.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Children:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(children.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(LabelHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, children: %d%s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.getChildNodes().size(),
+            node.isImplicitlyClosed() ? ", implicit" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        // Children
+        List<ASTNode> children = node.getChildNodes();
+        if (!children.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Children:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(children.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(TextareaHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, children: %d%s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.getChildNodes().size(),
+            node.isImplicitlyClosed() ? ", implicit" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        // Children
+        List<ASTNode> children = node.getChildNodes();
+        if (!children.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Children:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(children.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(ButtonHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, children: %d%s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.getChildNodes().size(),
+            node.isImplicitlyClosed() ? ", implicit" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        // Children
+        List<ASTNode> children = node.getChildNodes();
+        if (!children.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Children:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(children.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(InputHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d)",
+            node.getTagName(),
+            node.getAttributes().size());
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    // Media elements
+    @Override
+    public String visit(ImgHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d)",
+            node.getTagName(),
+            node.getAttributes().size());
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    // Embedded elements
+    @Override
+    public String visit(StyleHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, children: %d%s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.getChildNodes().size(),
+            node.isImplicitlyClosed() ? ", implicit" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        // Children
+        List<ASTNode> children = node.getChildNodes();
+        if (!children.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Children:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(children.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    // Generic element
+    @Override
+    public String visit(GenericHtmlNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(tag: %s, attrs: %d, children: %d%s)",
+            node.getTagName(),
+            node.getAttributes().size(),
+            node.getChildNodes().size(),
+            node.isImplicitlyClosed() ? ", implicit" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        // Attributes
+        List<HtmlAttributeNode> attrs = node.getAttributes();
+        if (!attrs.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Attributes:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < attrs.size(); i++) {
+                boolean isLast = (i == attrs.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(attrs.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        // Children
+        List<ASTNode> children = node.getChildNodes();
+        if (!children.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Children:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(children.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    // HTML Attribute
+    @Override
+    public String visit(HtmlAttributeNode node) {
+        StringBuilder sb = new StringBuilder();
+        String extra = String.format("(name: %s, quote: %s%s)",
+            node.getNameAsString(),
+            node.getQuoteStyle().name().toLowerCase(),
+            node.isBooleanAttribute() ? ", boolean" : "");
+        sb.append(nodeInfo(node, extra)).append("\n");
+
+        indentLevel++;
+        if (node.hasValue() && node.getValue() != null) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Value: ").append(RESET);
+            // HtmlAttributeValueNode doesn't have visitor yet, so just show info
+            sb.append(LIGHT).append("[attribute value]").append(RESET).append("\n");
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    // ==================== CSS Nodes ====================
+
     @Override
     public String visit(StylesheetNode node) {
-        return "StylesheetNode [Not implemented yet]\n";
+        return nodeInfo(node, "") + "\n";
     }
 
-    // @Override
-    // public String visit(CssRuleNode node) {
-    //     return "CssRuleNode [Not implemented yet]\n";
-    // }
-    // @Override
-    // public String visit(SelectorNode node) {
-    //     return "SelectorNode [Not implemented yet]\n";
-    // }
-    // @Override
-    // public String visit(DeclarationNode node) {
-    //     return "DeclarationNode [Not implemented yet]\n";
-    // }
-    // @Override
-    // public String visit(CssValueNode node) {
-    //     return "CssValueNode [Not implemented yet]\n";
-    // }
+    @Override
+    public String visit(CSSStylesheetNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(rules: " + node.getRules().size() + ")")).append("\n");
+
+        indentLevel++;
+        List<CSSRuleNode> rules = node.getRules();
+        for (int i = 0; i < rules.size(); i++) {
+            boolean isLast = (i == rules.size() - 1);
+            sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+            sb.append(rules.get(i).accept(this));
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(CSSRuleNode node) {
+        StringBuilder sb = new StringBuilder();
+        String selectorText = node.getSelectors().stream()
+            .map(sel -> sel.getSelectorText())
+            .collect(java.util.stream.Collectors.joining(", "));
+        sb.append(nodeInfo(node, "(selectors: \"" + selectorText + "\", declarations: " + node.getDeclarations().size() + ")")).append("\n");
+
+        indentLevel++;
+
+        // Print selectors
+        List<CSSSelectorNode> selectors = node.getSelectors();
+        if (!selectors.isEmpty()) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Selectors:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < selectors.size(); i++) {
+                boolean isLast = (i == selectors.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(selectors.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+
+        // Print declarations
+        List<CSSDeclarationNode> declarations = node.getDeclarations();
+        if (!declarations.isEmpty()) {
+            boolean selectorsExist = !selectors.isEmpty();
+            sb.append(indent()).append(selectorsExist ? LAST_BRANCH : BRANCH).append(TEAL).append("Declarations:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < declarations.size(); i++) {
+                boolean isLast = (i == declarations.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(declarations.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(CSSDeclarationNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(property: \"" + node.getProperty() + "\", values: " + node.getValues().size() + ")")).append("\n");
+
+        indentLevel++;
+        List<CSSValueNode> values = node.getValues();
+        for (int i = 0; i < values.size(); i++) {
+            boolean isLast = (i == values.size() - 1);
+            sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH).append(TEAL).append("Value: ").append(RESET);
+            sb.append(values.get(i).accept(this));
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    // ==================== CSS Selector Nodes ====================
+
+    @Override
+    public String visit(CSSElementSelectorNode node) {
+        return nodeInfo(node, "(element: \"" + node.getElementName() + "\")") + "\n";
+    }
+
+    @Override
+    public String visit(CSSClassSelectorNode node) {
+        return nodeInfo(node, "(class: \"" + node.getClassName() + "\")") + "\n";
+    }
+
+    @Override
+    public String visit(CSSPseudoClassSelectorNode node) {
+        return nodeInfo(node, "(pseudo: \"" + node.getPseudoClass() + "\")") + "\n";
+    }
+
+    @Override
+    public String visit(CSSDescendantSelectorNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(descendant: \"" + node.getSelectorText() + "\")")).append("\n");
+
+        indentLevel++;
+
+        // Print ancestor
+        if (node.getAncestor() != null) {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Ancestor: ").append(RESET);
+            sb.append(node.getAncestor().accept(this));
+        }
+
+        // Print descendants
+        List<CSSSelectorNode> descendants = node.getDescendants();
+        if (!descendants.isEmpty()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Descendants:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < descendants.size(); i++) {
+                boolean isLast = (i == descendants.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(descendants.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    // ==================== CSS Property Nodes ====================
+
+    @Override
+    public String visit(LengthPropertyNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(property: " + node.getPropertyName() + ")")).append("\n");
+
+        indentLevel++;
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Value: ").append(RESET);
+        sb.append(node.getValue().accept(this));
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(MultiLengthPropertyNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(property: " + node.getPropertyName() + ", values: " + node.getLengthValues().size() + ")")).append("\n");
+
+        indentLevel++;
+        List<CSSLengthValueNode> values = node.getLengthValues();
+        for (int i = 0; i < values.size(); i++) {
+            boolean isLast = (i == values.size() - 1);
+            sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH).append(TEAL).append("Value " + (i + 1) + ": ").append(RESET);
+            sb.append(values.get(i).accept(this));
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(ColorPropertyNode node) {
+        StringBuilder sb = new StringBuilder();
+        String type = node.isColorLiteral() ? "color-literal" : "keyword";
+        sb.append(nodeInfo(node, "(property: " + node.getPropertyName() + ", type: " + type + ")")).append("\n");
+
+        indentLevel++;
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Value: ").append(RESET);
+        sb.append(node.getColorValue().accept(this));
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(KeywordPropertyNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(property: " + node.getPropertyName() + ", keyword: " + node.getKeywordValue() + ")")).append("\n");
+
+        indentLevel++;
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Value: ").append(RESET);
+        sb.append(node.getKeyword().accept(this));
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(BoxShadowPropertyNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(property: box-shadow, shadows: " + node.getShadows().size() + ")")).append("\n");
+
+        indentLevel++;
+        List<BoxShadowPropertyNode.Shadow> shadows = node.getShadows();
+        for (int i = 0; i < shadows.size(); i++) {
+            BoxShadowPropertyNode.Shadow shadow = shadows.get(i);
+            boolean isLast = (i == shadows.size() - 1);
+            sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH).append(TEAL).append("Shadow " + (i + 1) + ":").append(RESET).append("\n");
+
+            indentLevel++;
+            sb.append(indent()).append(BRANCH).append(TEAL).append("OffsetX: ").append(RESET);
+            sb.append(shadow.offsetX.accept(this));
+            sb.append(indent()).append(BRANCH).append(TEAL).append("OffsetY: ").append(RESET);
+            sb.append(shadow.offsetY.accept(this));
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Blur: ").append(RESET);
+            sb.append(shadow.blur.accept(this));
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Color: ").append(RESET);
+            sb.append(shadow.color.accept(this));
+            indentLevel--;
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(BorderPropertyNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(property: " + node.getPropertyName() + ")")).append("\n");
+
+        indentLevel++;
+        sb.append(indent()).append(BRANCH).append(TEAL).append("Width: ").append(RESET);
+        sb.append(node.getWidth().accept(this));
+        sb.append(indent()).append(BRANCH).append(TEAL).append("Style: ").append(RESET);
+        sb.append(node.getStyle().accept(this));
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Color: ").append(RESET);
+        sb.append(node.getColor().accept(this));
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(TransitionPropertyNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(property: transition)")).append("\n");
+
+        indentLevel++;
+        sb.append(indent()).append(BRANCH).append(TEAL).append("Property: ").append(RESET);
+        sb.append(node.getProperty().accept(this));
+        sb.append(indent()).append(BRANCH).append(TEAL).append("Duration: ").append(RESET);
+        sb.append(node.getDuration().accept(this));
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Easing: ").append(RESET);
+        sb.append(node.getEasing().accept(this));
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(TransformPropertyNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(property: transform)")).append("\n");
+
+        indentLevel++;
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Function: ").append(RESET);
+        sb.append(node.getTransformFunction().accept(this));
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(BackgroundPropertyNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(property: background)")).append("\n");
+
+        indentLevel++;
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Value: ").append(RESET);
+        sb.append(node.getBackgroundValue().accept(this));
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(FontFamilyPropertyNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(property: font-family, fonts: " + node.getFontNames().size() + ")")).append("\n");
+
+        indentLevel++;
+        List<CSSIdentValueNode> fonts = node.getFonts();
+        for (int i = 0; i < fonts.size(); i++) {
+            boolean isLast = (i == fonts.size() - 1);
+            sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH).append(TEAL).append("Font " + (i + 1) + ": ").append(RESET);
+            sb.append(fonts.get(i).accept(this));
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(FontWeightPropertyNode node) {
+        StringBuilder sb = new StringBuilder();
+        String type = node.isNumeric() ? "numeric" : "keyword";
+        sb.append(nodeInfo(node, "(property: font-weight, type: " + type + ")")).append("\n");
+
+        indentLevel++;
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Value: ").append(RESET);
+        sb.append(node.getWeightValue().accept(this));
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(BoxSizingPropertyNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(property: box-sizing, value: " + node.getSizingModelValue() + ")")).append("\n");
+
+        indentLevel++;
+        sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Value: ").append(RESET);
+        sb.append(node.getSizingModel().accept(this));
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(OutlinePropertyNode node) {
+        StringBuilder sb = new StringBuilder();
+        String type = node.isKeyword() ? "keyword" : "full";
+        sb.append(nodeInfo(node, "(property: outline, type: " + type + ")")).append("\n");
+
+        indentLevel++;
+        if (node.isKeyword()) {
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Keyword: ").append(RESET);
+            sb.append(node.getKeywordValue().accept(this));
+        } else {
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Width: ").append(RESET);
+            sb.append(node.getWidth().accept(this));
+            sb.append(indent()).append(BRANCH).append(TEAL).append("Style: ").append(RESET);
+            sb.append(node.getStyle().accept(this));
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Color: ").append(RESET);
+            sb.append(node.getColor().accept(this));
+        }
+        indentLevel--;
+
+        return sb.toString();
+    }
+
+    // ==================== CSS Value Nodes ====================
+
+    @Override
+    public String visit(CSSLengthValueNode node) {
+        return nodeInfo(node, "(value: " + node.getValueText() + ")") + "\n";
+    }
+
+    @Override
+    public String visit(CSSColorValueNode node) {
+        return nodeInfo(node, "(color: " + node.getColor() + ")") + "\n";
+    }
+
+    @Override
+    public String visit(CSSKeywordValueNode node) {
+        return nodeInfo(node, "(keyword: " + node.getKeyword() + ")") + "\n";
+    }
+
+    @Override
+    public String visit(CSSNumberValueNode node) {
+        return nodeInfo(node, "(number: " + node.getValueText() + ")") + "\n";
+    }
+
+    @Override
+    public String visit(CSSTimeValueNode node) {
+        return nodeInfo(node, "(time: " + node.getValueText() + ")") + "\n";
+    }
+
+    @Override
+    public String visit(CSSIdentValueNode node) {
+        return nodeInfo(node, "(ident: " + node.getIdent() + ")") + "\n";
+    }
+
+    @Override
+    public String visit(CSSFunctionValueNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(function: " + node.getFunctionName() + ", args: " + node.getArguments().size() + ")")).append("\n");
+
+        if (!node.getArguments().isEmpty()) {
+            indentLevel++;
+            List<CSSValueNode> args = node.getArguments();
+            for (int i = 0; i < args.size(); i++) {
+                boolean isLast = (i == args.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH).append(TEAL).append("Arg " + (i + 1) + ": ").append(RESET);
+                sb.append(args.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+
+        return sb.toString();
+    }
 }
