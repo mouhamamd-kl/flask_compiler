@@ -76,6 +76,26 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
     }
 
     @Override
+    public ASTNode visitHtmlDoctypePart(jinja2Parser.HtmlDoctypePartContext ctx) {
+        return new HtmlTextNode(ctx.getText(), safeGetLine(ctx), safeGetCol(ctx));
+    }
+
+    @Override
+    public ASTNode visitHtmlCommentPart(jinja2Parser.HtmlCommentPartContext ctx) {
+        return new HtmlTextNode(ctx.getText(), safeGetLine(ctx), safeGetCol(ctx));
+    }
+
+    @Override
+    public ASTNode visitHtmlCdataPart(jinja2Parser.HtmlCdataPartContext ctx) {
+        return new HtmlTextNode(ctx.getText(), safeGetLine(ctx), safeGetCol(ctx));
+    }
+
+    @Override
+    public ASTNode visitHtmlEntityPart(jinja2Parser.HtmlEntityPartContext ctx) {
+        return new HtmlTextNode(ctx.getText(), safeGetLine(ctx), safeGetCol(ctx));
+    }
+
+    @Override
     public ASTNode visitExpressionOutput(jinja2Parser.ExpressionOutputContext ctx) {
         int line = safeGetLine(ctx);
         int col = safeGetCol(ctx);
@@ -1553,22 +1573,87 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
 
         // Set quote style and value if present
         if (ctx.value != null) {
+            HtmlAttributeValueNode valueNode = new HtmlAttributeValueNode(line, col);
             if (ctx.value instanceof jinja2Parser.DoubleQuotedValueContext) {
                 node.setQuoteStyle(QuoteStyle.DOUBLE);
-                // TODO: Parse attribute value parts when HtmlAttributeValueNode is implemented
+                jinja2Parser.DoubleQuotedValueContext dqCtx = (jinja2Parser.DoubleQuotedValueContext) ctx.value;
+                for (jinja2Parser.AttrDqContentContext partCtx : dqCtx.parts) {
+                    ASTNode part = visit(partCtx);
+                    if (part != null) {
+                        valueNode.addPart(part);
+                    }
+                }
             } else if (ctx.value instanceof jinja2Parser.SingleQuotedValueContext) {
                 node.setQuoteStyle(QuoteStyle.SINGLE);
-                // TODO: Parse attribute value parts when HtmlAttributeValueNode is implemented
+                jinja2Parser.SingleQuotedValueContext sqCtx = (jinja2Parser.SingleQuotedValueContext) ctx.value;
+                for (jinja2Parser.AttrSqContentContext partCtx : sqCtx.parts) {
+                    ASTNode part = visit(partCtx);
+                    if (part != null) {
+                        valueNode.addPart(part);
+                    }
+                }
             } else if (ctx.value instanceof jinja2Parser.UnquotedValueContext) {
                 node.setQuoteStyle(QuoteStyle.UNQUOTED);
-                // TODO: Parse unquoted value when HtmlAttributeValueNode is implemented
+                jinja2Parser.UnquotedValueContext unquotedCtx = (jinja2Parser.UnquotedValueContext) ctx.value;
+                valueNode.addPart(new HtmlTextNode(unquotedCtx.value.getText(), line, col));
+            } else if (ctx.value instanceof jinja2Parser.ExpressionValueContext) {
+                node.setQuoteStyle(QuoteStyle.NONE);
+                jinja2Parser.ExpressionValueContext exprCtx = (jinja2Parser.ExpressionValueContext) ctx.value;
+                ASTNode exprPart = buildExpressionPart(exprCtx.expr);
+                if (exprPart != null) {
+                    valueNode.addPart(exprPart);
+                }
             }
+            node.setValue(valueNode);
         } else {
             // Boolean attribute (no value)
             node.setQuoteStyle(QuoteStyle.NONE);
         }
 
         return node;
+    }
+
+    private ASTNode buildExpressionPart(jinja2Parser.ExpressionContext exprCtx) {
+        int line = safeGetLine(exprCtx);
+        int col = safeGetCol(exprCtx);
+        ExpressionBlockNode blockNode = new ExpressionBlockNode(line, col);
+        ASTNode expressionNode = visit(exprCtx);
+        if (expressionNode instanceof JinjaExpressionNode) {
+            blockNode.setExpression((JinjaExpressionNode) expressionNode);
+        }
+        return blockNode;
+    }
+
+    // ==================== HTML ATTRIBUTE VALUE CONTENT VISITORS ====================
+
+    @Override
+    public ASTNode visitAttrDqText(jinja2Parser.AttrDqTextContext ctx) {
+        return new HtmlTextNode(ctx.text.getText(), safeGetLine(ctx), safeGetCol(ctx));
+    }
+
+    @Override
+    public ASTNode visitAttrSqText(jinja2Parser.AttrSqTextContext ctx) {
+        return new HtmlTextNode(ctx.text.getText(), safeGetLine(ctx), safeGetCol(ctx));
+    }
+
+    @Override
+    public ASTNode visitAttrDqExpr(jinja2Parser.AttrDqExprContext ctx) {
+        return buildExpressionPart(ctx.expr);
+    }
+
+    @Override
+    public ASTNode visitAttrSqExpr(jinja2Parser.AttrSqExprContext ctx) {
+        return buildExpressionPart(ctx.expr);
+    }
+
+    @Override
+    public ASTNode visitAttrDqStmt(jinja2Parser.AttrDqStmtContext ctx) {
+        return visit(ctx.stmt);
+    }
+
+    @Override
+    public ASTNode visitAttrSqStmt(jinja2Parser.AttrSqStmtContext ctx) {
+        return visit(ctx.stmt);
     }
 
     // ==================== CSS DECLARATION VISITORS ====================

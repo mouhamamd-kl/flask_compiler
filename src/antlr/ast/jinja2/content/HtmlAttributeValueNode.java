@@ -1,16 +1,18 @@
 package antlr.ast.jinja2.content;
 
 import antlr.ast.node.ASTNode;
+import antlr.ast.python.expressions.ExpressionNode;
 import antlr.ast.visitor.ASTVisitor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents the value of an HTML attribute.
  * Can contain mixed text and Jinja2 expressions.
- *
+ * <p>
  * Examples:
  * - "container" (static text)
  * - "btn-{{ size }}" (mixed text and expression)
@@ -46,13 +48,18 @@ public class HtmlAttributeValueNode extends ASTNode {
 
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
-        // For now, return a default string representation
-        // This can be updated when a proper visitor method is added
-        return null;
+        return visitor.visit(this);
     }
 
     @Override
     protected String getExtraInfo() {
         return "(parts: " + parts.size() + ")";
+    }
+
+    @Override
+    public String toString() {
+        return "[" + parts.stream()
+                .map(ASTNode::toString)
+                .collect(Collectors.joining(", ")) + "]";
     }
 }

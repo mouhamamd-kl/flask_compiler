@@ -2211,20 +2211,45 @@ public class ASTPrinter implements ASTVisitor<String> {
     @Override
     public String visit(HtmlAttributeNode node) {
         StringBuilder sb = new StringBuilder();
-        String extra = String.format("(name: %s, quote: %s%s)",
-            node.getNameAsString(),
-            node.getQuoteStyle().name().toLowerCase(),
-            node.isBooleanAttribute() ? ", boolean" : "");
+        String valueStr = node.hasValue() && node.getValue() != null
+                ? "\"" + renderValueSummary(node.getValue()) + "\"" : "none";
+        String extra = String.format("(name: %s, quote: %s%s, value: %s)",
+                node.getNameAsString(),
+                node.getQuoteStyle().name().toLowerCase(),
+                node.isBooleanAttribute() ? ", boolean" : "",
+                valueStr
+        );
         sb.append(nodeInfo(node, extra)).append("\n");
 
         indentLevel++;
         if (node.hasValue() && node.getValue() != null) {
             sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Value: ").append(RESET);
-            // HtmlAttributeValueNode doesn't have visitor yet, so just show info
-            sb.append(LIGHT).append("[attribute value]").append(RESET).append("\n");
+            sb.append(node.getValue().accept(this));
         }
         indentLevel--;
 
+        return sb.toString();
+    }
+
+    private String renderValueSummary(HtmlAttributeValueNode value) {
+        StringBuilder sb = new StringBuilder();
+        for (ASTNode part : value.getParts()) {
+            if (part instanceof HtmlTextNode) {
+                sb.append(((HtmlTextNode) part).getText());
+            } else if (part instanceof ExpressionBlockNode) {
+                ExpressionBlockNode expr = (ExpressionBlockNode) part;
+                sb.append("{{ ");
+                if (expr.getExpression() != null) {
+                    sb.append(expr.getExpression().getFullPath());
+                }
+                if (expr.hasFilters()) {
+                    sb.append(" | ").append(expr.getFilters().size()).append(" filter(s)");
+                }
+                sb.append(" }}");
+            } else {
+                sb.append(part.getNodeName());
+            }
+        }
         return sb.toString();
     }
 

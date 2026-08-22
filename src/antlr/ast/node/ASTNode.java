@@ -1,6 +1,7 @@
 package antlr.ast.node;
 
 import antlr.ast.visitor.ASTVisitor;
+import antlr.runtime.RunTimeObject;
 
 /**
  *
@@ -106,4 +107,7 @@ public abstract class ASTNode {
     public String toString() {
         return toString(0);
     }
+
+
+//  abstract protected RunTimeObject toRunTimeObject();
 }

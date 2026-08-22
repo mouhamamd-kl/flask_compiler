@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jinja2 HTML Assignment Test</title>
+</head>
+<body>
+    <h1>Testing HTML Assignment in Jinja2</h1>
+
+    {% set my_html = '<strong>Bold Text</strong>' %}
+
+    {% set button_html = '<button class="btn btn-primary">Click Me</button>' %}
+
+    {% set link_html = '<a href="https://example.com" target="_blank">Visit Example</a>' %}
+
+    <h2>1. Escaped Output (default - safe):</h2>
+    <p>{{ my_html }}</p>
+    <p>{{ button_html }}</p>
+    <p>{{ link_html }}</p>
+
+    <h2>2. Raw HTML Output (using |safe filter):</h2>
+    <p>{{ my_html|safe }}</p>
+    <p>{{ button_html|safe }}</p>
+    <p>{{ link_html|safe }}</p>
+
+    {% set card_html %}
+        <div class="card">
+            <div class="card-header">Card Title</div>
+            <div class="card-body">
+                <p>This is card content with <em>italic</em> and <strong>bold</strong> text.</p>
+            </div>
+        </div>
+    {% endset %}
+
+    <h2>3. Multiline HTML Block (set block):</h2>
+    {{ card_html|safe }}
+
+    {% set username = "Ahmed" %}
+    {% set greeting_html = '<span class="greeting">Hello, <strong>' ~ username ~ '</strong>!</span>' %}
+
+    <h2>4. Dynamic HTML with Variables:</h2>
+    <p>{{ greeting_html|safe }}</p>
+
+    {% set items = ['Apple', 'Banana', 'Orange'] %}
+    <h2>5. HTML Generated in Loop:</h2>
+    <ul>
+    {% for item in items %}
+        {% set item_html = '<li class="list-item">' ~ item ~ '</li>' %}
+        {{ item_html|safe }}
+    {% endfor %}
+    </ul>
+
+</body>
+</html>

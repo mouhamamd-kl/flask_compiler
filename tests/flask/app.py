@@ -42,6 +42,7 @@ def add_product():
         }
 
         products.append(new_product)
+        print(products)
         return redirect(url_for('display_products'))
 
     return render_template('add_product.html')
