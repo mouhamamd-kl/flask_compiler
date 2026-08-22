@@ -12,6 +12,7 @@ public class Symbol {
     public enum SymbolType {
         VARIABLE,
         FUNCTION,
+        IMPORT,
         PARAMETER,
         TEMPLATE_VARIABLE,
         HTML_ELEMENT,

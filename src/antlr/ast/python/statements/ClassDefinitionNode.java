@@ -20,17 +20,20 @@ public class ClassDefinitionNode extends StatementNode {
 
     private final String className;
     private final List<StatementNode> bodyStatements;
+    private final List<DecoratorNode> decorators;
 
     public ClassDefinitionNode(String className, int lineNumber, int columnNumber) {
         super("ClassDefinition", lineNumber, columnNumber);
         this.className = className;
         this.bodyStatements = new ArrayList<>();
+        this.decorators = new ArrayList<>();
     }
 
     public ClassDefinitionNode(String className, List<StatementNode> statements, int lineNumber, int columnNumber) {
         super("ClassDefinition", lineNumber, columnNumber);
         this.className = className;
         this.bodyStatements = new ArrayList<>(statements);
+        this.decorators = new ArrayList<>();
         for (StatementNode stmt : this.bodyStatements) {
             if (stmt != null) {
                 stmt.setParent(this);
@@ -60,6 +63,22 @@ public class ClassDefinitionNode extends StatementNode {
 
     public boolean isEmpty() {
         return bodyStatements.isEmpty();
+    }
+
+    // ==================== إدارة الديكوريترات ====================
+    public void addDecorator(DecoratorNode node) {
+        if (node != null) {
+            node.setParent(this);
+            decorators.add(node);
+        }
+    }
+
+    public List<DecoratorNode> getDecorators() {
+        return Collections.unmodifiableList(decorators);
+    }
+
+    public int getDecoratorsCount() {
+        return decorators.size();
     }
 
     // ==================== تطبيق الواجهات ====================

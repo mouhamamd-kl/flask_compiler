@@ -16,6 +16,7 @@ import antlr.ast.python.parameters.*;
 import antlr.ast.python.statements.*;
 import antlr.gen.python.pythonParser;
 import antlr.gen.python.pythonParserBaseVisitor;
+import antlr.semantic.Builtins;
 import antlr.symbol.Symbol;
 import antlr.symbol.SymbolTable;
 
@@ -28,13 +29,26 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
     private final SymbolTable symbolTable;
     private SymbolTable currentScope;
 
+    // أخطاء التحليل الدلالي
+    private final List<String> semanticErrors = new ArrayList<>();
+
     public ASTBuilder() {
         this.symbolTable = new SymbolTable();
         this.currentScope = symbolTable;
+        Builtins.defineIn(symbolTable);
     }
 
     public SymbolTable getSymbolTable() {
         return symbolTable;
+    }
+
+    // ==================== الأخطاء الدلالية ====================
+    public List<String> getSemanticErrors() {
+        return semanticErrors;
+    }
+
+    private void reportSemanticError(int line, int col, String message) {
+        semanticErrors.add(String.format("Line %d:%d - Semantic error: %s", line, col, message));
     }
 
     // ==================== ROOT ====================
@@ -131,6 +145,13 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
                     classCtx.getStart().getLine(),
                     classCtx.getStart().getCharPositionInLine());
             importStmt.addImportedClass(classNode);
+
+            // تعريف الاسم المستورد كرمز في النطاق الحالي
+            Symbol importedSymbol = new Symbol(className, Symbol.SymbolType.IMPORT,
+                    classCtx.getStart().getLine(),
+                    classCtx.getStart().getCharPositionInLine());
+            importedSymbol.setDataType(moduleName);
+            currentScope.define(importedSymbol);
         }
 
         return importStmt;
@@ -325,6 +346,20 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
         int col = ctx.getStart().getCharPositionInLine();
         String className = ctx.classDefinition().name.getText();
         ClassDefinitionNode definitionNode = new ClassDefinitionNode(className, line, col);
+
+        // الديكوريترات
+        for (pythonParser.DecoratorContext decoratorCtx : ctx.classDefinition().decorator()) {
+            ASTNode decoratorNode = visit(decoratorCtx);
+            if (decoratorNode instanceof DecoratorNode dec) {
+                definitionNode.addDecorator(dec);
+            }
+        }
+
+        // تعريف اسم الصنف كرمز في النطاق الحالي
+        Symbol classSymbol = new Symbol(className, Symbol.SymbolType.VARIABLE, line, col);
+        classSymbol.setDataType("class");
+        currentScope.define(classSymbol);
+
         currentScope = currentScope.enterScope("class_" + className);
 
         // Class body
@@ -345,6 +380,18 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
         int col = ctx.getStart().getCharPositionInLine();
         String functionName = ctx.NAME().getText();
         FunctionDefinitionNode definitionNode = new FunctionDefinitionNode(functionName, line, col);
+
+        // الديكوريترات
+        for (pythonParser.DecoratorContext decoratorCtx : ctx.decorator()) {
+            ASTNode decoratorNode = visit(decoratorCtx);
+            if (decoratorNode instanceof DecoratorNode dec) {
+                definitionNode.addDecorator(dec);
+            }
+        }
+
+        // تعريف اسم الدالة كرمز في النطاق الحالي
+        currentScope.define(functionName, Symbol.SymbolType.FUNCTION, line, col);
+
         currentScope = currentScope.enterScope("function_" + functionName);
 
         // Function body
@@ -399,6 +446,17 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
         currentScope = currentScope.exitScope();
 
         return definitionNode;
+    }
+
+    @Override
+    public ASTNode visitDecorator(pythonParser.DecoratorContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+
+        DecoratorNode node = new DecoratorNode(line, col);
+        ExpressionNode exprNode = (ExpressionNode) visit(ctx.expr());
+        node.setExpression(exprNode);
+        return node;
     }
 
     @Override
@@ -651,6 +709,38 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
             ExpressionNode arg = (ExpressionNode) visit(argCtx);
             node.addParameter(arg);
         }
+
+        // التحقق الدلالي: الدالة المستدعاة يجب أن تكون معرفة أو مستوردة
+        if (callee instanceof VariableNode varCallee) {
+            String calleeName = varCallee.getName();
+            Symbol resolved = currentScope.resolve(calleeName);
+            if (resolved == null) {
+                reportSemanticError(line, col,
+                        "'" + calleeName + "' is not defined (is it imported or declared?)");
+                return node;
+            }
+
+            // استدعاء خاص لـ render_template
+            if ("render_template".equals(calleeName)) {
+                List<ExpressionNode> parameters = node.getParameters();
+                if (!parameters.isEmpty()
+                        && parameters.getFirst() instanceof KeywordArgumentNode firstArg
+                        && firstArg.getName() == null
+                        && firstArg.getValue() instanceof StringNode templateArg) {
+                    String rawTemplateName = templateArg.getValue();
+                    String templateName = rawTemplateName.substring(1, rawTemplateName.length() - 1);
+
+                    RenderTemplateNode renderTemplateNode = new RenderTemplateNode(templateName, line, col);
+                    for (int i = 1; i < parameters.size(); i++) {
+                        if (parameters.get(i) instanceof KeywordArgumentNode keywordArg) {
+                            renderTemplateNode.addContextVariable(keywordArg);
+                        }
+                    }
+                    return renderTemplateNode;
+                }
+            }
+        }
+
         return node;
     }
 

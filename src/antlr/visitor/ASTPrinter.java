@@ -227,8 +227,24 @@ public class ASTPrinter implements ASTVisitor<String> {
 
         indentLevel++;
 
-        // Print parameters
+        var decorators = node.getDecorators();
         var params = node.getParameters();
+        var bodyStatements = node.getBodyStatements();
+
+        // Print decorators
+        if (!decorators.isEmpty()) {
+            boolean bodyFollows = !params.isEmpty() || !bodyStatements.isEmpty();
+            sb.append(indent()).append(bodyFollows ? BRANCH : LAST_BRANCH).append(TEAL).append("Decorators:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < decorators.size(); i++) {
+                boolean isLast = (i == decorators.size() - 1) && !bodyFollows;
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(decorators.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+
+        // Print parameters
         if (!params.isEmpty()) {
             sb.append(indent()).append(BRANCH).append(TEAL).append("Parameters:").append(RESET).append("\n");
             indentLevel++;
@@ -241,7 +257,6 @@ public class ASTPrinter implements ASTVisitor<String> {
         }
 
         // Print body statements
-        var bodyStatements = node.getBodyStatements();
         boolean hasBody = !bodyStatements.isEmpty();
         sb.append(indent()).append(hasBody ? BRANCH : LAST_BRANCH).append(TEAL).append("Body:").append(RESET).append("\n");
         if (hasBody) {
@@ -264,7 +279,23 @@ public class ASTPrinter implements ASTVisitor<String> {
         sb.append(nodeInfo(node, "(name: " + node.getClassName() + ", statements: " + node.getBodyStatementsCount() + ")")).append("\n");
 
         indentLevel++;
+
+        var decorators = node.getDecorators();
         var bodyStatements = node.getBodyStatements();
+
+        // Print decorators
+        if (!decorators.isEmpty()) {
+            boolean bodyFollows = !bodyStatements.isEmpty();
+            sb.append(indent()).append(bodyFollows ? BRANCH : LAST_BRANCH).append(TEAL).append("Decorators:").append(RESET).append("\n");
+            indentLevel++;
+            for (int i = 0; i < decorators.size(); i++) {
+                boolean isLast = (i == decorators.size() - 1) && !bodyFollows;
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(decorators.get(i).accept(this));
+            }
+            indentLevel--;
+        }
+
         if (!bodyStatements.isEmpty()) {
             sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Body:").append(RESET).append("\n");
             indentLevel++;
@@ -276,6 +307,21 @@ public class ASTPrinter implements ASTVisitor<String> {
             indentLevel--;
         }
         indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(DecoratorNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(decorator: " + (node.getExpression() != null ? "@" + node.getExpression().toValueString() : "?") + ")")).append("\n");
+
+        if (node.getExpression() != null) {
+            indentLevel++;
+            sb.append(indent()).append(LAST_BRANCH).append(TEAL).append("Expression: ").append(RESET);
+            sb.append(node.getExpression().accept(this));
+            indentLevel--;
+        }
 
         return sb.toString();
     }
@@ -614,6 +660,26 @@ public class ASTPrinter implements ASTVisitor<String> {
             sb.append(args.get(i).accept(this));
         }
         indentLevel--;
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(RenderTemplateNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nodeInfo(node, "(template: \"" + node.getTemplateName() + "\", context: " + node.getContextVariablesCount() + ")")).append("\n");
+
+        var contextVars = node.getContextVariables();
+        if (!contextVars.isEmpty()) {
+            indentLevel++;
+            for (int i = 0; i < contextVars.size(); i++) {
+                boolean isLast = (i == contextVars.size() - 1);
+                sb.append(indent()).append(isLast ? LAST_BRANCH : BRANCH);
+                sb.append(TEAL).append("Context ").append(contextVars.get(i).getName()).append(": ").append(RESET);
+                sb.append(contextVars.get(i).accept(this));
+            }
+            indentLevel--;
+        }
 
         return sb.toString();
     }

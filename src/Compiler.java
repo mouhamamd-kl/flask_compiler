@@ -239,6 +239,13 @@ public class Compiler {
             result.ast = ast;
             result.symbolTable = builder.getSymbolTable();
 
+            // جمع الأخطاء الدلالية
+            if (!builder.getSemanticErrors().isEmpty()) {
+                result.success = false;
+                result.errors.addAll(builder.getSemanticErrors());
+                return result;
+            }
+
             // ==================== Phase 4: Print AST ====================
             System.out.println("\n" + Colors.TEAL + "🌳 Abstract Syntax Tree:" + Colors.RESET);
             ASTPrinter printer = new ASTPrinter(configs.hideWhitespace);

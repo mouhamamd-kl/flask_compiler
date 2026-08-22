@@ -27,6 +27,7 @@ import antlr.ast.python.expressions.access.DotAccessNode;
 import antlr.ast.python.expressions.access.FunctionCallNode;
 import antlr.ast.python.expressions.access.IndexAccessNode;
 import antlr.ast.python.expressions.access.KeywordArgumentNode;
+import antlr.ast.python.expressions.access.RenderTemplateNode;
 import antlr.ast.python.expressions.access.VariableNode;
 import antlr.ast.python.expressions.literals.BooleanNode;
 import antlr.ast.python.expressions.literals.DictEntryNode;
@@ -53,6 +54,7 @@ import antlr.ast.python.statements.BlockNode;
 import antlr.ast.python.statements.BreakNode;
 import antlr.ast.python.statements.ClassDefinitionNode;
 import antlr.ast.python.statements.ContinueNode;
+import antlr.ast.python.statements.DecoratorNode;
 import antlr.ast.python.statements.ExpressionStatementNode;
 import antlr.ast.python.statements.ForStatementNode;
 import antlr.ast.python.statements.FunctionDefinitionNode;
@@ -115,6 +117,8 @@ public interface ASTVisitor<T> {
 
     T visit(ClassDefinitionNode node);
 
+    T visit(DecoratorNode node);
+
     // ==================== Expression Nodes ====================
     T visit(BinaryOpNode node);
 
@@ -145,6 +149,8 @@ public interface ASTVisitor<T> {
     T visit(DotAccessNode node);
 
     T visit(FunctionCallNode node);
+
+    T visit(RenderTemplateNode node);
 
     T visit(KeywordArgumentNode node);
     // ==================== Condition Nodes ====================

@@ -20,12 +20,14 @@ public class FunctionDefinitionNode extends StatementNode {
     private final String functionName;
     private final List<ParameterNode> parameters;
     private final List<StatementNode> bodyStatements;
+    private final List<DecoratorNode> decorators;
 
     public FunctionDefinitionNode(String functionName, int lineNumber, int columnNumber) {
         super("FunctionDefinition", lineNumber, columnNumber);
         this.functionName = functionName;
         this.bodyStatements = new ArrayList<>();
         this.parameters = new ArrayList<>();
+        this.decorators = new ArrayList<>();
     }
 
     public FunctionDefinitionNode(String functionName, List<StatementNode> statements, List<ParameterNode> paramerters, int lineNumber, int columnNumber) {
@@ -33,6 +35,7 @@ public class FunctionDefinitionNode extends StatementNode {
         this.functionName = functionName;
         this.bodyStatements = new ArrayList<>(statements);
         this.parameters = new ArrayList<>(paramerters);
+        this.decorators = new ArrayList<>();
         for (StatementNode stmt : this.bodyStatements) {
             if (stmt != null) {
                 stmt.setParent(this);
@@ -68,6 +71,22 @@ public class FunctionDefinitionNode extends StatementNode {
     // public boolean isEmpty() {
     //     return bodyStatements.isEmpty();
     // }
+
+    // ==================== إدارة الديكوريترات ====================
+    public void addDecorator(DecoratorNode node) {
+        if (node != null) {
+            node.setParent(this);
+            decorators.add(node);
+        }
+    }
+
+    public List<DecoratorNode> getDecorators() {
+        return Collections.unmodifiableList(decorators);
+    }
+
+    public int getDecoratorsCount() {
+        return decorators.size();
+    }
 
     // ==================== إدارة المتحولات ====================
     public void addParameter(ParameterNode node) {
