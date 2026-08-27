@@ -8,6 +8,25 @@ public class Main {
     public static void main(String[] args) {
         String testsDir = "tests/flask";
         Compiler.Configs configs = new Compiler.Configs();
+
+        if (args.length > 0 && (args[0].equals("serve") || args[0].equals("-S"))) {
+            int port = 8080;
+            String target = testsDir;
+            for (int i = 1; i < args.length; i++) {
+                if (args[i].matches("\\d+")) {
+                    port = Integer.parseInt(args[i]);
+                } else {
+                    target = args[i];
+                }
+            }
+            configs.serveMode = true;
+            configs.servePort = port;
+            configs.serveTarget = target;
+            Compiler compiler = new Compiler(configs);
+            compiler.serve(target, port);
+            return;
+        }
+
         ArgsResult parsed = solveArgs(args, configs);
 
         if (configs.generateMode) {

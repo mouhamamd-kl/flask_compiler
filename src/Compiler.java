@@ -5,6 +5,8 @@ import antlr.gen.python.pythonLexer;
 import antlr.gen.python.pythonParser;
 import antlr.generator.GenerationLogWriter;
 import antlr.generator.ProjectGenerator;
+import antlr.serve.LiveApp;
+import antlr.serve.LiveServer;
 import antlr.symbol.SymbolTable;
 import antlr.visitor.ASTBuilder;
 import antlr.visitor.ASTPrinter;
@@ -26,6 +28,9 @@ public class Compiler {
         public boolean watchMode = false;
         public boolean generateMode = false;
         public String generateTarget = null;
+        public boolean serveMode = false;
+        public int servePort = 8080;
+        public String serveTarget = null;
     }
 
     public Compiler(Configs configs) {
@@ -48,6 +53,88 @@ public class Compiler {
         return gen;
     }
 
+    /**
+     * Live serve phase: boot a dynamic Flask runtime and serve it HTTP exactly
+     * like `flask --app app run`. Blocks (with a source watcher) until stopped.
+     */
+    public void serve(String projectDir, int port) {
+        try {
+            Path dir = Paths.get(projectDir);
+            Path appPy = dir.resolve("app.py");
+            if (!Files.exists(appPy)) {
+                System.err.println("No app.py under " + dir.toAbsolutePath() + "; cannot serve.");
+                return;
+            }
+            String target = dir.toAbsolutePath().toString();
+            System.out.println(Colors.TEAL + "\n⭐ Serving Flask app (live) from: " + Colors.LIGHT + target + Colors.RESET);
+
+            GenerationLogWriter log = new GenerationLogWriter();
+            LiveApp app = new LiveApp(log, dir);
+            app.boot(appPy);
+            LiveServer server = new LiveServer(app, log, dir, port);
+            server.start();
+
+            DirectoryWatcher watcher = DirectoryWatcher.builder()
+                    .path(dir)
+                    .fileHashing(true)
+                    .listener(event -> {
+                        if (event.eventType() == DirectoryChangeEvent.EventType.MODIFY
+                                || event.eventType() == DirectoryChangeEvent.EventType.CREATE) {
+                            Path changed = event.path();
+                            String fileName = changed.getFileName().toString().toLowerCase();
+                            if (!fileName.endsWith(".py") && !fileName.endsWith(".html")) {
+                                return;
+                            }
+                            if (compiling.getAndSet(true)) {
+                                return;
+                            }
+                            try {
+                                long now = System.currentTimeMillis();
+                                if (now - lastCompileTime > 2000) {
+                                    lastCompileTime = now;
+                                    System.out.println(Colors.TEAL + "\n🔄 Change detected: " + Colors.LIGHT
+                                            + changed.getFileName() + Colors.RESET);
+                                    if (fileName.endsWith(".py")) {
+                                        try {
+                                            LiveApp fresh = new LiveApp(log, dir);
+                                            fresh.boot(appPy);
+                                            server.setApp(fresh);
+                                            System.out.println(Colors.TEAL + "✓ app.py reloaded (state reset)." + Colors.RESET);
+                                        } catch (Exception e) {
+                                            System.err.println(Colors.RED + "Reload failed: "
+                                                    + e.getMessage() + Colors.RESET);
+                                        }
+                                    } else {
+                                        app.reloadTemplates();
+                                        System.out.println(Colors.TEAL + "✓ templates reloaded." + Colors.RESET);
+                                    }
+                                    System.out.println(Colors.GRAY + "   Press Ctrl+C to stop" + Colors.RESET);
+                                }
+                            } finally {
+                                compiling.set(false);
+                            }
+                        }
+                    })
+                    .build();
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    watcher.close();
+                } catch (Exception ignored) {
+                }
+                server.stop();
+                System.out.println(Colors.TEAL + "\n👋 Serve stopped." + Colors.RESET);
+            }));
+
+            watcher.watch(); // blocks until the process is killed
+
+        } catch (IOException e) {
+            System.err.println(Colors.RED + "Error starting serve: " + e.getMessage() + Colors.RESET);
+        } catch (Exception e) {
+            System.err.println(Colors.RED + "Serve failure: " + e.getMessage() + Colors.RESET);
+        }
+    }
+
     public void run(String testsDir, String watchDir, boolean showUsage) {
         if (watchDir != null) {
             // Main already determined the target — just compile it
@@ -67,12 +154,15 @@ public class Compiler {
             System.out.println("  " + Colors.TEAL + "--generate, -g" + Colors.RESET + "         Code generation phase: render templates + write artifacts");
             System.out.println("  " + Colors.TEAL + "--watch, -W" + Colors.RESET + "            Watch mode: recompile on file changes");
             System.out.println("  " + Colors.TEAL + "--hide-whitespace, -w" + Colors.RESET + "  Hide whitespace-only text nodes in AST output");
+            System.out.println("  " + Colors.TEAL + "serve, -S" + Colors.RESET + "             Live server (like `flask --app app run`): serve [port] [target]");
             System.out.println("\n" + Colors.LIGHT + "Examples:" + Colors.RESET);
             System.out.println("  java Main                                    # Run all tests");
             System.out.println("  java Main tests/flask/templates/products.html");
             System.out.println("  java Main -w tests/flask/templates/products.html");
             System.out.println("  java Main --watch                            # Watch all tests");
             System.out.println("  java Main --watch tests/flask                # Watch specific directory");
+            System.out.println("  java Main serve                              # Serve tests/flask on :8080");
+            System.out.println("  java Main serve 9000 tests/flask              # Serve on :9000");
         }
 
         // Start watcher if in watch mode
@@ -117,7 +207,7 @@ public class Compiler {
                                     try {
 
                                         long now = System.currentTimeMillis();
-                                        if (now - lastCompileTime > 10000) {
+                                        if (now - lastCompileTime > 2000) {
                                             System.out.println("\n" + Colors.TEAL + "═".repeat(70) + Colors.RESET);
                                             System.out.println(Colors.TEAL + "  🔄 Change detected: " + Colors.LIGHT + changed.getFileName() + Colors.RESET);
                                             System.out.println(Colors.TEAL + "═".repeat(70) + Colors.RESET);
@@ -171,7 +261,7 @@ public class Compiler {
                                 if (!compiling.getAndSet(true)) {
                                     try {
                                         long now = System.currentTimeMillis();
-                                        if (now - lastCompileTime > 10000) {
+                                        if (now - lastCompileTime > 2000) {
                                             System.out.println("\n" + Colors.TEAL + "═".repeat(70) + Colors.RESET);
                                             System.out.println(Colors.TEAL + "  🔄 Change detected: " + Colors.LIGHT + changed.getFileName() + Colors.RESET);
                                             System.out.println(Colors.TEAL + "═".repeat(70) + Colors.RESET);
