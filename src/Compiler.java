@@ -3,6 +3,8 @@ import antlr.gen.jinja2.jinja2Lexer;
 import antlr.gen.jinja2.jinja2Parser;
 import antlr.gen.python.pythonLexer;
 import antlr.gen.python.pythonParser;
+import antlr.generator.GenerationLogWriter;
+import antlr.generator.ProjectGenerator;
 import antlr.symbol.SymbolTable;
 import antlr.visitor.ASTBuilder;
 import antlr.visitor.ASTPrinter;
@@ -22,6 +24,8 @@ public class Compiler {
     public static class Configs {
         public boolean hideWhitespace = false;
         public boolean watchMode = false;
+        public boolean generateMode = false;
+        public String generateTarget = null;
     }
 
     public Compiler(Configs configs) {
@@ -32,6 +36,17 @@ public class Compiler {
     private final java.util.concurrent.atomic.AtomicBoolean compiling = new java.util.concurrent.atomic.AtomicBoolean(false);
     private volatile long lastCompileTime = 0;
     private final Configs configs;
+
+    /**
+     * Code generation phase: turn a Flask project (app.py + templates) into
+     * static HTML plus compiler artifacts. See antlr.generator.ProjectGenerator.
+     * Returns the ProjectGenerator for use with incremental watch mode.
+     */
+    public ProjectGenerator generate(String projectDir) {
+        ProjectGenerator gen = new ProjectGenerator(new GenerationLogWriter());
+        gen.generate(Paths.get(projectDir));
+        return gen;
+    }
 
     public void run(String testsDir, String watchDir, boolean showUsage) {
         if (watchDir != null) {
@@ -48,7 +63,8 @@ public class Compiler {
 
         // Print usage if no args and not watching
         if (showUsage && !configs.watchMode) {
-            System.out.println(Colors.TEAL + "Usage: " + Colors.RESET + "java Main [--watch | -W] [--hide-whitespace | -w] [file | dir]");
+            System.out.println(Colors.TEAL + "Usage: " + Colors.RESET + "java Main [--generate | -g] [--watch | -W] [--hide-whitespace | -w] [file | dir]");
+            System.out.println("  " + Colors.TEAL + "--generate, -g" + Colors.RESET + "         Code generation phase: render templates + write artifacts");
             System.out.println("  " + Colors.TEAL + "--watch, -W" + Colors.RESET + "            Watch mode: recompile on file changes");
             System.out.println("  " + Colors.TEAL + "--hide-whitespace, -w" + Colors.RESET + "  Hide whitespace-only text nodes in AST output");
             System.out.println("\n" + Colors.LIGHT + "Examples:" + Colors.RESET);
@@ -131,6 +147,60 @@ public class Compiler {
 
         } catch (Exception e) {
             System.err.println(Colors.RED + "Error starting watcher: " + e.getMessage() + Colors.RESET);
+        }
+    }
+
+    /**
+     * Watch mode for generate: re-runs incremental generation on file changes.
+     */
+    public void startGenerateWatcher(String watchDir, ProjectGenerator generator) {
+        try {
+            Path watchPath = Paths.get(watchDir);
+            System.out.println(Colors.TEAL + "\n👁  Watching for changes in: " + Colors.LIGHT + watchPath.toAbsolutePath() + Colors.RESET);
+            System.out.println(Colors.GRAY + "   Press Ctrl+C to stop" + Colors.RESET + "\n");
+
+            DirectoryWatcher watcher = DirectoryWatcher.builder()
+                    .path(watchPath)
+                    .fileHashing(true)
+                    .listener(event -> {
+                        if (event.eventType() == DirectoryChangeEvent.EventType.MODIFY
+                                || event.eventType() == DirectoryChangeEvent.EventType.CREATE) {
+                            Path changed = event.path();
+                            String fileName = changed.getFileName().toString().toLowerCase();
+                            if (fileName.endsWith(".py") || fileName.endsWith(".html")) {
+                                if (!compiling.getAndSet(true)) {
+                                    try {
+                                        long now = System.currentTimeMillis();
+                                        if (now - lastCompileTime > 10000) {
+                                            System.out.println("\n" + Colors.TEAL + "═".repeat(70) + Colors.RESET);
+                                            System.out.println(Colors.TEAL + "  🔄 Change detected: " + Colors.LIGHT + changed.getFileName() + Colors.RESET);
+                                            System.out.println(Colors.TEAL + "═".repeat(70) + Colors.RESET);
+                                            lastCompileTime = now;
+                                            generator.regenerateIncremental(changed);
+                                            System.out.println(Colors.TEAL + "\n👁  Watching for changes in: " + Colors.LIGHT + watchPath.toAbsolutePath() + Colors.RESET);
+                                            System.out.println(Colors.GRAY + "   Press Ctrl+C to stop" + Colors.RESET + "\n");
+                                        }
+                                    } finally {
+                                        compiling.set(false);
+                                    }
+                                }
+                            }
+                        }
+                    })
+                    .build();
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    watcher.close();
+                } catch (Exception ignored) {
+                }
+                System.out.println(Colors.TEAL + "\n👋 Watcher stopped." + Colors.RESET);
+            }));
+
+            watcher.watch(); // blocks until process is killed
+
+        } catch (Exception e) {
+            System.err.println(Colors.RED + "Error starting generate watcher: " + e.getMessage() + Colors.RESET);
         }
     }
 

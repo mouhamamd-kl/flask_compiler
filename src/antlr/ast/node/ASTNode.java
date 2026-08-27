@@ -1,7 +1,6 @@
 package antlr.ast.node;
 
 import antlr.ast.visitor.ASTVisitor;
-import antlr.runtime.RunTimeObject;
 
 /**
  *

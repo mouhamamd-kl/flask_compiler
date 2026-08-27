@@ -10,9 +10,19 @@ import java.util.List;
  */
 public class CSSPseudoClassSelectorNode extends CSSSelectorNode {
     private final String pseudoClass;
+    // Optional simple selector the pseudo-class is attached to (e.g. `.button` in `.button:hover`)
+    private final CSSSelectorNode baseSelector;
 
     public CSSPseudoClassSelectorNode(String pseudoClass, int lineNumber, int columnNumber) {
+        this(null, pseudoClass, lineNumber, columnNumber);
+    }
+
+    public CSSPseudoClassSelectorNode(CSSSelectorNode baseSelector, String pseudoClass, int lineNumber, int columnNumber) {
         super("CSSPseudoClassSelector", lineNumber, columnNumber);
+        this.baseSelector = baseSelector;
+        if (baseSelector != null) {
+            baseSelector.setParent(this);
+        }
         this.pseudoClass = pseudoClass;
     }
 
@@ -24,8 +34,15 @@ public class CSSPseudoClassSelectorNode extends CSSSelectorNode {
         return pseudoClass;
     }
 
+    public CSSSelectorNode getBaseSelector() {
+        return baseSelector;
+    }
+
     @Override
     public String getSelectorText() {
+        if (baseSelector != null) {
+            return baseSelector.getSelectorText() + ":" + pseudoClass;
+        }
         return ":" + pseudoClass;
     }
 

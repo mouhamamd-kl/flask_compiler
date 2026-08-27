@@ -1,6 +1,7 @@
 package antlr.ast.css;
 
 import antlr.ast.css.values.CSSValueNode;
+import antlr.ast.css.properties.CSSPropertyNode;
 import antlr.ast.node.ASTNode;
 import antlr.ast.visitor.ASTVisitor;
 import java.util.ArrayList;
@@ -13,6 +14,8 @@ import java.util.List;
 public class CSSDeclarationNode extends CSSNode {
     private final String property;
     private final List<CSSValueNode> values;
+    // Original typed property node this declaration was built from (may be null)
+    private CSSPropertyNode sourceProperty;
 
     public CSSDeclarationNode(String property, int lineNumber, int columnNumber) {
         super("CSSDeclaration", lineNumber, columnNumber);
@@ -37,6 +40,17 @@ public class CSSDeclarationNode extends CSSNode {
 
     public List<CSSValueNode> getValues() {
         return values;
+    }
+
+    public CSSPropertyNode getSourceProperty() {
+        return sourceProperty;
+    }
+
+    public void setSourceProperty(CSSPropertyNode sourceProperty) {
+        this.sourceProperty = sourceProperty;
+        if (sourceProperty != null) {
+            sourceProperty.setParent(this);
+        }
     }
 
     @Override

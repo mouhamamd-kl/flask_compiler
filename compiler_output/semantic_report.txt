@@ -1,0 +1,67 @@
+============================================================
+  SEMANTIC ANALYSIS REPORT
+  Generated: 2026-08-27 13:16:49
+============================================================
+
+[OK] No semantic errors detected.
+
+SCOPE 'global' [38 symbols]
+- int : FUNCTION  @line 0:0
+- float : FUNCTION  @line 0:0
+- str : FUNCTION  @line 0:0
+- bool : FUNCTION  @line 0:0
+- abs : FUNCTION  @line 0:0
+- round : FUNCTION  @line 0:0
+- isinstance : FUNCTION  @line 0:0
+- type : FUNCTION  @line 0:0
+- list : FUNCTION  @line 0:0
+- dict : FUNCTION  @line 0:0
+- set : FUNCTION  @line 0:0
+- tuple : FUNCTION  @line 0:0
+- len : FUNCTION  @line 0:0
+- max : FUNCTION  @line 0:0
+- min : FUNCTION  @line 0:0
+- sum : FUNCTION  @line 0:0
+- sorted : FUNCTION  @line 0:0
+- reversed : FUNCTION  @line 0:0
+- range : FUNCTION  @line 0:0
+- enumerate : FUNCTION  @line 0:0
+- zip : FUNCTION  @line 0:0
+- map : FUNCTION  @line 0:0
+- filter : FUNCTION  @line 0:0
+- print : FUNCTION  @line 0:0
+- input : FUNCTION  @line 0:0
+- id : FUNCTION  @line 0:0
+- hash : FUNCTION  @line 0:0
+- repr : FUNCTION  @line 0:0
+- Flask : IMPORT (flask)  @line 1:18
+- render_template : IMPORT (flask)  @line 1:25
+- request : IMPORT (flask)  @line 1:42
+- redirect : IMPORT (flask)  @line 1:51
+- url_for : IMPORT (flask)  @line 1:61
+- app : VARIABLE = Flask[__name__]  @line 3:0
+- products : VARIABLE = [["id":1, "name":"Laptop", "price":999.99, "details":"Hig...  @line 5:0
+- display_products : FUNCTION  @line 29:0
+- add_product : FUNCTION  @line 33:0
+- product_detail : FUNCTION  @line 57:0
+
+SCOPE 'function_display_products' [0 symbols]
+SCOPE 'function_add_product' [0 symbols]
+
+  SCOPE 'if_block_35' [6 symbols]
+    - name : VARIABLE = request.form['name']  @line 36:8
+    - price : VARIABLE = request.form['price']  @line 37:8
+    - details : VARIABLE = request.form['details']  @line 38:8
+    - image : VARIABLE = request.form['image']  @line 39:8
+    - new_id : VARIABLE = max[[p['id'] for p in products]] + 1  @line 41:8
+    - new_product : VARIABLE = ["id":new_id, "name":name, "price":float[price], "details...  @line 43:8
+SCOPE 'function_product_detail' [1 symbols]
+  - product : VARIABLE = None  @line 59:4
+
+  SCOPE 'for_block_60' [0 symbols]
+
+    SCOPE 'if_block_61' [1 symbols]
+      - product : VARIABLE = p  @line 62:12
+SCOPE 'if_block_67' [0 symbols]
+
+Total symbols across all scopes: 46

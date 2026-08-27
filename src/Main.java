@@ -10,6 +10,16 @@ public class Main {
         Compiler.Configs configs = new Compiler.Configs();
         ArgsResult parsed = solveArgs(args, configs);
 
+        if (configs.generateMode) {
+            String target = configs.generateTarget != null ? configs.generateTarget : testsDir;
+            Compiler compiler = new Compiler(configs);
+            antlr.generator.ProjectGenerator gen = compiler.generate(target);
+            if (configs.watchMode) {
+                compiler.startGenerateWatcher(target, gen);
+            }
+            return;
+        }
+
         String watchDir = null;
         boolean showUsage = parsed.fileArgIndex() < 0;
 
@@ -35,6 +45,12 @@ public class Main {
                 configs.hideWhitespace = true;
             } else if (args[i].equals("--watch") || args[i].equals("-W")) {
                 configs.watchMode = true;
+            } else if (args[i].equals("--generate") || args[i].equals("-g")) {
+                configs.generateMode = true;
+                if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
+                    configs.generateTarget = args[i + 1];
+                    i++;
+                }
             } else {
                 fileArgIndex = i;
                 break;

@@ -1690,6 +1690,9 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
                 // Handle 'auto' keyword - represent as special length value
                 CSSKeywordValueNode keyword = (CSSKeywordValueNode) valueNode;
                 lengthValues.add(new CSSLengthValueNode(keyword.getKeyword(), "", line));
+            } else if (valueNode instanceof CSSValueNode) {
+                // Keep any other value form (e.g. identifiers such as `auto`) instead of dropping it
+                lengthValues.add(new CSSLengthValueNode(((CSSValueNode) valueNode).getValueText(), "", line));
             }
         }
 
@@ -1899,6 +1902,19 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
     }
 
     @Override
+    public ASTNode visitCssMultiLengthValue(jinja2Parser.CssMultiLengthValueContext ctx) {
+        int line = safeGetLine(ctx);
+        if (ctx.CSS_AUTO() != null) {
+            // `auto` in margin/padding shorthand (e.g. margin: 0 auto)
+            return new CSSKeywordValueNode("auto", line);
+        }
+        if (ctx.cssLength() != null) {
+            return visitCssLength(ctx.cssLength());
+        }
+        return null;
+    }
+
+    @Override
     public ASTNode visitCssColor(jinja2Parser.CssColorContext ctx) {
         int line = safeGetLine(ctx);
         String text = ctx.getText();
@@ -2003,6 +2019,7 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
                 // Wrap CSSPropertyNode in CSSDeclarationNode
                 CSSPropertyNode propNode = (CSSPropertyNode) declNode;
                 CSSDeclarationNode declaration = new CSSDeclarationNode(propNode.getPropertyName(), line, col);
+                declaration.setSourceProperty(propNode);
                 // Add values from property node to declaration
                 for (CSSValueNode value : propNode.getValues()) {
                     declaration.addValue(value);
@@ -2040,10 +2057,10 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
 
         // Create element selector with pseudo-class suffix
         String elementName = ctx.cssElementSelector().getText();
+        // Create an element selector with a pseudo-class suffix (e.g. `a:hover`)
+        CSSElementSelectorNode element = new CSSElementSelectorNode(elementName, line, col);
         String pseudoClass = ctx.cssPseudoClass().getText().substring(1); // Remove ':'
-
-        // Create a pseudo-class selector node
-        return new CSSPseudoClassSelectorNode(elementName + ":" + pseudoClass, line, col);
+        return new CSSPseudoClassSelectorNode(element, pseudoClass, line, col);
     }
 
     @Override
@@ -2053,10 +2070,10 @@ public class JinjaASTBuilder extends jinja2ParserBaseVisitor<ASTNode> {
 
         // Create class selector with pseudo-class suffix
         String className = ctx.cssClassSelector().className.getText();
+        // Create a class selector with a pseudo-class suffix (e.g. `.button:hover`)
+        CSSClassSelectorNode classSel = new CSSClassSelectorNode(className, line, col);
         String pseudoClass = ctx.cssPseudoClass().getText().substring(1); // Remove ':'
-
-        // Create a pseudo-class selector node
-        return new CSSPseudoClassSelectorNode("." + className + ":" + pseudoClass, line, col);
+        return new CSSPseudoClassSelectorNode(classSel, pseudoClass, line, col);
     }
 
     @Override

@@ -1,0 +1,130 @@
+[2026-08-27 13:15:10.097] INFO  Generation log started
+[2026-08-27 13:15:10.104] INFO  Project root: C:\Users\HP\IdeaProjects\antlr_course\tests\flask
+[2026-08-27 13:15:10.104] INFO  Templates directory: C:\Users\HP\IdeaProjects\antlr_course\tests\flask\templates
+[2026-08-27 13:15:10.121] INFO  Prepared clean output/ and compiler_output/ directories.
+
+============================================================
+  PHASE A - Parsing app.py
+============================================================
+[2026-08-27 13:15:10.522] INFO  app.py parsed successfully.
+[2026-08-27 13:15:10.547] INFO  Wrote compiler_output/ast_python.json
+[2026-08-27 13:15:10.556] INFO  Wrote compiler_output/semantic_report.txt
+
+============================================================
+  PHASE B - Evaluating Python program
+============================================================
+[2026-08-27 13:15:10.601] INFO  Import treated as external: Flask, render_template, request, redirect, url_for (module 'flask').
+[2026-08-27 13:15:10.605] WARN  Call to external function 'Flask()' was skipped (returns None).
+[2026-08-27 13:15:10.611] INFO  Registered function 'display_products' with route / (0 parameters).
+[2026-08-27 13:15:10.611] INFO  Registered function 'add_product' with route /add (0 parameters).
+[2026-08-27 13:15:10.611] INFO  Registered function 'product_detail' with route /product/<int:product_id> (1 parameters).
+[2026-08-27 13:15:10.612] INFO  Skipped `if __name__ == '__main__'` guard (server startup is not part of generation).
+[2026-08-27 13:15:10.612] INFO  Invoking function 'display_products' to capture its template rendering. (route: /)
+[2026-08-27 13:15:10.622] INFO  Captured render_template('products.html') for URL / at line 24 with context keys [products].
+[2026-08-27 13:15:10.624] INFO  Invoking function 'add_product' to capture its template rendering. (route: /add)
+[2026-08-27 13:15:10.626] INFO  Captured render_template('add_product.html') for URL /add at line 48 with context keys [].
+[2026-08-27 13:15:10.627] INFO  Invoking function 'product_detail' to capture its template rendering. (route: /product/<int:product_id>)
+[2026-08-27 13:15:10.627] INFO  Parameter 'product_id' of 'product_detail' bound to None for generation.
+[2026-08-27 13:15:10.628] INFO  Captured render_template('product_detail.html') for URL /product/<int:product_id> at line 58 with context keys [product].
+[2026-08-27 13:15:10.631] INFO  Captured render_template('product_detail.html') for URL /product/1 at line 58 with context keys [product].
+[2026-08-27 13:15:10.631] INFO  Captured render_template('product_detail.html') for URL /product/2 at line 58 with context keys [product].
+[2026-08-27 13:15:10.633] INFO  Evaluation finished: 11 global variables, 5 render requests captured.
+
+============================================================
+  PHASE C - Parsing templates
+============================================================
+[2026-08-27 13:15:11.110] INFO  Template 'products.html' parsed successfully.
+[2026-08-27 13:15:11.212] INFO  Template 'add_product.html' parsed successfully.
+[2026-08-27 13:15:11.280] INFO  Template 'product_detail.html' parsed successfully.
+[2026-08-27 13:15:11.300] INFO  Wrote compiler_output/ast_jinja.json (3 template(s))
+
+============================================================
+  PHASE D - Rendering templates
+============================================================
+
+============================================================
+  RENDER - Rendering templates
+============================================================
+[2026-08-27 13:15:11.318] INFO  Rendered template 'products.html' (4036 characters).
+[2026-08-27 13:15:11.321] INFO  Rendered template 'add_product.html' (3540 characters).
+[2026-08-27 13:15:11.322] INFO  Rendered template 'product_detail.html' (2355 characters).
+[2026-08-27 13:15:11.324] INFO  Rendered template 'product_detail.html' (2798 characters).
+[2026-08-27 13:15:11.325] INFO  Rendered template 'product_detail.html' (2809 characters).
+[2026-08-27 13:15:11.330] INFO  Generated output/products.html
+[2026-08-27 13:15:11.332] INFO  Generated output/add_product.html
+[2026-08-27 13:15:11.335] INFO  Generated output/product_detail.html
+[2026-08-27 13:15:11.338] INFO  Generated output/product_1.html (route: /product/1)
+[2026-08-27 13:15:11.340] INFO  Generated output/product_2.html (route: /product/2)
+
+============================================================
+  PHASE E - Companion files
+============================================================
+[2026-08-27 13:15:11.345] INFO  Copied companion file app.py (unmodified).
+[2026-08-27 13:15:11.355] WARN  Companion file 'style.css' not found in project; nothing copied.
+[2026-08-27 13:15:11.357] WARN  Companion file 'script.js' not found in project; nothing copied.
+
+============================================================
+  SUMMARY
+============================================================
+[2026-08-27 13:15:11.358] INFO  Total time: 1258 ms
+
+============================================================
+  INCREMENTAL - Re-parsing app.py
+============================================================
+[2026-08-27 13:16:49.347] INFO  app.py parsed successfully.
+
+============================================================
+  INCREMENTAL - Re-evaluating Python program
+============================================================
+[2026-08-27 13:16:49.352] INFO  Import treated as external: Flask, render_template, request, redirect, url_for (module 'flask').
+[2026-08-27 13:16:49.352] WARN  Call to external function 'Flask()' was skipped (returns None).
+[2026-08-27 13:16:49.352] INFO  Registered function 'display_products' with route / (0 parameters).
+[2026-08-27 13:16:49.352] INFO  Registered function 'add_product' with route /add (0 parameters).
+[2026-08-27 13:16:49.352] INFO  Registered function 'product_detail' with route /product/<int:product_id> (1 parameters).
+[2026-08-27 13:16:49.352] INFO  Skipped `if __name__ == '__main__'` guard (server startup is not part of generation).
+[2026-08-27 13:16:49.352] INFO  Invoking function 'display_products' to capture its template rendering. (route: /)
+[2026-08-27 13:16:49.352] INFO  Captured render_template('products.html') for URL / at line 31 with context keys [products].
+[2026-08-27 13:16:49.353] INFO  Invoking function 'add_product' to capture its template rendering. (route: /add)
+[2026-08-27 13:16:49.353] INFO  Captured render_template('add_product.html') for URL /add at line 55 with context keys [].
+[2026-08-27 13:16:49.353] INFO  Invoking function 'product_detail' to capture its template rendering. (route: /product/<int:product_id>)
+[2026-08-27 13:16:49.353] INFO  Parameter 'product_id' of 'product_detail' bound to None for generation.
+[2026-08-27 13:16:49.353] INFO  Captured render_template('product_detail.html') for URL /product/<int:product_id> at line 65 with context keys [product].
+[2026-08-27 13:16:49.354] INFO  Captured render_template('product_detail.html') for URL /product/1 at line 65 with context keys [product].
+[2026-08-27 13:16:49.354] INFO  Captured render_template('product_detail.html') for URL /product/2 at line 65 with context keys [product].
+[2026-08-27 13:16:49.354] INFO  Captured render_template('product_detail.html') for URL /product/3 at line 65 with context keys [product].
+[2026-08-27 13:16:49.354] INFO  Evaluation finished: 11 global variables, 6 render requests captured.
+
+============================================================
+  INCREMENTAL - Re-parsing templates
+============================================================
+[2026-08-27 13:16:49.384] INFO  Template 'products.html' parsed successfully.
+[2026-08-27 13:16:49.409] INFO  Template 'add_product.html' parsed successfully.
+[2026-08-27 13:16:49.451] INFO  Template 'product_detail.html' parsed successfully.
+
+============================================================
+  RENDER - Rendering templates
+============================================================
+[2026-08-27 13:16:49.458] INFO  Rendered template 'products.html' (4564 characters).
+[2026-08-27 13:16:49.458] INFO  Rendered template 'add_product.html' (3540 characters).
+[2026-08-27 13:16:49.458] INFO  Rendered template 'product_detail.html' (2355 characters).
+[2026-08-27 13:16:49.458] INFO  Rendered template 'product_detail.html' (2798 characters).
+[2026-08-27 13:16:49.459] INFO  Rendered template 'product_detail.html' (2809 characters).
+[2026-08-27 13:16:49.459] INFO  Rendered template 'product_detail.html' (2816 characters).
+[2026-08-27 13:16:49.460] INFO  Generated output/products.html
+[2026-08-27 13:16:49.461] INFO  Generated output/add_product.html
+[2026-08-27 13:16:49.462] INFO  Generated output/product_detail.html
+[2026-08-27 13:16:49.463] INFO  Generated output/product_1.html (route: /product/1)
+[2026-08-27 13:16:49.464] INFO  Generated output/product_2.html (route: /product/2)
+[2026-08-27 13:16:49.464] INFO  Generated output/product_3.html (route: /product/3)
+
+============================================================
+  INCREMENTAL - Companion files
+============================================================
+[2026-08-27 13:16:49.466] INFO  Copied companion file app.py (unmodified).
+[2026-08-27 13:16:49.467] WARN  Companion file 'style.css' not found in project; nothing copied.
+[2026-08-27 13:16:49.469] WARN  Companion file 'script.js' not found in project; nothing copied.
+
+============================================================
+  SUMMARY
+============================================================
+[2026-08-27 13:16:49.469] INFO  Total time: 127 ms
