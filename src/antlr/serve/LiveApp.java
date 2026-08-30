@@ -42,6 +42,9 @@ import antlr.gen.jinja2.jinja2Parser;
 import antlr.gen.python.pythonLexer;
 import antlr.gen.python.pythonParser;
 import antlr.generator.GenerationLogWriter;
+import antlr.semantic.SemanticError;
+import antlr.semantic.flask.FlaskProjectAnalyzer;
+import antlr.semantic.python.PythonSemanticAnalyzer;
 import antlr.generator.flask.RouteResolver;
 import antlr.generator.jinja.JinjaRenderer;
 import antlr.generator.python.FunctionInvoker;
@@ -185,6 +188,13 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
         ASTNode ast = builder.visit(tree);
         this.program = (ProgramNode) ast;
 
+        PythonSemanticAnalyzer semantics = new PythonSemanticAnalyzer();
+        semantics.setSourceName("app.py");
+        semantics.analyze(this.program);
+        for (SemanticError err : semantics.getErrors()) {
+            log.error(err.format());
+        }
+
         scopes.push();
         scopes.peek().put("__name__", new RTString("__main__"));
         for (StatementNode st : program.getStatements()) {
@@ -295,8 +305,11 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
             String name = e instanceof KeywordArgumentNode kw ? kw.getName() : "arg" + i;
             renderCtx.put(name, eval(e instanceof KeywordArgumentNode kw2 ? kw2.getValue() : e));
         }
-        String html = renderer.render(template, templateName, renderCtx);
-        return new LiveResponse(Response.ok(html, "text/html; charset=utf-8"));
+        LiveResponse blocked = missingVariableResponse(template, templateName, renderCtx);
+        if (blocked != null) {
+            return blocked;
+        }
+        return new LiveResponse(Response.ok(renderer.render(template, templateName, renderCtx), "text/html; charset=utf-8"));
     }
 
     private Response redirect(List<ExpressionNode> argExprs, int line) {
@@ -864,8 +877,36 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
         for (KeywordArgumentNode kw : kwNodes) {
             renderCtx.put(kw.getName(), eval(kw.getValue()));
         }
-        String html = renderer.render(template, templateName, renderCtx);
-        return new LiveResponse(Response.ok(html, "text/html; charset=utf-8"));
+        LiveResponse blocked = missingVariableResponse(template, templateName, renderCtx);
+        if (blocked != null) {
+            return blocked;
+        }
+        return new LiveResponse(Response.ok(renderer.render(template, templateName, renderCtx), "text/html; charset=utf-8"));
+    }
+
+    // ==================== template variable analysis ====================
+    private LiveResponse missingVariableResponse(TemplateNode template, String templateName,
+                                                 LinkedHashMap<String, RTValue> renderCtx) {
+        List<String> missing = FlaskProjectAnalyzer.checkTemplate(template, baseName(templateName), renderCtx.keySet());
+        if (missing.isEmpty()) {
+            return null;
+        }
+        for (String m : missing) {
+            log.error(m);
+        }
+        StringBuilder page = new StringBuilder(
+                "<!DOCTYPE html><html><meta charset=\"utf-8\"><body style=\"font-family:monospace\">"
+                        + "<h2>500 — Missing template variables</h2><pre>");
+        for (String m : missing) {
+            page.append(m).append("\n");
+        }
+        page.append("</pre></body></html>");
+        return new LiveResponse(new Response(500, page.toString(), "text/html; charset=utf-8"));
+    }
+
+    private static String baseName(String templateName) {
+        return templateName.contains("/")
+                ? templateName.substring(templateName.lastIndexOf('/') + 1) : templateName;
     }
 
     @Override

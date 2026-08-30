@@ -50,28 +50,51 @@ public class LiveServer {
     private final int port;
     private final HttpServer server;
     private final ThreadPoolExecutor executor;
+    private final ReloadHub reloadHub;
     private volatile boolean running = true;
 
-    public LiveServer(LiveApp app, GenerationLogWriter log, Path projectRoot, int port)
+    public LiveServer(LiveApp app, GenerationLogWriter log, Path projectRoot, int requestedPort)
             throws IOException {
         this.app = new AtomicReference<>(app);
         this.log = log;
         this.projectRoot = projectRoot;
-        this.port = port;
-        this.server = HttpServer.create(new InetSocketAddress(port), 0);
+        this.server = createServer(requestedPort, log);
+        this.port = ((InetSocketAddress) server.getAddress()).getPort();
+        this.reloadHub = new ReloadHub(0, log);
         // Exactly one worker: requests execute sequentially, preserving state order.
         this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
         this.server.setExecutor(executor);
         this.server.createContext("/", this::dispatch);
     }
 
+    private static HttpServer createServer(int requestedPort, GenerationLogWriter log) throws IOException {
+        try {
+            return HttpServer.create(new InetSocketAddress(requestedPort), 0);
+        } catch (IOException e) {
+            if (requestedPort != 0) {
+                log.warn("Port " + requestedPort + " is in use; falling back to a free ephemeral port.");
+                return HttpServer.create(new InetSocketAddress(0), 0);
+            }
+            throw e;
+        }
+    }
+
     public void start() {
         server.start();
+        reloadHub.start();
+        System.out.println("   [INFO] Live server listening on http://localhost:" + port
+                + " (single worker, dynamic per-request render).");
         log.info("Live server listening on http://localhost:" + port + " (single worker, dynamic per-request render).");
+    }
+
+    /** Pushes a reload frame to every connected browser tab (npm run dev-style). */
+    public void reload() {
+        reloadHub.broadcastReload();
     }
 
     public void stop() {
         running = false;
+        reloadHub.stop();
         server.stop(0);
         executor.shutdownNow();
         log.info("Live server stopped.");
@@ -215,7 +238,11 @@ public class LiveServer {
     // ==================== response writing ====================
     private void send(HttpExchange exchange, Response response) throws IOException {
         byte[] bytes = response.body().getBytes(StandardCharsets.UTF_8);
-        exchange.getResponseHeaders().set("Content-Type", response.contentType());
+        String contentType = response.contentType();
+        if (contentType != null && contentType.startsWith("text/html") && bodyHasNoReloadScript(bytes)) {
+            bytes = injectReloadScript(bytes);
+        }
+        exchange.getResponseHeaders().set("Content-Type", contentType);
         exchange.getResponseHeaders().set("Server", "antlr-serve");
         for (Map.Entry<String, String> header : response.headers().entrySet()) {
             exchange.getResponseHeaders().set(header.getKey(), header.getValue());
@@ -227,6 +254,28 @@ public class LiveServer {
                 os.write(bytes);
             }
         }
+    }
+
+    private static final String RELOAD_MARKER = "antlr-live-reload";
+
+    private static boolean bodyHasNoReloadScript(byte[] body) {
+        String text = new String(body, StandardCharsets.UTF_8);
+        return !text.contains(RELOAD_MARKER);
+    }
+
+    private byte[] injectReloadScript(byte[] body) {
+        String html = new String(body, StandardCharsets.UTF_8);
+        String script = "<script data-"
+                + RELOAD_MARKER
+                + ">(function(){var w=new WebSocket('ws://localhost:"
+                + reloadHub.port()
+                + "/');w.onmessage=function(){location.reload()}})()</script>";
+        if (html.contains("</body>")) {
+            html = html.replace("</body>", script + "</body>");
+        } else {
+            html = html + script;
+        }
+        return html.getBytes(StandardCharsets.UTF_8);
     }
 
     public boolean isRunning() {

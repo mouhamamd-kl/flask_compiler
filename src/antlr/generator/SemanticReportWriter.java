@@ -16,6 +16,15 @@ public class SemanticReportWriter {
     private static final DateTimeFormatter TS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static String write(SymbolTable globalScope, List<String> semanticErrors) {
+        return write(globalScope, semanticErrors, null);
+    }
+
+    /**
+     * Full report: Python semantic errors plus the Jinja template-variable
+     * findings (MISSING_TEMPLATE_VARIABLE). Written even when generation is
+     * aborted. {@code jinjaErrors} may be null (no Jinja analysis performed).
+     */
+    public static String write(SymbolTable globalScope, List<String> semanticErrors, List<String> jinjaErrors) {
         StringBuilder sb = new StringBuilder();
         sb.append("============================================================\n");
         sb.append("  SEMANTIC ANALYSIS REPORT\n");
@@ -27,6 +36,19 @@ public class SemanticReportWriter {
         } else {
             sb.append("[ERROR] ").append(semanticErrors.size()).append(" semantic error(s) detected:\n");
             for (String error : semanticErrors) {
+                sb.append("   - ").append(error).append("\n");
+            }
+        }
+        sb.append("\n");
+
+        sb.append("------------------------------------------------------------\n");
+        sb.append("  JINJA TEMPLATE ANALYSIS\n");
+        sb.append("------------------------------------------------------------\n");
+        if (jinjaErrors == null || jinjaErrors.isEmpty()) {
+            sb.append("[OK] No missing template variables detected.\n");
+        } else {
+            sb.append("[ERROR] ").append(jinjaErrors.size()).append(" missing template variable(s):\n");
+            for (String error : jinjaErrors) {
                 sb.append("   - ").append(error).append("\n");
             }
         }

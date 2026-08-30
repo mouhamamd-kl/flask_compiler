@@ -80,44 +80,80 @@
       },
       {
         "name": "Assignment",
-        "line": 5,
+        "line": 6,
         "column": 0,
         "children": [
           {
             "name": "Variable",
-            "line": 5,
+            "line": 6,
+            "column": 0,
+            "value": "discount",
+            "children": []
+          },
+          {
+            "name": "BinaryOp",
+            "line": 6,
+            "column": 11,
+            "value": "extra_charge * 0.1",
+            "children": [
+              {
+                "name": "Variable",
+                "line": 6,
+                "column": 11,
+                "value": "extra_charge",
+                "children": []
+              },
+              {
+                "name": "NumberDouble",
+                "line": 6,
+                "column": 26,
+                "value": "0.1",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Assignment",
+        "line": 8,
+        "column": 0,
+        "children": [
+          {
+            "name": "Variable",
+            "line": 8,
             "column": 0,
             "value": "products",
             "children": []
           },
           {
             "name": "List",
-            "line": 5,
+            "line": 8,
             "column": 11,
             "value": "[[\"id\":1, \"name\":\"Laptop\", \"price\":999.99, \"details\":\"High performance laptop with 16GB RAM\", \"image\":\"https://cdn.mos.cms.futurecdn.net/Ukb33rWBxQ2gH2vHmq64B3.jpg\"], [\"id\":2, \"name\":\"Phone\", \"price\":699.99, \"details\":\"Smartphone with advanced camera\", \"image\":\"https://i.pcmag.com/imagery/roundups/05PB0LirhK28UDCznfU5X4O-8..v1740688630.jpg\"], [\"id\":3, \"name\":\"Phone 2\", \"price\":9999.99, \"details\":\"Smartphone with advanced camera 2\", \"image\":\"https://i.pcmag.com/imagery/roundups/05PB0LirhK28UDCznfU5X4O-8..v1740688630.jpg\"]]",
             "children": [
               {
                 "name": "Dict",
-                "line": 6,
+                "line": 9,
                 "column": 4,
                 "value": "[\"id\":1, \"name\":\"Laptop\", \"price\":999.99, \"details\":\"High performance laptop with 16GB RAM\", \"image\":\"https://cdn.mos.cms.futurecdn.net/Ukb33rWBxQ2gH2vHmq64B3.jpg\"]",
                 "children": [
                   {
                     "name": "DictEntry",
-                    "line": 7,
+                    "line": 10,
                     "column": 8,
                     "value": "\"id\":1",
                     "children": [
                       {
                         "name": "String",
-                        "line": 7,
+                        "line": 10,
                         "column": 8,
                         "value": "\"id\"",
                         "children": []
                       },
                       {
                         "name": "NumberInteger",
-                        "line": 7,
+                        "line": 10,
                         "column": 14,
                         "value": "1",
                         "children": []
@@ -126,20 +162,20 @@
                   },
                   {
                     "name": "DictEntry",
-                    "line": 8,
+                    "line": 11,
                     "column": 8,
                     "value": "\"name\":\"Laptop\"",
                     "children": [
                       {
                         "name": "String",
-                        "line": 8,
+                        "line": 11,
                         "column": 8,
                         "value": "\"name\"",
                         "children": []
                       },
                       {
                         "name": "String",
-                        "line": 8,
+                        "line": 11,
                         "column": 16,
                         "value": "\"Laptop\"",
                         "children": []
@@ -148,20 +184,20 @@
                   },
                   {
                     "name": "DictEntry",
-                    "line": 9,
+                    "line": 12,
                     "column": 8,
                     "value": "\"price\":999.99",
                     "children": [
                       {
                         "name": "String",
-                        "line": 9,
+                        "line": 12,
                         "column": 8,
                         "value": "\"price\"",
                         "children": []
                       },
                       {
                         "name": "NumberDouble",
-                        "line": 9,
+                        "line": 12,
                         "column": 17,
                         "value": "999.99",
                         "children": []
@@ -170,20 +206,20 @@
                   },
                   {
                     "name": "DictEntry",
-                    "line": 10,
+                    "line": 13,
                     "column": 8,
                     "value": "\"details\":\"High performance laptop with 16GB RAM\"",
                     "children": [
                       {
                         "name": "String",
-                        "line": 10,
+                        "line": 13,
                         "column": 8,
                         "value": "\"details\"",
                         "children": []
                       },
                       {
                         "name": "String",
-                        "line": 10,
+                        "line": 13,
                         "column": 19,
                         "value": "\"High performance laptop with 16GB RAM\"",
                         "children": []
@@ -192,20 +228,20 @@
                   },
                   {
                     "name": "DictEntry",
-                    "line": 11,
+                    "line": 14,
                     "column": 8,
                     "value": "\"image\":\"https://cdn.mos.cms.futurecdn.net/Ukb33rWBxQ2gH2vHmq64B3.jpg\"",
                     "children": [
                       {
                         "name": "String",
-                        "line": 11,
+                        "line": 14,
                         "column": 8,
                         "value": "\"image\"",
                         "children": []
                       },
                       {
                         "name": "String",
-                        "line": 11,
+                        "line": 14,
                         "column": 17,
                         "value": "\"https://cdn.mos.cms.futurecdn.net/Ukb33rWBxQ2gH2vHmq64B3.jpg\"",
                         "children": []
@@ -216,26 +252,26 @@
               },
               {
                 "name": "Dict",
-                "line": 13,
+                "line": 16,
                 "column": 4,
                 "value": "[\"id\":2, \"name\":\"Phone\", \"price\":699.99, \"details\":\"Smartphone with advanced camera\", \"image\":\"https://i.pcmag.com/imagery/roundups/05PB0LirhK28UDCznfU5X4O-8..v1740688630.jpg\"]",
                 "children": [
                   {
                     "name": "DictEntry",
-                    "line": 14,
+                    "line": 17,
                     "column": 8,
                     "value": "\"id\":2",
                     "children": [
                       {
                         "name": "String",
-                        "line": 14,
+                        "line": 17,
                         "column": 8,
                         "value": "\"id\"",
                         "children": []
                       },
                       {
                         "name": "NumberInteger",
-                        "line": 14,
+                        "line": 17,
                         "column": 14,
                         "value": "2",
                         "children": []
@@ -244,20 +280,20 @@
                   },
                   {
                     "name": "DictEntry",
-                    "line": 15,
+                    "line": 18,
                     "column": 8,
                     "value": "\"name\":\"Phone\"",
                     "children": [
                       {
                         "name": "String",
-                        "line": 15,
+                        "line": 18,
                         "column": 8,
                         "value": "\"name\"",
                         "children": []
                       },
                       {
                         "name": "String",
-                        "line": 15,
+                        "line": 18,
                         "column": 16,
                         "value": "\"Phone\"",
                         "children": []
@@ -266,20 +302,20 @@
                   },
                   {
                     "name": "DictEntry",
-                    "line": 16,
+                    "line": 19,
                     "column": 8,
                     "value": "\"price\":699.99",
                     "children": [
                       {
                         "name": "String",
-                        "line": 16,
+                        "line": 19,
                         "column": 8,
                         "value": "\"price\"",
                         "children": []
                       },
                       {
                         "name": "NumberDouble",
-                        "line": 16,
+                        "line": 19,
                         "column": 17,
                         "value": "699.99",
                         "children": []
@@ -288,20 +324,20 @@
                   },
                   {
                     "name": "DictEntry",
-                    "line": 17,
+                    "line": 20,
                     "column": 8,
                     "value": "\"details\":\"Smartphone with advanced camera\"",
                     "children": [
                       {
                         "name": "String",
-                        "line": 17,
+                        "line": 20,
                         "column": 8,
                         "value": "\"details\"",
                         "children": []
                       },
                       {
                         "name": "String",
-                        "line": 17,
+                        "line": 20,
                         "column": 19,
                         "value": "\"Smartphone with advanced camera\"",
                         "children": []
@@ -310,20 +346,20 @@
                   },
                   {
                     "name": "DictEntry",
-                    "line": 18,
+                    "line": 21,
                     "column": 8,
                     "value": "\"image\":\"https://i.pcmag.com/imagery/roundups/05PB0LirhK28UDCznfU5X4O-8..v1740688630.jpg\"",
                     "children": [
                       {
                         "name": "String",
-                        "line": 18,
+                        "line": 21,
                         "column": 8,
                         "value": "\"image\"",
                         "children": []
                       },
                       {
                         "name": "String",
-                        "line": 18,
+                        "line": 21,
                         "column": 17,
                         "value": "\"https://i.pcmag.com/imagery/roundups/05PB0LirhK28UDCznfU5X4O-8..v1740688630.jpg\"",
                         "children": []
@@ -334,26 +370,26 @@
               },
               {
                 "name": "Dict",
-                "line": 20,
+                "line": 23,
                 "column": 5,
                 "value": "[\"id\":3, \"name\":\"Phone 2\", \"price\":9999.99, \"details\":\"Smartphone with advanced camera 2\", \"image\":\"https://i.pcmag.com/imagery/roundups/05PB0LirhK28UDCznfU5X4O-8..v1740688630.jpg\"]",
                 "children": [
                   {
                     "name": "DictEntry",
-                    "line": 21,
+                    "line": 24,
                     "column": 8,
                     "value": "\"id\":3",
                     "children": [
                       {
                         "name": "String",
-                        "line": 21,
+                        "line": 24,
                         "column": 8,
                         "value": "\"id\"",
                         "children": []
                       },
                       {
                         "name": "NumberInteger",
-                        "line": 21,
+                        "line": 24,
                         "column": 14,
                         "value": "3",
                         "children": []
@@ -362,20 +398,20 @@
                   },
                   {
                     "name": "DictEntry",
-                    "line": 22,
+                    "line": 25,
                     "column": 8,
                     "value": "\"name\":\"Phone 2\"",
                     "children": [
                       {
                         "name": "String",
-                        "line": 22,
+                        "line": 25,
                         "column": 8,
                         "value": "\"name\"",
                         "children": []
                       },
                       {
                         "name": "String",
-                        "line": 22,
+                        "line": 25,
                         "column": 16,
                         "value": "\"Phone 2\"",
                         "children": []
@@ -384,20 +420,20 @@
                   },
                   {
                     "name": "DictEntry",
-                    "line": 23,
+                    "line": 26,
                     "column": 8,
                     "value": "\"price\":9999.99",
                     "children": [
                       {
                         "name": "String",
-                        "line": 23,
+                        "line": 26,
                         "column": 8,
                         "value": "\"price\"",
                         "children": []
                       },
                       {
                         "name": "NumberDouble",
-                        "line": 23,
+                        "line": 26,
                         "column": 17,
                         "value": "9999.99",
                         "children": []
@@ -406,20 +442,20 @@
                   },
                   {
                     "name": "DictEntry",
-                    "line": 24,
+                    "line": 27,
                     "column": 8,
                     "value": "\"details\":\"Smartphone with advanced camera 2\"",
                     "children": [
                       {
                         "name": "String",
-                        "line": 24,
+                        "line": 27,
                         "column": 8,
                         "value": "\"details\"",
                         "children": []
                       },
                       {
                         "name": "String",
-                        "line": 24,
+                        "line": 27,
                         "column": 19,
                         "value": "\"Smartphone with advanced camera 2\"",
                         "children": []
@@ -428,20 +464,20 @@
                   },
                   {
                     "name": "DictEntry",
-                    "line": 25,
+                    "line": 28,
                     "column": 8,
                     "value": "\"image\":\"https://i.pcmag.com/imagery/roundups/05PB0LirhK28UDCznfU5X4O-8..v1740688630.jpg\"",
                     "children": [
                       {
                         "name": "String",
-                        "line": 25,
+                        "line": 28,
                         "column": 8,
                         "value": "\"image\"",
                         "children": []
                       },
                       {
                         "name": "String",
-                        "line": 25,
+                        "line": 28,
                         "column": 17,
                         "value": "\"https://i.pcmag.com/imagery/roundups/05PB0LirhK28UDCznfU5X4O-8..v1740688630.jpg\"",
                         "children": []
@@ -456,29 +492,29 @@
       },
       {
         "name": "FunctionDefinition",
-        "line": 29,
+        "line": 32,
         "column": 0,
         "children": [
           {
             "name": "Return",
-            "line": 31,
+            "line": 34,
             "column": 4,
             "children": [
               {
                 "name": "RenderTemplate",
-                "line": 31,
+                "line": 34,
                 "column": 11,
                 "value": "products.html",
                 "children": [
                   {
                     "name": "Keyword_Argument",
-                    "line": 31,
+                    "line": 34,
                     "column": 44,
                     "value": "products=products",
                     "children": [
                       {
                         "name": "Variable",
-                        "line": 31,
+                        "line": 34,
                         "column": 53,
                         "value": "products",
                         "children": []
@@ -493,29 +529,29 @@
       },
       {
         "name": "FunctionDefinition",
-        "line": 33,
+        "line": 36,
         "column": 0,
         "children": [
           {
             "name": "IfStatement",
-            "line": 35,
+            "line": 38,
             "column": 4,
             "children": [
               {
                 "name": "Comparison",
-                "line": 35,
+                "line": 38,
                 "column": 7,
                 "value": "request.method == 'POST'",
                 "children": [
                   {
                     "name": "Dot Access",
-                    "line": 35,
+                    "line": 38,
                     "column": 7,
                     "value": "request.method",
                     "children": [
                       {
                         "name": "Variable",
-                        "line": 35,
+                        "line": 38,
                         "column": 7,
                         "value": "request",
                         "children": []
@@ -524,7 +560,7 @@
                   },
                   {
                     "name": "String",
-                    "line": 35,
+                    "line": 38,
                     "column": 25,
                     "value": "'POST'",
                     "children": []
@@ -533,36 +569,36 @@
               },
               {
                 "name": "Block",
-                "line": 36,
+                "line": 39,
                 "column": 8,
                 "children": [
                   {
                     "name": "Assignment",
-                    "line": 36,
+                    "line": 39,
                     "column": 8,
                     "children": [
                       {
                         "name": "Variable",
-                        "line": 36,
+                        "line": 39,
                         "column": 8,
                         "value": "name",
                         "children": []
                       },
                       {
                         "name": "Index Access",
-                        "line": 36,
+                        "line": 39,
                         "column": 15,
                         "value": "request.form['name']",
                         "children": [
                           {
                             "name": "Dot Access",
-                            "line": 36,
+                            "line": 39,
                             "column": 15,
                             "value": "request.form",
                             "children": [
                               {
                                 "name": "Variable",
-                                "line": 36,
+                                "line": 39,
                                 "column": 15,
                                 "value": "request",
                                 "children": []
@@ -571,7 +607,7 @@
                           },
                           {
                             "name": "String",
-                            "line": 36,
+                            "line": 39,
                             "column": 28,
                             "value": "'name'",
                             "children": []
@@ -582,31 +618,31 @@
                   },
                   {
                     "name": "Assignment",
-                    "line": 37,
+                    "line": 40,
                     "column": 8,
                     "children": [
                       {
                         "name": "Variable",
-                        "line": 37,
+                        "line": 40,
                         "column": 8,
                         "value": "price",
                         "children": []
                       },
                       {
                         "name": "Index Access",
-                        "line": 37,
+                        "line": 40,
                         "column": 16,
                         "value": "request.form['price']",
                         "children": [
                           {
                             "name": "Dot Access",
-                            "line": 37,
+                            "line": 40,
                             "column": 16,
                             "value": "request.form",
                             "children": [
                               {
                                 "name": "Variable",
-                                "line": 37,
+                                "line": 40,
                                 "column": 16,
                                 "value": "request",
                                 "children": []
@@ -615,97 +651,9 @@
                           },
                           {
                             "name": "String",
-                            "line": 37,
+                            "line": 40,
                             "column": 29,
                             "value": "'price'",
-                            "children": []
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "name": "Assignment",
-                    "line": 38,
-                    "column": 8,
-                    "children": [
-                      {
-                        "name": "Variable",
-                        "line": 38,
-                        "column": 8,
-                        "value": "details",
-                        "children": []
-                      },
-                      {
-                        "name": "Index Access",
-                        "line": 38,
-                        "column": 18,
-                        "value": "request.form['details']",
-                        "children": [
-                          {
-                            "name": "Dot Access",
-                            "line": 38,
-                            "column": 18,
-                            "value": "request.form",
-                            "children": [
-                              {
-                                "name": "Variable",
-                                "line": 38,
-                                "column": 18,
-                                "value": "request",
-                                "children": []
-                              }
-                            ]
-                          },
-                          {
-                            "name": "String",
-                            "line": 38,
-                            "column": 31,
-                            "value": "'details'",
-                            "children": []
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "name": "Assignment",
-                    "line": 39,
-                    "column": 8,
-                    "children": [
-                      {
-                        "name": "Variable",
-                        "line": 39,
-                        "column": 8,
-                        "value": "image",
-                        "children": []
-                      },
-                      {
-                        "name": "Index Access",
-                        "line": 39,
-                        "column": 16,
-                        "value": "request.form['image']",
-                        "children": [
-                          {
-                            "name": "Dot Access",
-                            "line": 39,
-                            "column": 16,
-                            "value": "request.form",
-                            "children": [
-                              {
-                                "name": "Variable",
-                                "line": 39,
-                                "column": 16,
-                                "value": "request",
-                                "children": []
-                              }
-                            ]
-                          },
-                          {
-                            "name": "String",
-                            "line": 39,
-                            "column": 29,
-                            "value": "'image'",
                             "children": []
                           }
                         ]
@@ -721,49 +669,137 @@
                         "name": "Variable",
                         "line": 41,
                         "column": 8,
+                        "value": "details",
+                        "children": []
+                      },
+                      {
+                        "name": "Index Access",
+                        "line": 41,
+                        "column": 18,
+                        "value": "request.form['details']",
+                        "children": [
+                          {
+                            "name": "Dot Access",
+                            "line": 41,
+                            "column": 18,
+                            "value": "request.form",
+                            "children": [
+                              {
+                                "name": "Variable",
+                                "line": 41,
+                                "column": 18,
+                                "value": "request",
+                                "children": []
+                              }
+                            ]
+                          },
+                          {
+                            "name": "String",
+                            "line": 41,
+                            "column": 31,
+                            "value": "'details'",
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Assignment",
+                    "line": 42,
+                    "column": 8,
+                    "children": [
+                      {
+                        "name": "Variable",
+                        "line": 42,
+                        "column": 8,
+                        "value": "image",
+                        "children": []
+                      },
+                      {
+                        "name": "Index Access",
+                        "line": 42,
+                        "column": 16,
+                        "value": "request.form['image']",
+                        "children": [
+                          {
+                            "name": "Dot Access",
+                            "line": 42,
+                            "column": 16,
+                            "value": "request.form",
+                            "children": [
+                              {
+                                "name": "Variable",
+                                "line": 42,
+                                "column": 16,
+                                "value": "request",
+                                "children": []
+                              }
+                            ]
+                          },
+                          {
+                            "name": "String",
+                            "line": 42,
+                            "column": 29,
+                            "value": "'image'",
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Assignment",
+                    "line": 44,
+                    "column": 8,
+                    "children": [
+                      {
+                        "name": "Variable",
+                        "line": 44,
+                        "column": 8,
                         "value": "new_id",
                         "children": []
                       },
                       {
                         "name": "BinaryOp",
-                        "line": 41,
+                        "line": 44,
                         "column": 17,
                         "value": "max[[p['id'] for p in products]] + 1",
                         "children": [
                           {
                             "name": "Function Call",
-                            "line": 41,
+                            "line": 44,
                             "column": 17,
                             "value": "max[[p['id'] for p in products]]",
                             "children": [
                               {
                                 "name": "Keyword_Argument",
-                                "line": 41,
+                                "line": 44,
                                 "column": 21,
                                 "value": "[p['id'] for p in products]",
                                 "children": [
                                   {
                                     "name": "ListComprehension",
-                                    "line": 41,
+                                    "line": 44,
                                     "column": 21,
                                     "value": "[p['id'] for p in products]",
                                     "children": [
                                       {
                                         "name": "Index Access",
-                                        "line": 41,
+                                        "line": 44,
                                         "column": 22,
                                         "value": "p['id']",
                                         "children": [
                                           {
                                             "name": "Variable",
-                                            "line": 41,
+                                            "line": 44,
                                             "column": 22,
                                             "value": "p",
                                             "children": []
                                           },
                                           {
                                             "name": "String",
-                                            "line": 41,
+                                            "line": 44,
                                             "column": 24,
                                             "value": "'id'",
                                             "children": []
@@ -772,7 +808,7 @@
                                       },
                                       {
                                         "name": "Variable",
-                                        "line": 41,
+                                        "line": 44,
                                         "column": 39,
                                         "value": "products",
                                         "children": []
@@ -785,7 +821,7 @@
                           },
                           {
                             "name": "NumberInteger",
-                            "line": 41,
+                            "line": 44,
                             "column": 52,
                             "value": "1",
                             "children": []
@@ -796,38 +832,38 @@
                   },
                   {
                     "name": "Assignment",
-                    "line": 43,
+                    "line": 46,
                     "column": 8,
                     "children": [
                       {
                         "name": "Variable",
-                        "line": 43,
+                        "line": 46,
                         "column": 8,
                         "value": "new_product",
                         "children": []
                       },
                       {
                         "name": "Dict",
-                        "line": 43,
+                        "line": 46,
                         "column": 22,
                         "value": "[\"id\":new_id, \"name\":name, \"price\":float[price], \"details\":details, \"image\":image]",
                         "children": [
                           {
                             "name": "DictEntry",
-                            "line": 44,
+                            "line": 47,
                             "column": 12,
                             "value": "\"id\":new_id",
                             "children": [
                               {
                                 "name": "String",
-                                "line": 44,
+                                "line": 47,
                                 "column": 12,
                                 "value": "\"id\"",
                                 "children": []
                               },
                               {
                                 "name": "Variable",
-                                "line": 44,
+                                "line": 47,
                                 "column": 18,
                                 "value": "new_id",
                                 "children": []
@@ -836,20 +872,20 @@
                           },
                           {
                             "name": "DictEntry",
-                            "line": 45,
+                            "line": 48,
                             "column": 12,
                             "value": "\"name\":name",
                             "children": [
                               {
                                 "name": "String",
-                                "line": 45,
+                                "line": 48,
                                 "column": 12,
                                 "value": "\"name\"",
                                 "children": []
                               },
                               {
                                 "name": "Variable",
-                                "line": 45,
+                                "line": 48,
                                 "column": 20,
                                 "value": "name",
                                 "children": []
@@ -858,32 +894,32 @@
                           },
                           {
                             "name": "DictEntry",
-                            "line": 46,
+                            "line": 49,
                             "column": 12,
                             "value": "\"price\":float[price]",
                             "children": [
                               {
                                 "name": "String",
-                                "line": 46,
+                                "line": 49,
                                 "column": 12,
                                 "value": "\"price\"",
                                 "children": []
                               },
                               {
                                 "name": "Function Call",
-                                "line": 46,
+                                "line": 49,
                                 "column": 21,
                                 "value": "float[price]",
                                 "children": [
                                   {
                                     "name": "Keyword_Argument",
-                                    "line": 46,
+                                    "line": 49,
                                     "column": 27,
                                     "value": "price",
                                     "children": [
                                       {
                                         "name": "Variable",
-                                        "line": 46,
+                                        "line": 49,
                                         "column": 27,
                                         "value": "price",
                                         "children": []
@@ -896,20 +932,20 @@
                           },
                           {
                             "name": "DictEntry",
-                            "line": 47,
+                            "line": 50,
                             "column": 12,
                             "value": "\"details\":details",
                             "children": [
                               {
                                 "name": "String",
-                                "line": 47,
+                                "line": 50,
                                 "column": 12,
                                 "value": "\"details\"",
                                 "children": []
                               },
                               {
                                 "name": "Variable",
-                                "line": 47,
+                                "line": 50,
                                 "column": 23,
                                 "value": "details",
                                 "children": []
@@ -918,20 +954,20 @@
                           },
                           {
                             "name": "DictEntry",
-                            "line": 48,
+                            "line": 51,
                             "column": 12,
                             "value": "\"image\":image",
                             "children": [
                               {
                                 "name": "String",
-                                "line": 48,
+                                "line": 51,
                                 "column": 12,
                                 "value": "\"image\"",
                                 "children": []
                               },
                               {
                                 "name": "Variable",
-                                "line": 48,
+                                "line": 51,
                                 "column": 21,
                                 "value": "image",
                                 "children": []
@@ -944,24 +980,24 @@
                   },
                   {
                     "name": "ExpressionStatement",
-                    "line": 51,
+                    "line": 54,
                     "column": 8,
                     "children": [
                       {
                         "name": "Function Call",
-                        "line": 51,
+                        "line": 54,
                         "column": 8,
                         "value": "products.append[new_product]",
                         "children": [
                           {
                             "name": "Keyword_Argument",
-                            "line": 51,
+                            "line": 54,
                             "column": 24,
                             "value": "new_product",
                             "children": [
                               {
                                 "name": "Variable",
-                                "line": 51,
+                                "line": 54,
                                 "column": 24,
                                 "value": "new_product",
                                 "children": []
@@ -974,12 +1010,12 @@
                   },
                   {
                     "name": "Print",
-                    "line": 52,
+                    "line": 55,
                     "column": 8,
                     "children": [
                       {
                         "name": "Variable",
-                        "line": 52,
+                        "line": 55,
                         "column": 14,
                         "value": "products",
                         "children": []
@@ -988,36 +1024,36 @@
                   },
                   {
                     "name": "Return",
-                    "line": 53,
+                    "line": 56,
                     "column": 8,
                     "children": [
                       {
                         "name": "Function Call",
-                        "line": 53,
+                        "line": 56,
                         "column": 15,
                         "value": "redirect[url_for['display_products']]",
                         "children": [
                           {
                             "name": "Keyword_Argument",
-                            "line": 53,
+                            "line": 56,
                             "column": 24,
                             "value": "url_for['display_products']",
                             "children": [
                               {
                                 "name": "Function Call",
-                                "line": 53,
+                                "line": 56,
                                 "column": 24,
                                 "value": "url_for['display_products']",
                                 "children": [
                                   {
                                     "name": "Keyword_Argument",
-                                    "line": 53,
+                                    "line": 56,
                                     "column": 32,
                                     "value": "'display_products'",
                                     "children": [
                                       {
                                         "name": "String",
-                                        "line": 53,
+                                        "line": 56,
                                         "column": 32,
                                         "value": "'display_products'",
                                         "children": []
@@ -1038,12 +1074,12 @@
           },
           {
             "name": "Return",
-            "line": 55,
+            "line": 58,
             "column": 4,
             "children": [
               {
                 "name": "RenderTemplate",
-                "line": 55,
+                "line": 58,
                 "column": 11,
                 "value": "add_product.html",
                 "children": []
@@ -1054,24 +1090,24 @@
       },
       {
         "name": "FunctionDefinition",
-        "line": 57,
+        "line": 60,
         "column": 0,
         "children": [
           {
             "name": "Assignment",
-            "line": 59,
+            "line": 62,
             "column": 4,
             "children": [
               {
                 "name": "Variable",
-                "line": 59,
+                "line": 62,
                 "column": 4,
                 "value": "product",
                 "children": []
               },
               {
                 "name": "None",
-                "line": 59,
+                "line": 62,
                 "column": 14,
                 "value": "None",
                 "children": []
@@ -1080,48 +1116,48 @@
           },
           {
             "name": "ForStatement",
-            "line": 60,
+            "line": 63,
             "column": 4,
             "children": [
               {
                 "name": "Variable",
-                "line": 60,
+                "line": 63,
                 "column": 13,
                 "value": "products",
                 "children": []
               },
               {
                 "name": "Block",
-                "line": 61,
+                "line": 64,
                 "column": 8,
                 "children": [
                   {
                     "name": "IfStatement",
-                    "line": 61,
+                    "line": 64,
                     "column": 8,
                     "children": [
                       {
                         "name": "Comparison",
-                        "line": 61,
+                        "line": 64,
                         "column": 11,
                         "value": "p['id'] == product_id",
                         "children": [
                           {
                             "name": "Index Access",
-                            "line": 61,
+                            "line": 64,
                             "column": 11,
                             "value": "p['id']",
                             "children": [
                               {
                                 "name": "Variable",
-                                "line": 61,
+                                "line": 64,
                                 "column": 11,
                                 "value": "p",
                                 "children": []
                               },
                               {
                                 "name": "String",
-                                "line": 61,
+                                "line": 64,
                                 "column": 13,
                                 "value": "'id'",
                                 "children": []
@@ -1130,7 +1166,7 @@
                           },
                           {
                             "name": "Variable",
-                            "line": 61,
+                            "line": 64,
                             "column": 22,
                             "value": "product_id",
                             "children": []
@@ -1139,24 +1175,24 @@
                       },
                       {
                         "name": "Block",
-                        "line": 62,
+                        "line": 65,
                         "column": 12,
                         "children": [
                           {
                             "name": "Assignment",
-                            "line": 62,
+                            "line": 65,
                             "column": 12,
                             "children": [
                               {
                                 "name": "Variable",
-                                "line": 62,
+                                "line": 65,
                                 "column": 12,
                                 "value": "product",
                                 "children": []
                               },
                               {
                                 "name": "Variable",
-                                "line": 62,
+                                "line": 65,
                                 "column": 22,
                                 "value": "p",
                                 "children": []
@@ -1165,7 +1201,7 @@
                           },
                           {
                             "name": "Break",
-                            "line": 63,
+                            "line": 66,
                             "column": 12,
                             "children": []
                           }
@@ -1179,24 +1215,24 @@
           },
           {
             "name": "Return",
-            "line": 65,
+            "line": 68,
             "column": 4,
             "children": [
               {
                 "name": "RenderTemplate",
-                "line": 65,
+                "line": 68,
                 "column": 11,
                 "value": "product_detail.html",
                 "children": [
                   {
                     "name": "Keyword_Argument",
-                    "line": 65,
+                    "line": 68,
                     "column": 50,
                     "value": "product=product",
                     "children": [
                       {
                         "name": "Variable",
-                        "line": 65,
+                        "line": 68,
                         "column": 58,
                         "value": "product",
                         "children": []
@@ -1211,25 +1247,25 @@
       },
       {
         "name": "IfStatement",
-        "line": 67,
+        "line": 70,
         "column": 0,
         "children": [
           {
             "name": "Comparison",
-            "line": 67,
+            "line": 70,
             "column": 3,
             "value": "__name__ == '__main__'",
             "children": [
               {
                 "name": "Variable",
-                "line": 67,
+                "line": 70,
                 "column": 3,
                 "value": "__name__",
                 "children": []
               },
               {
                 "name": "String",
-                "line": 67,
+                "line": 70,
                 "column": 15,
                 "value": "'__main__'",
                 "children": []
@@ -1238,29 +1274,29 @@
           },
           {
             "name": "Block",
-            "line": 68,
+            "line": 71,
             "column": 4,
             "children": [
               {
                 "name": "ExpressionStatement",
-                "line": 68,
+                "line": 71,
                 "column": 4,
                 "children": [
                   {
                     "name": "Function Call",
-                    "line": 68,
+                    "line": 71,
                     "column": 4,
                     "value": "app.run[debug=True, port=8080]",
                     "children": [
                       {
                         "name": "Keyword_Argument",
-                        "line": 68,
+                        "line": 71,
                         "column": 12,
                         "value": "debug=True",
                         "children": [
                           {
                             "name": "Boolean",
-                            "line": 68,
+                            "line": 71,
                             "column": 18,
                             "value": "True",
                             "children": []
@@ -1269,13 +1305,13 @@
                       },
                       {
                         "name": "Keyword_Argument",
-                        "line": 68,
+                        "line": 71,
                         "column": 24,
                         "value": "port=8080",
                         "children": [
                           {
                             "name": "NumberInteger",
-                            "line": 68,
+                            "line": 71,
                             "column": 29,
                             "value": "8080",
                             "children": []

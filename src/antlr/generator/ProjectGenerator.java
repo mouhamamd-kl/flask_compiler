@@ -13,6 +13,9 @@ import antlr.generator.python.PythonEvaluator;
 import antlr.generator.render.RenderedPage;
 import antlr.generator.render.RTRenderRequest;
 import antlr.runtime.values.RTValue;
+import antlr.semantic.SemanticError;
+import antlr.semantic.flask.FlaskProjectAnalyzer;
+import antlr.semantic.python.PythonSemanticAnalyzer;
 import antlr.symbol.SymbolTable;
 import antlr.visitor.ASTBuilder;
 import antlr.visitor.JinjaASTBuilder;
@@ -32,8 +35,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -72,6 +77,10 @@ public class ProjectGenerator {
     private List<RTRenderRequestLite> requests;
     private Map<String, String> urlToPage;
 
+    // symbol state from the last app.py parse, kept for incremental re-reports
+    private SymbolTable symbolTable;
+    private final List<String> pythonSemanticErrors = new ArrayList<>();
+
     public ProjectGenerator(GenerationLogWriter log) {
         this.log = log;
     }
@@ -108,6 +117,10 @@ public class ProjectGenerator {
                     SemanticReportWriter.write(parsed.symbolTable, parsed.semanticErrors), StandardCharsets.UTF_8);
             log.info("Wrote " + COMPILER_OUTPUT_DIR + "/semantic_report.txt");
 
+            symbolTable = parsed.symbolTable;
+            pythonSemanticErrors.clear();
+            pythonSemanticErrors.addAll(parsed.semanticErrors);
+
             if (!parsed.semanticErrors.isEmpty()) {
                 log.error("Semantic errors detected; HTML rendering aborted (artifacts were still written).");
                 parsed.semanticErrors.forEach(log::error);
@@ -133,6 +146,21 @@ public class ProjectGenerator {
                     StandardCharsets.UTF_8);
             log.info("Wrote " + COMPILER_OUTPUT_DIR + "/ast_jinja.json (" + templateRegistry.size()
                     + " template(s))");
+
+            // ---------- Phase C: template-variable semantic analysis ----------
+            log.section("PHASE C - Template variable analysis");
+            List<String> jinjaErrors = analyzeTemplateVariables();
+            Files.writeString(compilerOut("semantic_report.txt"),
+                    SemanticReportWriter.write(parsed.symbolTable, parsed.semanticErrors, jinjaErrors),
+                    StandardCharsets.UTF_8);
+            log.info("Wrote " + COMPILER_OUTPUT_DIR + "/semantic_report.txt");
+
+            if (!jinjaErrors.isEmpty()) {
+                log.error("Missing template variables detected; HTML rendering aborted (artifacts were still written).");
+                jinjaErrors.forEach(log::error);
+                finishLog(startMs);
+                return;
+            }
 
             // ---------- Phase D: render ----------
             log.section("PHASE D - Rendering templates");
@@ -203,6 +231,10 @@ public class ProjectGenerator {
         Files.writeString(compilerOut("semantic_report.txt"),
                 SemanticReportWriter.write(parsed.symbolTable, parsed.semanticErrors), StandardCharsets.UTF_8);
 
+        symbolTable = parsed.symbolTable;
+        pythonSemanticErrors.clear();
+        pythonSemanticErrors.addAll(parsed.semanticErrors);
+
         if (!parsed.semanticErrors.isEmpty()) {
             log.error("Semantic errors detected; HTML rendering aborted.");
             parsed.semanticErrors.forEach(log::error);
@@ -227,6 +259,20 @@ public class ProjectGenerator {
 
         Files.writeString(compilerOut("ast_jinja.json"), AstJsonWriter.templatesToJson(templateRegistry),
                 StandardCharsets.UTF_8);
+
+        // Template-variable semantic analysis
+        log.section("INCREMENTAL - Template variable analysis");
+        List<String> jinjaErrors = analyzeTemplateVariables();
+        Files.writeString(compilerOut("semantic_report.txt"),
+                SemanticReportWriter.write(parsed.symbolTable, parsed.semanticErrors, jinjaErrors),
+                StandardCharsets.UTF_8);
+
+        if (!jinjaErrors.isEmpty()) {
+            log.error("Missing template variables detected; HTML rendering aborted.");
+            jinjaErrors.forEach(log::error);
+            finishLog(startMs);
+            return;
+        }
 
         // Phase D: re-render all pages
         int rendered = renderAllPages();
@@ -256,6 +302,20 @@ public class ProjectGenerator {
 
         Files.writeString(compilerOut("ast_jinja.json"), AstJsonWriter.templatesToJson(templateRegistry),
                 StandardCharsets.UTF_8);
+
+        // Template-variable semantic analysis against the persisted app.py state
+        log.section("INCREMENTAL - Template variable analysis");
+        List<String> jinjaErrors = analyzeTemplateVariables();
+        Files.writeString(compilerOut("semantic_report.txt"),
+                SemanticReportWriter.write(symbolTable, pythonSemanticErrors, jinjaErrors),
+                StandardCharsets.UTF_8);
+
+        if (!jinjaErrors.isEmpty()) {
+            log.error("Missing template variables detected; HTML rendering aborted.");
+            jinjaErrors.forEach(log::error);
+            finishLog(startMs);
+            return;
+        }
 
         // Re-render all pages (template content may affect any page)
         int rendered = renderAllPages();
@@ -310,6 +370,28 @@ public class ProjectGenerator {
                     + (page.routeUrl() != null ? " (route: " + page.routeUrl() + ")" : ""));
         }
         return rendered;
+    }
+
+    /**
+     * Binds each render_template(...) request to its parsed template and
+     * returns MISSING_TEMPLATE_VARIABLE findings for variables the template
+     * references but no source (request kwargs, Jinja/Flask builtins, or the
+     * template itself) provides.
+     */
+    private List<String> analyzeTemplateVariables() {
+        List<String> errors = new ArrayList<>();
+        if (evaluation == null || requests == null) {
+            return errors;
+        }
+        for (RTRenderRequestLite req : requests) {
+            if (req.template == null) {
+                continue;
+            }
+            Set<String> provided = new LinkedHashSet<>(req.request.getContext().keySet());
+            String baseName = Paths.get(req.request.getTemplateName()).getFileName().toString();
+            errors.addAll(FlaskProjectAnalyzer.checkTemplate(req.template, baseName, provided));
+        }
+        return errors;
     }
 
     // ==================== layout ====================
@@ -387,8 +469,14 @@ public class ProjectGenerator {
         ASTBuilder builder = new ASTBuilder();
         ASTNode ast = builder.visit(tree);
         result.program = (ProgramNode) ast;
-        result.symbolTable = builder.getSymbolTable();
-        result.semanticErrors.addAll(builder.getSemanticErrors());
+
+        PythonSemanticAnalyzer analyzer = new PythonSemanticAnalyzer();
+        analyzer.setSourceName("app.py");
+        analyzer.analyze(result.program);
+        result.symbolTable = analyzer.getSymbolTable();
+        for (SemanticError semanticError : analyzer.getErrors()) {
+            result.semanticErrors.add(semanticError.format());
+        }
         log.info("app.py parsed successfully.");
     }
 

@@ -1,11 +1,17 @@
 ============================================================
   SEMANTIC ANALYSIS REPORT
-  Generated: 2026-08-27 13:16:49
+  Generated: 2026-08-30 15:15:34
 ============================================================
 
-[OK] No semantic errors detected.
+[ERROR] 1 semantic error(s) detected:
+   - app.py:6:11 [UNDEFINED_VARIABLE] - Semantic error: name 'extra_charge' is not defined
 
-SCOPE 'global' [38 symbols]
+------------------------------------------------------------
+  JINJA TEMPLATE ANALYSIS
+------------------------------------------------------------
+[OK] No missing template variables detected.
+
+SCOPE 'global' [42 symbols]
 - int : FUNCTION  @line 0:0
 - float : FUNCTION  @line 0:0
 - str : FUNCTION  @line 0:0
@@ -34,34 +40,42 @@ SCOPE 'global' [38 symbols]
 - id : FUNCTION  @line 0:0
 - hash : FUNCTION  @line 0:0
 - repr : FUNCTION  @line 0:0
-- Flask : IMPORT (flask)  @line 1:18
-- render_template : IMPORT (flask)  @line 1:25
-- request : IMPORT (flask)  @line 1:42
-- redirect : IMPORT (flask)  @line 1:51
-- url_for : IMPORT (flask)  @line 1:61
-- app : VARIABLE = Flask[__name__]  @line 3:0
-- products : VARIABLE = [["id":1, "name":"Laptop", "price":999.99, "details":"Hig...  @line 5:0
-- display_products : FUNCTION  @line 29:0
-- add_product : FUNCTION  @line 33:0
-- product_detail : FUNCTION  @line 57:0
+- __name__ : VARIABLE (str) = str  @line 0:0
+- __file__ : VARIABLE (str) = str  @line 0:0
+- __builtins__ : VARIABLE (unknown type) = unknown type  @line 0:0
+- Flask : IMPORT (flask)  @line 1:0
+- render_template : IMPORT (flask)  @line 1:0
+- request : IMPORT (flask)  @line 1:0
+- redirect : IMPORT (flask)  @line 1:0
+- url_for : IMPORT (flask)  @line 1:0
+- app : VARIABLE (unknown type) = unknown type  @line 3:0
+- discount : VARIABLE (float) = float  @line 6:0
+- products : VARIABLE (list) = list  @line 8:0
+- display_products : FUNCTION  @line 32:0
+- add_product : FUNCTION  @line 36:0
+- product_detail : FUNCTION  @line 60:0
 
 SCOPE 'function_display_products' [0 symbols]
 SCOPE 'function_add_product' [0 symbols]
 
-  SCOPE 'if_block_35' [6 symbols]
-    - name : VARIABLE = request.form['name']  @line 36:8
-    - price : VARIABLE = request.form['price']  @line 37:8
-    - details : VARIABLE = request.form['details']  @line 38:8
-    - image : VARIABLE = request.form['image']  @line 39:8
-    - new_id : VARIABLE = max[[p['id'] for p in products]] + 1  @line 41:8
-    - new_product : VARIABLE = ["id":new_id, "name":name, "price":float[price], "details...  @line 43:8
-SCOPE 'function_product_detail' [1 symbols]
-  - product : VARIABLE = None  @line 59:4
+  SCOPE 'if_block_38' [6 symbols]
+    - name : VARIABLE (unknown type) = unknown type  @line 2:0
+    - price : VARIABLE (unknown type) = unknown type  @line 2:0
+    - details : VARIABLE (unknown type) = unknown type  @line 2:0
+    - image : VARIABLE (unknown type) = unknown type  @line 2:0
+    - new_id : VARIABLE (int) = int  @line 2:0
+    - new_product : VARIABLE (dict) = dict  @line 2:0
 
-  SCOPE 'for_block_60' [0 symbols]
+    SCOPE 'comprehension_44' [1 symbols]
+      - p : VARIABLE (dict) = dict  @line 3:0
+SCOPE 'function_product_detail' [2 symbols]
+  - product_id : VARIABLE (unknown type) = unknown type  @line 1:0
+  - product : VARIABLE (dict) = dict  @line 1:0
 
-    SCOPE 'if_block_61' [1 symbols]
-      - product : VARIABLE = p  @line 62:12
-SCOPE 'if_block_67' [0 symbols]
+  SCOPE 'for_block_63' [1 symbols]
+    - p : VARIABLE (dict) = dict  @line 2:0
 
-Total symbols across all scopes: 46
+    SCOPE 'if_block_64' [0 symbols]
+SCOPE 'if_block_70' [0 symbols]
+
+Total symbols across all scopes: 52

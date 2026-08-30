@@ -1,10 +1,15 @@
 import antlr.ast.node.ASTNode;
+import antlr.ast.jinja2.TemplateNode;
+import antlr.ast.python.ProgramNode;
 import antlr.gen.jinja2.jinja2Lexer;
 import antlr.gen.jinja2.jinja2Parser;
 import antlr.gen.python.pythonLexer;
 import antlr.gen.python.pythonParser;
 import antlr.generator.GenerationLogWriter;
 import antlr.generator.ProjectGenerator;
+import antlr.semantic.SemanticError;
+import antlr.semantic.jinja.JinjaSemanticAnalyzer;
+import antlr.semantic.python.PythonSemanticAnalyzer;
 import antlr.serve.LiveApp;
 import antlr.serve.LiveServer;
 import antlr.symbol.SymbolTable;
@@ -100,6 +105,7 @@ public class Compiler {
                                             fresh.boot(appPy);
                                             server.setApp(fresh);
                                             System.out.println(Colors.TEAL + "✓ app.py reloaded (state reset)." + Colors.RESET);
+                                            server.reload();
                                         } catch (Exception e) {
                                             System.err.println(Colors.RED + "Reload failed: "
                                                     + e.getMessage() + Colors.RESET);
@@ -107,6 +113,7 @@ public class Compiler {
                                     } else {
                                         app.reloadTemplates();
                                         System.out.println(Colors.TEAL + "✓ templates reloaded." + Colors.RESET);
+                                        server.reload();
                                     }
                                     System.out.println(Colors.GRAY + "   Press Ctrl+C to stop" + Colors.RESET);
                                 }
@@ -161,7 +168,7 @@ public class Compiler {
             System.out.println("  java Main -w tests/flask/templates/products.html");
             System.out.println("  java Main --watch                            # Watch all tests");
             System.out.println("  java Main --watch tests/flask                # Watch specific directory");
-            System.out.println("  java Main serve                              # Serve tests/flask on :8080");
+            System.out.println("  java Main serve                              # Serve tests/flask on a random free port");
             System.out.println("  java Main serve 9000 tests/flask              # Serve on :9000");
         }
 
@@ -320,7 +327,7 @@ public class Compiler {
             // بدء الترجمة - Route based on file extension
             CompilationResult result;
             if (filePathStr.endsWith(".py")) {
-                result = compilePythonSource(sourceCode);
+                result = compilePythonSource(sourceCode, fileName);
             } else if (filePathStr.endsWith(".html")) {
                 result = compileJinjaSource(sourceCode);
             } else {
@@ -339,6 +346,10 @@ public class Compiler {
      * ترجمة كود Python
      */
     public CompilationResult compilePythonSource(String sourceCode) {
+        return compilePythonSource(sourceCode, null);
+    }
+
+    public CompilationResult compilePythonSource(String sourceCode, String sourceName) {
         CompilationResult result = new CompilationResult();
 
         try {
@@ -397,21 +408,30 @@ public class Compiler {
             ASTBuilder builder = new ASTBuilder();
             ASTNode ast = builder.visit(parseTree);
             result.ast = ast;
-            result.symbolTable = builder.getSymbolTable();
 
-            // جمع الأخطاء الدلالية
-            if (!builder.getSemanticErrors().isEmpty()) {
+            // ==================== Phase 4: Semantic Analysis ====================
+            printPhase(4, "Semantic Analysis");
+            PythonSemanticAnalyzer semanticAnalyzer = new PythonSemanticAnalyzer();
+            semanticAnalyzer.setSourceName(sourceName);
+            if (result.ast instanceof ProgramNode program) {
+                semanticAnalyzer.analyze(program);
+            }
+            result.symbolTable = semanticAnalyzer.getSymbolTable();
+
+            for (SemanticError semanticError : semanticAnalyzer.getErrors()) {
+                result.errors.add(semanticError.format());
+            }
+            if (!result.errors.isEmpty()) {
                 result.success = false;
-                result.errors.addAll(builder.getSemanticErrors());
                 return result;
             }
 
-            // ==================== Phase 4: Print AST ====================
+            // ==================== Phase 5: Print AST ====================
             System.out.println("\n" + Colors.TEAL + "🌳 Abstract Syntax Tree:" + Colors.RESET);
             ASTPrinter printer = new ASTPrinter(configs.hideWhitespace);
             printer.print(ast);
 
-            // ==================== Phase 5: Symbol Table ====================
+            // ==================== Phase 6: Symbol Table ====================
             System.out.println("\n" + Colors.TEAL + "📋 Symbol Table:" + Colors.RESET);
             result.symbolTable.printAll();
 
@@ -482,12 +502,20 @@ public class Compiler {
             ASTNode ast = builder.visit(parseTree);
             result.ast = ast;
 
-            // ==================== Phase 4: Print AST ====================
+            // ==================== Phase 4: Semantic Analysis ====================
+            printPhase(4, "Semantic Analysis");
+            JinjaSemanticAnalyzer jinjaAnalyzer = new JinjaSemanticAnalyzer();
+            jinjaAnalyzer.analyze((TemplateNode) ast);
+            // Standalone template compile runs leniently (no supplying render
+            // site): missing-variable detection only fires in Flask generate mode.
+
+            // ==================== Phase 5: Print AST ====================
             System.out.println("\n" + Colors.TEAL + "🌳 Abstract Syntax Tree:" + Colors.RESET);
             ASTPrinter printer = new ASTPrinter(configs.hideWhitespace);
             printer.print(ast);
 
-            // Note: JinjaASTBuilder doesn't have a symbol table
+            // Note: JinjaASTBuilder doesn't build a symbol table; the matching
+            // Flask-provided names are analysed by FlaskProjectAnalyzer.
 
             result.success = true;
 
