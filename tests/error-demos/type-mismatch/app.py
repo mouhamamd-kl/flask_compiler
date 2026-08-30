@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
+# --- injected: TYPE_MISMATCH ---
+badge = "Level " + 3
+
 products = [
     {
         "id": 1,
