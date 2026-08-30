@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
-break;
+
 products = [
     {
         "id": 1,
@@ -28,7 +28,7 @@ products = [
 
 @app.route('/')
 def display_products():
-    return render_template('products.html', products=products)
+    return render_template('products.html')
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_product():

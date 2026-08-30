@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -140,6 +141,22 @@ public class LiveServer {
             Response r = new Response(405, "Method Not Allowed", "text/plain");
             r.header("Allow", "GET, POST");
             send(exchange, r);
+        } catch (Throwable t) {
+            try {
+                String m = t.getClass().getSimpleName()
+                        + (t.getMessage() != null ? ": " + t.getMessage() : "");
+                log.error("Unhandled server error: " + m);
+                LiveApp live = app.get();
+                if (live != null) {
+                    send(exchange, live.errorPage(new ErrorInfo("Internal server error",
+                            List.of(new ErrorIssue(null, 0, 0, "internal", m)),
+                            List.of("server"))));
+                } else {
+                    send(exchange, new Response(500, "Internal server error: " + m, "text/plain"));
+                }
+            } catch (Throwable ignored) {
+                // The exchange is already broken; nothing left to do.
+            }
         } finally {
             exchange.close();
         }

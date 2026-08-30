@@ -72,8 +72,11 @@ import antlr.runtime.values.RTUndefined;
 import antlr.runtime.values.RTValue;
 import antlr.visitor.ASTBuilder;
 import antlr.visitor.JinjaASTBuilder;
+import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.IOException;
@@ -111,6 +114,30 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
         @Override public String typeName() { return "Response"; }
     }
 
+    /** ANTLR error collector: records syntax errors instead of printing to stderr. */
+    private static final class CollectingErrors extends BaseErrorListener {
+        final List<String> collected = new ArrayList<>();
+        final List<Raw> raw = new ArrayList<>();
+
+        @Override
+        public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
+                                int charPositionInLine, String msg, RecognitionException e) {
+            collected.add(String.format("Line %d:%d - %s", line, charPositionInLine, msg));
+            raw.add(new Raw(line, charPositionInLine, msg));
+        }
+
+        static final class Raw {
+            final int line;
+            final int column;
+            final String message;
+            Raw(int line, int column, String message) {
+                this.line = line;
+                this.column = column;
+                this.message = message;
+            }
+        }
+    }
+
     // ==================== state ====================
     private final GenerationLogWriter log;
     private final EvaluatorContext ctx;
@@ -123,7 +150,13 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
     private final Map<String, TemplateNode> templateRegistry = new LinkedHashMap<>();
     private final JinjaRenderer renderer;
     private final List<Route> routes = new ArrayList<>();
+    private final Map<String, List<ErrorIssue>> templateErrors = new LinkedHashMap<>();
+    private final Map<String, int[]> functionLocs = new LinkedHashMap<>();
 
+    private List<String> bootErrors;
+    private List<ErrorIssue> bootIssues;
+
+    private List<String> requestTrace;
     private Request currentRequest;
     private LiveResponse pendingResponse;
     private ProgramNode program;
@@ -176,31 +209,96 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
     }
 
     // ==================== lifecycle ====================
-    public void boot(Path appPy) throws IOException {
-        String source = Files.readString(appPy, StandardCharsets.UTF_8);
-        pythonLexer lexer = new pythonLexer(CharStreams.fromString(source));
-        lexer.removeErrorListeners();
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        pythonParser parser = new pythonParser(tokens);
-        parser.removeErrorListeners();
-        ParseTree tree = parser.root();
-        ASTBuilder builder = new ASTBuilder();
-        ASTNode ast = builder.visit(tree);
-        this.program = (ProgramNode) ast;
-
-        PythonSemanticAnalyzer semantics = new PythonSemanticAnalyzer();
-        semantics.setSourceName("app.py");
-        semantics.analyze(this.program);
-        for (SemanticError err : semantics.getErrors()) {
-            log.error(err.format());
+    /**
+     * Boot the app from app.py. Never throws: parse / semantic / boot-execution
+     * problems are recorded into {@link #bootErrors} and surfaced as an error
+     * page by {@link #handle} instead of killing the server.
+     */
+    public void boot(Path appPy) {
+        bootErrors = null;
+        bootIssues = new ArrayList<>();
+        ProgramNode prog = null;
+        try {
+            String source = Files.readString(appPy, StandardCharsets.UTF_8);
+            pythonLexer lexer = new pythonLexer(CharStreams.fromString(source));
+            CollectingErrors syntax = new CollectingErrors();
+            lexer.removeErrorListeners();
+            lexer.addErrorListener(syntax);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            pythonParser parser = new pythonParser(tokens);
+            parser.removeErrorListeners();
+            parser.addErrorListener(syntax);
+            ParseTree tree = parser.root();
+            for (CollectingErrors.Raw r : syntax.raw) {
+                bootIssues.add(new ErrorIssue("app.py", r.line, r.column, "syntax", r.message));
+            }
+            ASTBuilder builder = new ASTBuilder();
+            ASTNode ast = builder.visit(tree);
+            if (ast == null) {
+                bootIssues.add(new ErrorIssue("app.py", 0, 0, "abort",
+                        "could not build a program from the parse tree."));
+            } else {
+                prog = (ProgramNode) ast;
+            }
+        } catch (Exception e) {
+            bootIssues.add(new ErrorIssue("app.py", 0, 0, "abort",
+                    "parse failed: " + e.getClass().getSimpleName()
+                            + (e.getMessage() != null ? " - " + e.getMessage() : "")));
         }
 
-        scopes.push();
-        scopes.peek().put("__name__", new RTString("__main__"));
-        for (StatementNode st : program.getStatements()) {
-            execStatement(st);
+        if (prog != null) {
+            PythonSemanticAnalyzer semantics = new PythonSemanticAnalyzer();
+            semantics.setSourceName("app.py");
+            semantics.analyze(prog);
+            for (SemanticError err : semantics.getErrors()) {
+                bootIssues.add(new ErrorIssue(
+                        err.getSourceName() != null ? err.getSourceName() : "app.py",
+                        err.getLine(), err.getColumn(),
+                        err.getCode() != null ? err.getCode().name() : "semantic",
+                        err.getMessage()));
+            }
+        }
+
+        this.program = prog;
+        if (prog != null) {
+            scopes.push();
+            scopes.peek().put("__name__", new RTString("__main__"));
+            int execLine = 0;
+            try {
+                for (StatementNode st : program.getStatements()) {
+                    execLine = st.getLineNumber();
+                    execStatement(st);
+                }
+            } catch (EvalSignal signal) {
+                String kind = signal instanceof BreakSignal ? "break"
+                        : signal instanceof ContinueSignal ? "continue" : "return";
+                bootIssues.add(new ErrorIssue("app.py", execLine, 0, "abort",
+                        "boot aborted: stray '" + kind + "' at module level."));
+            } catch (Exception e) {
+                bootIssues.add(new ErrorIssue("app.py", execLine, 0, "abort",
+                        "boot aborted: " + e.getClass().getSimpleName()
+                                + (e.getMessage() != null ? " - " + e.getMessage() : "")));
+            }
+        }
+
+        if (!bootIssues.isEmpty()) {
+            bootErrors = new ArrayList<>();
+            for (ErrorIssue issue : bootIssues) {
+                String line = issue.toString();
+                bootErrors.add(line);
+                log.error(line);
+            }
         }
         log.info("Live app booted: " + routes.size() + " routes registered.");
+    }
+
+    /** True when app.py failed to parse / analyze / boot cleanly. */
+    public boolean hasBootErrors() {
+        return bootErrors != null && !bootErrors.isEmpty();
+    }
+
+    public int bootErrorCount() {
+        return bootErrors == null ? 0 : bootErrors.size();
     }
 
     // ==================== request handling ====================
@@ -210,8 +308,15 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
      */
     public Response handle(String method, String path,
                            Map<String, RTValue> form, Map<String, RTValue> args) {
+        this.requestTrace = new ArrayList<>(List.of(method + " " + path));
         this.currentRequest = new Request(method, path, form, args);
         this.pendingResponse = null;
+        if (hasBootErrors()) {
+            List<String> trace = traceSnapshot();
+            trace.add("→ boot aborted (app.py did not start)");
+            return errorPage(new ErrorInfo("Python errors in app.py",
+                    bootIssues == null ? List.of() : bootIssues, trace));
+        }
         try {
             for (Route route : routes) {
                 String captured = route.match(path);
@@ -223,7 +328,20 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
                     r.header("Allow", String.join(", ", route.methods));
                     return r;
                 }
-                RTValue result = invokeHandler(route, captured);
+                trace("→ python/" + route.handlerName);
+                RTValue result;
+                try {
+                    result = invokeHandler(route, captured);
+                } catch (RuntimeException e) {
+                    int[] loc = functionLocs.get(route.handlerName);
+                    ErrorIssue issue = new ErrorIssue("app.py",
+                            loc != null ? loc[0] : 0, loc != null ? loc[1] : 0,
+                            "runtime", e.getClass().getSimpleName()
+                                    + (e.getMessage() != null ? ": " + e.getMessage() : ""));
+                    log.error("Handler '" + route.handlerName + "' threw " + issue.message());
+                    return errorPage(new ErrorInfo("Runtime error in " + route.handlerName,
+                            List.of(issue), traceSnapshot()));
+                }
                 if (result instanceof LiveResponse live) {
                     return live.response;
                 }
@@ -237,6 +355,7 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
         } finally {
             this.currentRequest = null;
             this.pendingResponse = null;
+            this.requestTrace = null;
         }
     }
 
@@ -291,13 +410,15 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
 
     private LiveResponse renderTemplate(List<ExpressionNode> argExprs, int line) {
         if (argExprs.isEmpty()) {
-            return new LiveResponse(new Response(500, "render_template() requires a template name.", "text/plain"));
+            return new LiveResponse(errorPage(new ErrorInfo("render_template() error",
+                    List.of(new ErrorIssue(null, 0, 0, "internal",
+                            "render_template() requires a template name.")),
+                    traceSnapshot())));
         }
         String templateName = eval(argExprs.get(0)).toDisplayString();
         TemplateNode template = loadTemplate(templateName, line);
         if (template == null) {
-            return new LiveResponse(new Response(500,
-                    "Template '" + templateName + "' not found.", "text/plain"));
+            return new LiveResponse(errorPage(templateErrorInfo(templateName)));
         }
         LinkedHashMap<String, RTValue> renderCtx = new LinkedHashMap<>();
         for (int i = 1; i < argExprs.size(); i++) {
@@ -305,11 +426,35 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
             String name = e instanceof KeywordArgumentNode kw ? kw.getName() : "arg" + i;
             renderCtx.put(name, eval(e instanceof KeywordArgumentNode kw2 ? kw2.getValue() : e));
         }
-        LiveResponse blocked = missingVariableResponse(template, templateName, renderCtx);
-        if (blocked != null) {
-            return blocked;
+        return render(template, templateName, renderCtx);
+    }
+
+    private LiveResponse render(TemplateNode template, String templateName,
+                                LinkedHashMap<String, RTValue> renderCtx) {
+        List<ErrorIssue> missing = checkMissingVariables(template, templateName, renderCtx);
+        if (!missing.isEmpty()) {
+            for (ErrorIssue issue : missing) {
+                log.error(issue.toString());
+            }
+            trace("→ render_template(\"" + templateName + "\")");
+            String page;
+            try {
+                page = renderer.render(template, templateName, renderCtx);
+            } catch (Exception e) {
+                return new LiveResponse(errorPage(renderErrorInfo(templateName, e)));
+            }
+            return new LiveResponse(new Response(500,
+                    ErrorOverlay.inject(page, new ErrorInfo(
+                            "Missing template variables — " + templateName, missing, traceSnapshot()),
+                            projectRoot),
+                    "text/html; charset=utf-8"));
         }
-        return new LiveResponse(Response.ok(renderer.render(template, templateName, renderCtx), "text/html; charset=utf-8"));
+        try {
+            return new LiveResponse(Response.ok(renderer.render(template, templateName, renderCtx),
+                    "text/html; charset=utf-8"));
+        } catch (Exception e) {
+            return new LiveResponse(errorPage(renderErrorInfo(templateName, e)));
+        }
     }
 
     private Response redirect(List<ExpressionNode> argExprs, int line) {
@@ -415,21 +560,52 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
             return templateRegistry.get(baseName);
         }
         Path file = templatesDir.resolve(baseName);
+        String source;
         try {
-            String source = Files.readString(file, StandardCharsets.UTF_8);
-            jinja2Lexer lexer = new jinja2Lexer(CharStreams.fromString(source));
-            lexer.removeErrorListeners();
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
-            jinja2Parser parser = new jinja2Parser(tokens);
-            parser.removeErrorListeners();
-            ParseTree tree = parser.template();
+            source = Files.readString(file, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            String m = "templates/" + baseName + ": " + e.getMessage();
+            log.error(m);
+            templateErrors.put(baseName,
+                    List.of(new ErrorIssue("templates/" + baseName, 0, 0, "template", m)));
+            templateRegistry.put(baseName, null);
+            return null;
+        }
+        jinja2Lexer lexer = new jinja2Lexer(CharStreams.fromString(source));
+        CollectingErrors syntax = new CollectingErrors();
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(syntax);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        jinja2Parser parser = new jinja2Parser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(syntax);
+        ParseTree tree = parser.template();
+        if (!syntax.collected.isEmpty()) {
+            List<ErrorIssue> issues = new ArrayList<>();
+            for (CollectingErrors.Raw r : syntax.raw) {
+                String m = "templates/" + baseName + ":Line " + r.line + ":" + r.column + " - " + r.message;
+                issues.add(new ErrorIssue("templates/" + baseName, r.line, r.column,
+                        "template syntax", r.message));
+                log.error(m);
+            }
+            templateErrors.put(baseName, issues);
+            templateRegistry.put(baseName, null);
+            return null;
+        }
+        try {
             JinjaASTBuilder builder = new JinjaASTBuilder();
             TemplateNode node = (TemplateNode) builder.visit(tree);
             templateRegistry.put(baseName, node);
+            templateErrors.remove(baseName);
             log.info("Loaded template '" + baseName + "'.");
             return node;
         } catch (Exception e) {
-            log.error("Could not load template '" + baseName + "': " + e.getMessage());
+            String m = "templates/" + baseName + ": "
+                    + e.getClass().getSimpleName()
+                    + (e.getMessage() != null ? " - " + e.getMessage() : "");
+            log.error(m);
+            templateErrors.put(baseName,
+                    List.of(new ErrorIssue("templates/" + baseName, 0, 0, "template", m)));
             templateRegistry.put(baseName, null);
             return null;
         }
@@ -438,8 +614,8 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
     public void reloadTemplates() {
         List<String> names = new ArrayList<>(templateRegistry.keySet());
         templateRegistry.clear();
+        templateErrors.clear();
         for (String name : names) {
-            templateRegistry.remove(name);
             loadTemplate(name, 0);
         }
     }
@@ -613,6 +789,7 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
         RTFunction fn = new RTFunction(node, routePath);
         functions.put(fn.name, fn);
         scopes.peek().put(fn.name, fn);
+        functionLocs.put(fn.name, new int[]{node.getLineNumber(), node.getColumnNumber()});
         if (routePath != null) {
             routes.add(new Route(fn.name, routePath, extractRouteMethods(node)));
             log.info("Registered route " + routePath + " -> " + fn.name);
@@ -870,38 +1047,65 @@ public class LiveApp extends ASTVisitorAdapter<RTValue> {
     private LiveResponse renderTemplate(String templateName, List<KeywordArgumentNode> kwNodes, int line) {
         TemplateNode template = loadTemplate(templateName, line);
         if (template == null) {
-            return new LiveResponse(new Response(500,
-                    "Template '" + templateName + "' not found.", "text/plain"));
+            return new LiveResponse(errorPage(templateErrorInfo(templateName)));
         }
         LinkedHashMap<String, RTValue> renderCtx = new LinkedHashMap<>();
         for (KeywordArgumentNode kw : kwNodes) {
             renderCtx.put(kw.getName(), eval(kw.getValue()));
         }
-        LiveResponse blocked = missingVariableResponse(template, templateName, renderCtx);
-        if (blocked != null) {
-            return blocked;
-        }
-        return new LiveResponse(Response.ok(renderer.render(template, templateName, renderCtx), "text/html; charset=utf-8"));
+        return render(template, templateName, renderCtx);
     }
 
-    // ==================== template variable analysis ====================
-    private LiveResponse missingVariableResponse(TemplateNode template, String templateName,
-                                                 LinkedHashMap<String, RTValue> renderCtx) {
-        List<String> missing = FlaskProjectAnalyzer.checkTemplate(template, baseName(templateName), renderCtx.keySet());
-        if (missing.isEmpty()) {
-            return null;
-        }
+    // ==================== error pages (overlay UI) ====================
+    private static final java.util.regex.Pattern MISSING_VAR_PATTERN = java.util.regex.Pattern.compile(
+            "^(.+):(\\d+):(\\d+)\\s+\\[MISSING_TEMPLATE_VARIABLE\\]\\s*-\\s*Semantic error:\\s*(.*)$");
+
+    /** Full-page 500 error rendered with the Vite/Flask-style overlay UI. */
+    Response errorPage(ErrorInfo info) {
+        return new Response(500, ErrorOverlay.fullPage(info, projectRoot), "text/html; charset=utf-8");
+    }
+
+    private ErrorInfo templateErrorInfo(String templateName) {
+        List<ErrorIssue> issues = templateErrors.getOrDefault(baseName(templateName),
+                List.of(new ErrorIssue("templates/" + templateName, 0, 0, "template",
+                        "Template '" + templateName + "' not found.")));
+        return new ErrorInfo("Template error: " + templateName, issues, traceSnapshot());
+    }
+
+    private ErrorInfo renderErrorInfo(String templateName, Exception e) {
+        String m = "templates/" + templateName + ": render failed: " + e.getClass().getSimpleName()
+                + (e.getMessage() != null ? " - " + e.getMessage() : "");
+        log.error(m);
+        return new ErrorInfo("Template render error: " + templateName,
+                List.of(new ErrorIssue("templates/" + templateName, 0, 0, "runtime", m)),
+                traceSnapshot());
+    }
+
+    private List<ErrorIssue> checkMissingVariables(TemplateNode template, String templateName,
+                                                   LinkedHashMap<String, RTValue> renderCtx) {
+        List<String> missing = FlaskProjectAnalyzer.checkTemplate(
+                template, baseName(templateName), renderCtx.keySet());
+        List<ErrorIssue> issues = new ArrayList<>();
         for (String m : missing) {
-            log.error(m);
+            java.util.regex.Matcher mat = MISSING_VAR_PATTERN.matcher(m);
+            if (mat.matches()) {
+                issues.add(new ErrorIssue(mat.group(1), Integer.parseInt(mat.group(2)),
+                        Integer.parseInt(mat.group(3)), "template", mat.group(4)));
+            } else {
+                issues.add(new ErrorIssue("templates/" + templateName, 0, 0, "template", m));
+            }
         }
-        StringBuilder page = new StringBuilder(
-                "<!DOCTYPE html><html><meta charset=\"utf-8\"><body style=\"font-family:monospace\">"
-                        + "<h2>500 — Missing template variables</h2><pre>");
-        for (String m : missing) {
-            page.append(m).append("\n");
+        return issues;
+    }
+
+    private List<String> traceSnapshot() {
+        return requestTrace == null ? new ArrayList<>() : new ArrayList<>(requestTrace);
+    }
+
+    private void trace(String frame) {
+        if (requestTrace != null) {
+            requestTrace.add(frame);
         }
-        page.append("</pre></body></html>");
-        return new LiveResponse(new Response(500, page.toString(), "text/html; charset=utf-8"));
     }
 
     private static String baseName(String templateName) {

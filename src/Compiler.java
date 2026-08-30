@@ -117,7 +117,14 @@ public class Compiler {
                                             LiveApp fresh = new LiveApp(log, dir);
                                             fresh.boot(appPy);
                                             server.setApp(fresh);
-                                            System.out.println(Colors.TEAL + "✓ app.py reloaded (state reset)." + Colors.RESET);
+                                            if (fresh.hasBootErrors()) {
+                                                System.err.println(Colors.RED + "⚠ app.py has "
+                                                        + fresh.bootErrorCount() + " error(s); serving the error page."
+                                                        + Colors.RESET);
+                                            } else {
+                                                System.out.println(Colors.TEAL + "✓ app.py reloaded (state reset)."
+                                                        + Colors.RESET);
+                                            }
                                             server.reload();
                                         } catch (Exception e) {
                                             System.err.println(Colors.RED + "Reload failed: "
