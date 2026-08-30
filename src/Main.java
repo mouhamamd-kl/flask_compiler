@@ -6,11 +6,11 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        String testsDir = "tests/flask";
+        String testsDir = "tests/error-demos/undefined-variable/";
         Compiler.Configs configs = new Compiler.Configs();
 
         if (args.length > 0 && (args[0].equals("serve") || args[0].equals("-S"))) {
-            int port = 8080;
+            int port = 0;
             String target = testsDir;
             for (int i = 1; i < args.length; i++) {
                 if (args[i].matches("\\d+")) {

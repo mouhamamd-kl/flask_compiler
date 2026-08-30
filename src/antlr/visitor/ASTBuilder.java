@@ -16,40 +16,11 @@ import antlr.ast.python.parameters.*;
 import antlr.ast.python.statements.*;
 import antlr.gen.python.pythonParser;
 import antlr.gen.python.pythonParserBaseVisitor;
-import antlr.semantic.Builtins;
-import antlr.symbol.Symbol;
-import antlr.symbol.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
-
-    // جدول الرموز
-    private final SymbolTable symbolTable;
-    private SymbolTable currentScope;
-
-    // أخطاء التحليل الدلالي
-    private final List<String> semanticErrors = new ArrayList<>();
-
-    public ASTBuilder() {
-        this.symbolTable = new SymbolTable();
-        this.currentScope = symbolTable;
-        Builtins.defineIn(symbolTable);
-    }
-
-    public SymbolTable getSymbolTable() {
-        return symbolTable;
-    }
-
-    // ==================== الأخطاء الدلالية ====================
-    public List<String> getSemanticErrors() {
-        return semanticErrors;
-    }
-
-    private void reportSemanticError(int line, int col, String message) {
-        semanticErrors.add(String.format("Line %d:%d - Semantic error: %s", line, col, message));
-    }
 
     // ==================== ROOT ====================
     @Override
@@ -81,13 +52,6 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
 
         ExpressionNode targetNode = (ExpressionNode) visit(ctx.target);
         ExpressionNode valueNode = (ExpressionNode) visit(ctx.value);
-
-        if (targetNode instanceof VariableNode) {
-            String varName = ((VariableNode) targetNode).getName();
-            Symbol symbol = new Symbol(varName, Symbol.SymbolType.VARIABLE, line, col);
-            symbol.setValue(valueNode.toValueString());
-            currentScope.define(symbol);
-        }
 
         return new AssignmentNode(targetNode, valueNode, line, col);
     }
@@ -145,13 +109,6 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
                     classCtx.getStart().getLine(),
                     classCtx.getStart().getCharPositionInLine());
             importStmt.addImportedClass(classNode);
-
-            // تعريف الاسم المستورد كرمز في النطاق الحالي
-            Symbol importedSymbol = new Symbol(className, Symbol.SymbolType.IMPORT,
-                    classCtx.getStart().getLine(),
-                    classCtx.getStart().getCharPositionInLine());
-            importedSymbol.setDataType(moduleName);
-            currentScope.define(importedSymbol);
         }
 
         return importStmt;
@@ -187,9 +144,7 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
         ExpressionNode mainCondition = (ExpressionNode) visit(conditions.getFirst());
 
         // If block
-        currentScope = currentScope.enterScope("if_block_" + line);
         BlockNode ifBlock = (BlockNode) visit(blocks.getFirst());
-        currentScope = currentScope.exitScope();
 
         // Elif conditions and blocks
         List<ExpressionNode> elifConditions = new ArrayList<>();
@@ -200,18 +155,14 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
             ExpressionNode elifCond = (ExpressionNode) visit(conditions.get(i + 1));
             elifConditions.add(elifCond);
 
-            currentScope = currentScope.enterScope("elif_block_" + line + "_" + i);
             BlockNode elifBlock = (BlockNode) visit(blocks.get(i + 1));
-            currentScope = currentScope.exitScope();
             elifBlocks.add(elifBlock);
         }
 
         // Else block (if exists)
         BlockNode elseBlock = null;
         if (blocks.size() > conditions.size()) {
-            currentScope = currentScope.enterScope("else_block_" + line);
             elseBlock = (BlockNode) visit(blocks.getLast());
-            currentScope = currentScope.exitScope();
         }
 
         return new IfStatementNode(mainCondition, ifBlock,
@@ -233,9 +184,7 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
         String target = ctx.target.getText();
         ExpressionNode iterable = (ExpressionNode) visit(ctx.iterable);
 
-        currentScope = currentScope.enterScope("for_block_" + line);
         BlockNode body = (BlockNode) visit(ctx.block());
-        currentScope = currentScope.exitScope();
 
         return new ForStatementNode(target, iterable, body, line, col);
     }
@@ -252,9 +201,7 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
 
         ExpressionNode condition = (ExpressionNode) visit(ctx.condition());
 
-        currentScope = currentScope.enterScope("while_block_" + line);
         BlockNode body = (BlockNode) visit(ctx.block());
-        currentScope = currentScope.exitScope();
 
         return new WhileStatementNode(condition, body, line, col);
     }
@@ -355,13 +302,6 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
             }
         }
 
-        // تعريف اسم الصنف كرمز في النطاق الحالي
-        Symbol classSymbol = new Symbol(className, Symbol.SymbolType.VARIABLE, line, col);
-        classSymbol.setDataType("class");
-        currentScope.define(classSymbol);
-
-        currentScope = currentScope.enterScope("class_" + className);
-
         // Class body
         for (pythonParser.StatementContext stmtCtx : ctx.classDefinition().block().statement()) {
             ASTNode stmtNode = visit(stmtCtx);
@@ -369,7 +309,6 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
                 definitionNode.addStatement((StatementNode) stmtNode);
             }
         }
-        currentScope = currentScope.exitScope();
 
         return definitionNode;
     }
@@ -378,6 +317,7 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
     public ASTNode visitFunctionDef(pythonParser.FunctionDefContext ctx) {
         int line = ctx.getStart().getLine();
         int col = ctx.getStart().getCharPositionInLine();
+        // اسم الدالة - التسمية فقط
         String functionName = ctx.NAME().getText();
         FunctionDefinitionNode definitionNode = new FunctionDefinitionNode(functionName, line, col);
 
@@ -388,11 +328,6 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
                 definitionNode.addDecorator(dec);
             }
         }
-
-        // تعريف اسم الدالة كرمز في النطاق الحالي
-        currentScope.define(functionName, Symbol.SymbolType.FUNCTION, line, col);
-
-        currentScope = currentScope.enterScope("function_" + functionName);
 
         // Function body
         for (pythonParser.StatementContext stmtCtx : ctx.block().statement()) {
@@ -443,7 +378,6 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
                 definitionNode.addParameter(paramNode);
             }
         }
-        currentScope = currentScope.exitScope();
 
         return definitionNode;
     }
@@ -710,17 +644,11 @@ public class ASTBuilder extends pythonParserBaseVisitor<ASTNode> {
             node.addParameter(arg);
         }
 
-        // التحقق الدلالي: الدالة المستدعاة يجب أن تكون معرفة أو مستوردة
+        // استدعاء خاص لـ render_template
         if (callee instanceof VariableNode varCallee) {
             String calleeName = varCallee.getName();
-            Symbol resolved = currentScope.resolve(calleeName);
-            if (resolved == null) {
-                reportSemanticError(line, col,
-                        "'" + calleeName + "' is not defined (is it imported or declared?)");
-                return node;
-            }
 
-            // استدعاء خاص لـ render_template
+            // تحويل استدعاء render_template إلى عقدة متخصصة
             if ("render_template".equals(calleeName)) {
                 List<ExpressionNode> parameters = node.getParameters();
                 if (!parameters.isEmpty()
