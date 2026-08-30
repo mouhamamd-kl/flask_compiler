@@ -10,6 +10,7 @@ import antlr.generator.ProjectGenerator;
 import antlr.semantic.SemanticError;
 import antlr.semantic.jinja.JinjaSemanticAnalyzer;
 import antlr.semantic.python.PythonSemanticAnalyzer;
+import antlr.serve.DefaultBrowsers;
 import antlr.serve.LiveApp;
 import antlr.serve.LiveServer;
 import antlr.symbol.SymbolTable;
@@ -36,6 +37,7 @@ public class Compiler {
         public boolean serveMode = false;
         public int servePort = 8080;
         public String serveTarget = null;
+        public boolean openBrowser = true;
     }
 
     public Compiler(Configs configs) {
@@ -78,6 +80,17 @@ public class Compiler {
             app.boot(appPy);
             LiveServer server = new LiveServer(app, log, dir, port);
             server.start();
+
+            if (configs.openBrowser) {
+                String url = "http://localhost:" + server.port() + "/";
+                if (DefaultBrowsers.openDefaultBrowser(url)) {
+                    System.out.println(Colors.TEAL + "▶ Opening " + Colors.LIGHT + url
+                            + Colors.RESET + " in your default browser…");
+                } else {
+                    System.out.println(Colors.GRAY + "→ Open " + Colors.LIGHT + url
+                            + Colors.RESET + " manually in your browser.");
+                }
+            }
 
             DirectoryWatcher watcher = DirectoryWatcher.builder()
                     .path(dir)
@@ -170,6 +183,7 @@ public class Compiler {
             System.out.println("  java Main --watch tests/flask                # Watch specific directory");
             System.out.println("  java Main serve                              # Serve tests/flask on a random free port");
             System.out.println("  java Main serve 9000 tests/flask              # Serve on :9000");
+            System.out.println("  java Main serve --no-browser tests/flask      # Serve without auto-opening the browser");
         }
 
         // Start watcher if in watch mode

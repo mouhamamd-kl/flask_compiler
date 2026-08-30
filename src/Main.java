@@ -13,7 +13,9 @@ public class Main {
             int port = 0;
             String target = testsDir;
             for (int i = 1; i < args.length; i++) {
-                if (args[i].matches("\\d+")) {
+                if (args[i].equals("--no-browser") || args[i].equals("-b")) {
+                    configs.openBrowser = false;
+                } else if (args[i].matches("\\d+")) {
                     port = Integer.parseInt(args[i]);
                 } else {
                     target = args[i];
